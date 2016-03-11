@@ -9,12 +9,16 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
+//MongoDB
+var db = require('./databases/mongoose');
+
 var app = express();
 
 // all environments
 app.set('port', process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+app.set('views', __dirname + '/public/views');
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
@@ -28,6 +32,7 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
+app.get('/ehr', routes.ehr);
 app.get('/users', user.list);
 
 http.createServer(app).listen(app.get('port'), function(){

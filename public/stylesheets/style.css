@@ -1,8 +1,238 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+body 
+{
+  height:100%;
+  padding: 10px;
+  font: 1em "Lucida Grande", Helvetica, Arial, sans-serif;
+  
 }
 
-a {
-  color: #00B7FF;
+#horizontal {
+  height:100%;
+  display: flex;
+  flex-wrap: wrap;  
+	
 }
+
+h2 { 
+	text-align: center; 
+	background-color: #81D4FA;
+	padding: 5px;
+}
+
+#contents {	flex:1;}
+#formContact { text-align: center;}
+
+p { 
+	margin: 5px;
+	padding: 5px;
+	text-align: left 
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------- Patient Data ---------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+img { vertical-align: middle; }
+
+#patient {
+	border: 3px solid #039BE5; /* dark blue */
+	border-radius: 5px;
+}
+
+#patientSummary {
+	background-color: #039BE5; /* dark blue */
+	color: white;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;    
+    align-items: center;
+    margin: 0px;
+	padding: 5px;
+}
+
+#patientData {
+	background-color: white;
+    margin: 0px;
+	padding: 5px;
+}
+
+.patientInfo { margin-left: 5px;}
+
+.dataCard {
+	background-color: #B3E5FC; /* light blue */
+	border: 1px solid #B3E5FC; /* dark blue */
+	border-radius: 5px;
+	padding: 2px;
+	margin: 5px;
+}
+
+.cardContent {
+	background-color: white; 
+}
+
+.cardContent,ul {
+	list-style-type: none;
+	padding-left:0;
+}
+.cardContent li { padding:5px; }
+
+.cardContent li:nth-child(odd) {background: #E1F5FE; /* light blue */ }
+
+/* ------------------------------------------------------------------------- */
+/* ---------------------------- Footer ------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+footer{
+	text-align:center;
+	width:100%;
+}
+
+footer button {
+	margin: 15px;
+	padding: 20px;
+	width: 100%;
+	background-color: #C8E6C9; /* green */
+	font-size: 1.5em;
+	font-weight: bold;
+	color: #1B5E20; /* dark green */
+}
+
+footer button:hover {
+	background-color: #E8F5E9; /* light green */
+}
+
+/* ------------------------------------------------------------------------- */
+/* ----------------------------- Menu -------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+nav {	
+	width: 20%;
+	padding: 5px;
+	list-style-type: none;
+}
+
+nav ul {
+	list-style-type: none;
+	padding-left:0;
+}
+
+nav li { padding:5px; }
+
+/* nav li:nth-child(odd) {background: #E8F5E9;  }*/
+
+h3 {
+	background-color: #039BE5; /* blue */
+	padding: 10px;
+	color: white;
+	margin-top:0px;
+	margin-bottom: 2px;
+}
+
+a { text-decoration: none; }
+
+.menuTitle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center; 
+}
+
+
+.menuElem {
+	border: 2px solid #B3E5FC;
+	border-radius: 5px;
+	background-color: #B3E5FC; /* blue */
+	padding: 5px;
+	margin: 5px;
+	font-size: 0.9em;
+}
+
+.encounter:hover {
+	border: 2px solid #E1F5FE; /* light blue */
+	background-color: #E1F5FE; /* light blue */
+}
+
+.encounterBlocked {
+	border: 2px solid #E0E0E0; 
+	background-color: #E0E0E0; /* grey */
+	border-radius: 5px;
+	padding: 5px;
+	margin: 2px;
+}
+
+.newEncounter {
+	border: 2px solid #C8E6C9;
+	border-radius: 5px;
+	background-color: #C8E6C9; /* green */
+	padding: 5px;
+	margin-left: 2px;	
+	margin-right: 2px;	
+	font-weight: bold;
+}
+
+.encounterMenu {
+	margin-top: 0px;	
+	background-color: white;
+	font-weight: normal;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* ----------------------------- Form -------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+fieldset {
+	margin: 5px;
+}
+
+textarea {
+	width:97%;
+	background-color:#E1F5FE; /* light blue */
+	margin-right: 5px;
+}
+
+.align{	
+    display:inline-block;
+    width:100px;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* ---------------------------- Table -------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+table { width:100%;margin: auto; }
+
+caption { 
+	background-color: #80D8FF; /* blue */ 
+	font-weight: bold;
+}
+
+tr:nth-child(even) { background-color:#E3F2FD; /* light blue */ }
+
+tr:nth-child(odd) { background-color:#E1F5FE; /* light blue */ }
+
+td {padding: 2px; text-align: left; }
+
+th {	
+	font-style: italic; 
+	font-size: 0.9em; 
+	background-color:#80D8FF; /* blue */ 
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* -------------------------- Easy tweak ----------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+.alignLeft { text-align: left }
+.small { font-size:0.8em; }
+
+
+
+
+
+
+
+
+
+
