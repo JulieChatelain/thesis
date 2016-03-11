@@ -10,7 +10,7 @@ var express = require('express')
   , path = require('path');
 
 //MongoDB
-var db = require('./databases/mongoose');
+//var db = require('./databases/mongoose');
 
 var app = express();
 

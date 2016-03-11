@@ -146,7 +146,7 @@ a { text-decoration: none; }
 	font-size: 0.9em;
 }
 
-.encounter:hover {
+.menuElem:hover {
 	border: 2px solid #E1F5FE; /* light blue */
 	background-color: #E1F5FE; /* light blue */
 }

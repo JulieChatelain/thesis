@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="ehr" ng-controller="EHRCtrl"
- ng-init="showDiabHistory=true">
+ ng-init="showDiabHistory=true;
+ show=['none','visible'];id=[1,0,0,0,0,0,0];">
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
@@ -24,6 +25,10 @@ showReports=false;showProtocols=false;">
 	<img src="/img/less.png" alt="Plus"  ng-hide="(showPatients==false)" ng-click="showPatients=(showPatients==false)"/>
 	</a> 
 	Autre patient</h3>		
+	<ul ng-hide="(showPatients==false)">
+		<li class="menuElem" ng-repeat="p in patients"> 
+		<div ng-click="changePatient(p.identifier[0].value)">{{p.name[0].given[0]}} {{p.name[0].family[0]}}</div></li>
+	</ul>
 		
     <h3 class="menuTitle">
 	<a href="">
@@ -43,13 +48,113 @@ showReports=false;showProtocols=false;">
 	<img src="/img/less.png" alt="Plus"  ng-hide="(showEncounters==false)" ng-click="showEncounters=(showEncounters==false)"/>
 	</a> 
 	Consultations </h3>	
+	<div ng-hide="(showEncounters==false)" ng-init="eMenu=[true,true,true]">
+	
+	<div class="menuElem">
+	1-03-2016<br />
+	<span class="small" ng-click="eMenu[0]=(eMenu[0]==false)">Dr. YYYY XXXXX (Diabétologue)</span>
+    <ul ng-hide="eMenu[0]" class="encounterMenu">
+        <li ng-click="id = [0,1,0,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[1]]}}" />
+	        <a href="">Traitement en cours</a>
+        </li>
+        <li ng-click="id = [0,0,1,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[2]]}}" />
+	        <a href="">Insuline & glycémie</a>
+        </li>
+        <li ng-click="id = [0,0,0,1,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[3]]}}" />
+	        <a href="">Interrogatoire général</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,1,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[4]]}}" />
+	        <a href="">Examen clinique</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,1,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[5]]}}" />
+	        <a href="">Complications éventuelles</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,0,1];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[6]]}}" />
+	        <a href="">Conclusion</a>
+        </li>
+    </ul>    
+	</div>
+	
+	<div class="menuElem">
+		1-01-2016<br />
+		<span class="small" ng-click="eMenu[1]=(eMenu[1]==false)">Dr. YYYY XXXXX (Diabétologue)</span>
+		<ul ng-hide="eMenu[1]" class="encounterMenu">
+        <li ng-click="id = [0,1,0,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[1]]}}" />
+	        <a href="">Traitement en cours</a>
+        </li>
+        <li ng-click="id = [0,0,1,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[2]]}}" />
+	        <a href="">Insuline & glycémie</a>
+        </li>
+        <li ng-click="id = [0,0,0,1,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[3]]}}" />
+	        <a href="">Interrogatoire général</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,1,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[4]]}}" />
+	        <a href="">Examen clinique</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,1,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[5]]}}" />
+	        <a href="">Complications éventuelles</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,0,1];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[6]]}}" />
+	        <a href="">Conclusion</a>
+        </li>
+    </ul>
+	</div>
+	
+	<div class="encounterBlocked">
+		9-02-2015<br />
+		<span class="small">Dr. ZZZZZ (Généraliste)</span>
+	</div>
+	
+	<div class="menuElem">
+		1-01-2015<br />
+		<span class="small" ng-click="eMenu[2]=(eMenu[2]==false)">Dr. YYYY XXXXX (Diabétologue)</span>
+		<ul ng-hide="eMenu[2]" class="encounterMenu">
+        <li ng-click="id = [0,1,0,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[1]]}}" />
+	        <a href="">Traitement en cours</a>
+        </li>
+        <li ng-click="id = [0,0,1,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[2]]}}" />
+	        <a href="">Insuline & glycémie</a>
+        </li>
+        <li ng-click="id = [0,0,0,1,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[3]]}}" />
+	        <a href="">Interrogatoire général</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,1,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[4]]}}" />
+	        <a href="">Examen clinique</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,1,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[5]]}}" />
+	        <a href="">Complications éventuelles</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,0,1];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[6]]}}" />
+	        <a href="">Conclusion</a>
+        </li>
+    </ul>
+	</div>
+	</div>
 	
     <h3 class="menuTitle">
 	<a href="">
 	<img src="/img/more.png" alt="Plus"  ng-hide="(showReports==true)" ng-click="showReports=(showReports==false)"/>
 	<img src="/img/less.png" alt="Plus"  ng-hide="(showReports==false)" ng-click="showReports=(showReports==false)"/>
 	</a> 
-    Raports</h3>
+	Raports</h3>
     
     <h3 class="menuTitle">
 	<a href="">
@@ -71,11 +176,11 @@ showReports=false;showProtocols=false;">
 	<section id="patient">
 	
 		<div id="patientSummary">  
-			<img src="/img/avatar/male1.png" alt="Photo du patient" />
-			<div class="patientInfo">{{name.desc}} {{familyName.desc | uppercase}} </div>
-			<div class="patientInfo"> ({{age}} ans) </div>
-			<div class="patientInfo">Profession : {{job.desc}}</div>
-			<div class="patientInfo"> Tel : {{tel.desc}}</div>
+			<img src="{{patients[patientId].photo[0].url}}" alt="Photo du patient" />
+			<div class="patientInfo"> {{patients[patientId].name[0].given[0]}} {{patients[patientId].name[0].family[0] | uppercase}} </div>
+			<div class="patientInfo"> ({{calculateAge(patients[patientId].birthDate)}} ans) </div>
+			<div class="patientInfo">Profession : {{patients[patientId].profession[0]}}</div>
+			<div class="patientInfo"> Tel : {{patients[patientId].telecom[0].value}}</div>
 			<div class="patientInfo"> Diabétique depuis {{diabSince}} ans</div>
 		</div>
 		
