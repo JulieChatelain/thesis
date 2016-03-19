@@ -34,10 +34,16 @@ var ConditionSchema = new mongoose.Schema({
         value: String
     }],
     patient: {
+    	reference: String, 	// Relative, internal or absolute URL reference
+    	display: String		// Text alternative for the resource
     },
     encounter: {
+    	reference: String, 	// Relative, internal or absolute URL reference
+    	display: String		// Text alternative for the resource
     },
     asserter: {
+    	reference: String, 	// Relative, internal or absolute URL reference
+    	display: String		// Text alternative for the resource
     },
     dateRecorded: Date,
     code: {
@@ -70,9 +76,11 @@ var ConditionSchema = new mongoose.Schema({
         system: String,
         code: String
     },
-    onsetPeriod: {
+    onsetPeriod: {			
+	  	start: Date, 
+	  	end: Date 
     },
-    onsetRange: {
+    onsetRange: {	
     },
     onsetString: String,
     abatementDateTime: Date,
@@ -83,7 +91,9 @@ var ConditionSchema = new mongoose.Schema({
         code: String
     },
     abatementBoolean: Boolean,
-    abatementPeriod: {
+    abatementPeriod: {		
+	  	start: Date, 
+	  	end: Date 
     },
     abatementRange: {
     },

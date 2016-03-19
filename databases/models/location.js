@@ -1,4 +1,4 @@
-// Copyright (c) 2011+, HL7, Inc & The MITRE Corporation
+// Copyright (c) 2011-2013, HL7, Inc & Mitre
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, 
@@ -26,35 +26,71 @@
 
 var mongoose = require('mongoose');
 
-var BodySiteSchema = new mongoose.Schema({
-    patient: {
-    	reference: String, 	// Relative, internal or absolute URL reference
-    	display: String		// Text alternative for the resource
-    },
-    identifier: [{
+var LocationSchema = new mongoose.Schema({
+    identifier: {
         use: String,
         label: String,
         system: String,
         value: String
-    }],
-    code: {
+    },
+    name: String,
+    description: String,
+    fhirType: {
         coding: [{
             system: String,
             code: String,
             display: String
         }]
     },
-    modifier: [{
+    telecom: [{
+    	system : String, 	// C? phone | fax | email | pager | other
+    	value : String, 	// The actual contact point details
+    	use : String, 		// home | work | temp | old | mobile - purpose of this contact point
+    	rank : Number, 		// Specify preferred order of use (1 = highest)
+    	period : { 			// Time period when the contact point was/is in use
+		  	start: Date, 
+		  	end: Date 
+    	}  
+    }],
+    address: {
+      use : String, 		// home | work | temp | old - purpose of this address
+	  type : String, 		// postal | physical | both
+	  text : String, 		// Text representation of the address
+	  line : [String], 		// Street name, number, direction & P.O. Box etc.
+	  city : String, 		// Name of city, town etc.
+	  district : String, 	// District name (aka county)
+	  state : String, 		// Sub-unit of country (abbreviations ok)
+	  postalCode : String, 	// Postal code for area
+	  country : String, 	// Country (can be ISO 3166 3 letter code)
+	  period : { 			// Time period when address was/is in use
+		  	start: Date, 
+		  	end: Date 
+	  } 
+    },
+    physicalType: {
         coding: [{
             system: String,
             code: String,
             display: String
         }]
-    }],
-    description: String,
-    image: [{
-    }]
+    },
+    position: {
+        longitude: Number,
+        latitude: Number,
+        altitude: Number,
+    },
+    managingOrganization: {
+        reference: String,
+        display: String
+    },
+    status: String,
+    partOf: {
+        reference: String,
+        display: String
+    },
+    mode: String,
 });
 
-var bodysite = mongoose.model('BodySite', BodySiteSchema);
- exports.bodysiteModel = bodysite;
+var location = mongoose.model('Location', LocationSchema);
+
+exports.LocationModel = location;

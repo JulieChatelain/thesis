@@ -5,9 +5,41 @@ db.EHROption.drop();
 db.Patient.drop();
 db.Practitioner.drop();
 db.Condition.drop();
+db.Encounter.drop();
+db.Location.drop();
 db.ResourceHistory.drop();
 
 var id3 = ObjectId();
+var id20 = ObjectId();
+var id21 = ObjectId();
+
+db.location.insert(
+		{
+			_id: id20,
+		    name: "Saint-Luc",
+		    description: "Hopital",
+		    fhirType: {
+		        coding: [{
+		            system: "http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType",
+		            code: "HOSP",
+		            display: "Hopital"
+		        }]
+		    },
+		    address: {
+		    	use: "work",
+		    	type: "physical",
+		    	text: "13 Rue des Macarons, 3000 Bruxelles"
+		    },
+		    physicalType: {
+		        coding: [{
+		            system: "http://hl7.org/fhir/location-physical-type",
+		            code: "bu",
+		            display: "Bâtiment"
+		        }]
+		    },
+		    mode: "instance",
+		}
+);
 
 db.practitioner.insert({
 	_id : id3,
@@ -126,31 +158,18 @@ db.Patient.insert([ {
 var id4 = ObjectId();
 var id5 = ObjectId();
 var id6 = ObjectId();
-db.ResourceHistory.insert([ 
-    {
-		_id : id4,
-		resourceType : "Practitioner",
-		history : [{
-			resourceId : id3,
-			addedBy : id4}]
-    },
-    {
-    	_id : id5,
-    	resourceType: "Patient",
-    	history : [{
-    		resourceId : id1,
-    		addedBy : id4
-    	}]
-    },
-    {
-    	_id : id6,
-    	resourceType: "Patient",
-    	history : [{
-    		resourceId : id2,
-    		addedBy : id4
-    	}]
-    }
-]);
+
+var id7 = ObjectId();
+var id8 = ObjectId();
+var id9 = ObjectId();
+var id10 = ObjectId();
+var id11 = ObjectId();
+var id12 = ObjectId();
+var id13 = ObjectId();
+var id14 = ObjectId();
+var id15 = ObjectId();
+var id16 = ObjectId();
+
 
 
 db.User.insert({
@@ -159,14 +178,79 @@ db.User.insert({
 });
 
 db.Condition.insert([
+	{
+		_id: id15,
+		patient: {
+			reference: "Patient/"+ id5.str,
+			display: "Jean Dupont"
+	    },
+	    encounter: {
+			reference: "Encounter/"+ id10.str
+	    },
+	    asserter: {
+			reference: "Practitioner/"+ id4.str,
+			display: "Dutronc Jean-Marie"
+	    },
+	    dateRecorded: new Date(),
+	    code: {
+	        coding: [{
+	            system: "http://snomed.info/sct",
+	            code: "267384006",
+	            display: "Coma hypoglycemic"
+	        }]
+	    },
+	    category: {
+	        coding: [{
+	            system: "http://hl7.org/fhir/condition-category",
+	            code: "symptom",
+	            display: "Symptôme"
+	        }]
+	    },
+	    clinicalStatus: "resolved",
+	    verificationStatus: "confirmed",
+	    onsetAge: {
+	        value: "15",
+	        units: "year",
+	        system: "http://unitsofmeasure.org/ucum.html",
+	        code: "a"
+	    },
+	    evidence: [{
+	        code: {
+	            coding: [{
+	                system: "http://snomed.info/sct",
+	                code: "17173007",
+	                display: "Soif excessive"
+	            }],
+	            coding: [{
+	                system: "http://snomed.info/sct",
+	                code: "272060000",
+	                display: "Fatigue"
+	            }],
+	            coding: [{
+	                system: "http://snomed.info/sct",
+	                code: "89362005",
+	                display: "Perte de poids"
+	            }],
+	            coding: [{
+	                system: "http://snomed.info/sct",
+	                code: "371632003",
+	                display: "Coma"
+	            }]
+	        }
+	    }]
+	},
     {
+    	_id: id11,
     	patient: {
     		reference: "Patient/"+ id5.str,
     		display: "Jean Dupont"
         },
         encounter: {
+			reference: "Encounter/"+ id10.str
         },
         asserter: {
+			reference: "Practitioner/"+ id4.str,
+			display: "Dutronc Jean-Marie"
         },
         dateRecorded: new Date(),
         code: {
@@ -208,9 +292,7 @@ db.Condition.insert([
                     code: "89362005",
                     display: "Perte de poids"
                 }]
-            },
-            detail: [{
-            }]
+            }
         }],
         bodySite: [{
             coding: [{
@@ -221,13 +303,17 @@ db.Condition.insert([
         }]
     },
     {
+    	_id: id12,
     	patient: {
     		reference: "Patient/"+ id6.str,
     		display: "Marie Dupuis"
         },
         encounter: {
+    		reference: "Encounter/"+ id8.str
         },
         asserter: {
+			reference: "Practitioner/"+ id4.str,
+			display: "Dutronc Jean-Marie"
         },
         dateRecorded: new Date(),
         code: {
@@ -264,9 +350,7 @@ db.Condition.insert([
                     code: "272060000",
                     display: "Fatigue"
                 }]
-            },
-            detail: [{
-            }]
+            }
         }],
         bodySite: [{
             coding: [{
@@ -278,4 +362,133 @@ db.Condition.insert([
     }
 ]);
 
+db.Encounter.insert([{
+	_id: id7,
+	class: "ambulatory",
+	patient: {
+		reference: "Patient/"+ id6.str,
+		display: "Marie Dupuis"
+	},
+	reason: [
+	    {
+        coding: [{
+            system: "http://snomed.info/sct",
+            code: "17173007",
+            display: "Soif excessive"
+        }]},
+        {
+        coding: [{
+            system: "http://snomed.info/sct",
+            code: "272060000",
+            display: "Fatigue"
+        }]}
+        ]
+	},{
+	_id: id9,
+	class: "inpatient",
+	patient: {
+		reference: "Patient/"+ id5.str,
+		display: "Jean Dupont"
+	},
+	reason: [{
+		coding: [{
+            system: "http://snomed.info/sct",
+            code: "371632003",
+            display: "Coma"
+        }]
+	}],
+    hospitalization: {
+       admittingDiagnosis: [{
+    	   reference: "Condition/"+id16.str
+        }],
+        dischargeDiagnosis: [{
+        	reference: "Condition/"+id13.str
+        }]
+    },
+    location: [{
+        location: {
+        	reference: "Location/"+id21.str,
+        	display: "Hopital Saint-Luc"
+        },
+        status: "completed",
+        period: {
+        	start: new Date(1995, 05, 15),
+        	end: new Date(1995, 05, 20)
+        }
+    }]
+	}             
+]);
 
+db.ResourceHistory.insert([ 
+       {
+   		_id : id4,
+   		resourceType : "Practitioner",
+   		history : [{
+   			resourceId : id3,
+   			addedBy : id4}]
+       },
+       {
+       	_id : id5,
+       	resourceType: "Patient",
+       	history : [{
+       		resourceId : id1,
+       		addedBy : id4
+       	}]
+       },
+       {
+       	_id : id6,
+       	resourceType: "Patient",
+       	history : [{
+       		resourceId : id2,
+       		addedBy : id4
+       	}]
+       },
+       {
+      	_id : id8,
+      	resourceType: "Encounter",
+      	history : [{
+      		resourceId : id7,
+      		addedBy : id4
+      	}]
+      },
+      {
+    	_id : id10,
+    	resourceType: "Encounter",
+    	history : [{
+    		resourceId : id9,
+    		addedBy : id4
+    	}]
+      },
+      {
+      	_id : id13,
+      	resourceType: "Condition",
+      	history : [{
+      		resourceId : id11,
+      		addedBy : id4
+      	}]
+      },
+      {
+    	_id : id14,
+    	resourceType: "Condition",
+    	history : [{
+    		resourceId : id12,
+    		addedBy : id4
+    	}]
+      },
+      {
+      	_id : id16,
+      	resourceType: "Condition",
+      	history : [{
+      		resourceId : id15,
+      		addedBy : id4
+      	}]
+      },
+      {
+    	_id : id21,
+    	resourceType: "Location",
+    	history : [{
+    		resourceId : id20,
+    		addedBy : id4
+    	}]
+       }
+   ]);

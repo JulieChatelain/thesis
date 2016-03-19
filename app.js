@@ -31,10 +31,34 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// routes
 app.get('/', routes.index);
 app.get('/ehr', routes.ehr);
 app.get('/users', user.list);
 
+// REST api
+/* 
+    Create = POST https://example.com/path/{resourceType}
+    Read = GET https://example.com/path/{resourceType}/{id}
+    Update = PUT https://example.com/path/{resourceType}/{id}
+    Delete = DELETE https://example.com/path/{resourceType}/{id}
+    Search = GET https://example.com/path/{resourceType}?search parameters...
+    History = GET https://example.com/path/{resourceType}/{id}/_history
+    Transaction = POST https://example.com/path/ (POST a transaction bundle to the system)
+    Operation = GET https://example.com/path/{resourceType}/{id}/${opname}
+ */
+app.post('/:model', routes.create);
+app.get('/:model/:id', routes.read);
+app.get('/:model', routes.searchRead);
+app.get('/:model/:id/_history/:vid', routes.vread);
+app.get('/:model/:id/_history', routes.history);
+app.put('/:model/:id', routes.update);
+app.put('/:model', routes.searchUpdate);
+app.del('/:model/:id', routes.del);
+app.del('/:model', routes.searchDel);
+
+
+// launch server
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
