@@ -57,4 +57,4 @@ var BodySiteSchema = new mongoose.Schema({
 });
 
 var bodysite = mongoose.model('BodySite', BodySiteSchema);
- exports.bodysiteModel = bodysite;
+ exports.BodySite = bodysite;

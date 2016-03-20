@@ -425,14 +425,14 @@ db.ResourceHistory.insert([
    		resourceType : "Practitioner",
    		history : [{
    			resourceId : id3,
-   			addedBy : id4}]
+   			addedBy : "Practitioner/"+id4.str}]
        },
        {
        	_id : id5,
        	resourceType: "Patient",
        	history : [{
        		resourceId : id1,
-       		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
        	}]
        },
        {
@@ -440,7 +440,7 @@ db.ResourceHistory.insert([
        	resourceType: "Patient",
        	history : [{
        		resourceId : id2,
-       		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
        	}]
        },
        {
@@ -448,7 +448,7 @@ db.ResourceHistory.insert([
       	resourceType: "Encounter",
       	history : [{
       		resourceId : id7,
-      		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
       	}]
       },
       {
@@ -456,7 +456,7 @@ db.ResourceHistory.insert([
     	resourceType: "Encounter",
     	history : [{
     		resourceId : id9,
-    		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
     	}]
       },
       {
@@ -464,7 +464,7 @@ db.ResourceHistory.insert([
       	resourceType: "Condition",
       	history : [{
       		resourceId : id11,
-      		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
       	}]
       },
       {
@@ -472,7 +472,7 @@ db.ResourceHistory.insert([
     	resourceType: "Condition",
     	history : [{
     		resourceId : id12,
-    		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
     	}]
       },
       {
@@ -480,7 +480,7 @@ db.ResourceHistory.insert([
       	resourceType: "Condition",
       	history : [{
       		resourceId : id15,
-      		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
       	}]
       },
       {
@@ -488,7 +488,7 @@ db.ResourceHistory.insert([
     	resourceType: "Location",
     	history : [{
     		resourceId : id20,
-    		addedBy : id4
+   			addedBy : "Practitioner/"+id4.str
     	}]
        }
    ]);

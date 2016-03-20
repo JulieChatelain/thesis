@@ -161,4 +161,4 @@ var EncounterSchema = new mongoose.Schema({
 
 var encounter = mongoose.model('Encounter', EncounterSchema);
 
-exports.encounterModel = encounter;
+exports.Encounter = encounter;

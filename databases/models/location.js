@@ -93,4 +93,4 @@ var LocationSchema = new mongoose.Schema({
 
 var location = mongoose.model('Location', LocationSchema);
 
-exports.LocationModel = location;
+exports.Location = location;

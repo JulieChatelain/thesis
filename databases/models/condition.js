@@ -132,4 +132,4 @@ var ConditionSchema = new mongoose.Schema({
 
 var condition = mongoose.model('Condition', ConditionSchema);
 
-exports.conditionModel = condition;
+exports.Condition = condition;

@@ -61,4 +61,4 @@ var PersonSchema = new mongoose.Schema({
 
 var person = mongoose.model('Person', PersonSchema);
 
-exports.personModel = person;
+exports.Person = person;

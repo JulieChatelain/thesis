@@ -134,4 +134,4 @@ var PatientSchema = new mongoose.Schema({
 
 var patient =  mongoose.model('Patient', PatientSchema);
 
-exports.patientModel = patient;
+exports.Patient = patient;

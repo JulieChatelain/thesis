@@ -84,4 +84,4 @@ var DiagnosticReportSchema = new mongoose.Schema({
 });
 
 var diagReport = mongoose.model('DiagnosticReport', DiagnosticReportSchema);
-exports.diagnosticReportModel = diagReport;
+exports.DiagnosticReport = diagReport;

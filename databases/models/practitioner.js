@@ -104,4 +104,4 @@ var PractitionerSchema = new mongoose.Schema({
 
 var practitioner = mongoose.model('Practitioner', PractitionerSchema);
 
-exports.practitionerModel = practitioner;
+exports.Practitioner = practitioner;

@@ -29,7 +29,6 @@ var _ = require('underscore');
 var fs = require('fs');
 var eco = require('eco');
 var async = require('async');
-var <ModelName> = mongoose.model('<ModelName>');
 var ResourceHistory = mongoose.model('ResourceHistory');
 var ResponseFormatHelper = require(__dirname + '/../../lib/response_format_helper');
 
@@ -41,9 +40,16 @@ exports.read = function(req, res, id, next){
       }
       if(resourceHistory !== null) {
         req.resourceHistory = resourceHistory;
-        req.resourceHistory.findLatest(function(err, <LowerCaseModelName>) {
-          req.<LowerCaseModelName> = <LowerCaseModelName>;
-          next(<LowerCaseModelName>);
+        req.resourceHistory.findLatest(function(err, resource) {
+          req.resource = resource;
+      	resource.resourceType = resourceHistory.resourceType;
+    	resource.id = resourceHistory.resourceType + "/" + hist._id.str;
+    	resource.meta = {
+    		    versionId : resourceHistory.versionCount(),
+    		    lastUpdated : hist._id.getTimestamp(),
+    		    addedBy : hist.addedBy
+    		  }
+          next(resource);
         });
       }
     });
@@ -55,64 +61,80 @@ exports.vread = function(req, res, id, vid, next){
       }
       if(resourceHistory !== null) {
         req.resourceHistory = resourceHistory;
-        req.resourceHistory.getVersion(vid, function(err, <LowerCaseModelName>) {
-            req.<LowerCaseModelName> = <LowerCaseModelName>;
-            next(<LowerCaseModelName>);
+        req.resourceHistory.getVersion(vid, function(err, resource) {
+            req.resource = resource;
+        	resource.resourceType = resourceHistory.resourceType;
+        	resource.id = resourceHistory.resourceType + "/" + hist._id.str;
+        	resource.meta = {
+        		    versionId : vid,
+        		    lastUpdated : hist._id.getTimestamp(),
+        		    addedBy : hist.addedBy
+        		  }
+            next(resource);
         });
       }
     });
 };
 exports.history = function(req, res, id, next) {
-
-};
-exports.load = function(req, res, id, vid, next) {
-  if (req.resourceHistory) {
-    if(vid !== null){
-      req.resourceHistory.getVersion(vid, function(err, <LowerCaseModelName>) {
-        req.<LowerCaseModelName> = <LowerCaseModelName>;
-        next(<LowerCaseModelName>);
-      });
-    } else {
-      req.resourceHistory.findLatest(function(err, <LowerCaseModelName>) {
-        req.<LowerCaseModelName> = <LowerCaseModelName>;
-        next(<LowerCaseModelName>);
-      });
-    }
-  } else {
-    ResourceHistory.findOne(id, function(rhErr, resourceHistory) {
-      if (rhErr) {
-        next(rhErr);
-      }
-      if(resourceHistory !== null) {
-        req.resourceHistory = resourceHistory;
-        req.resourceHistory.findLatest(function(err, <LowerCaseModelName>) {
-          req.<LowerCaseModelName> = <LowerCaseModelName>;
-          next(<LowerCaseModelName>);
-        });
-      }
-    });
-  }
+	// Find the history
+	ResourceHistory.findOne(id, function(rhErr, resourceHistory) {
+	      if (rhErr) {
+	        next(rhErr);
+	      }
+	      var history = [];
+	      if(resourceHistory !== null) {
+	        var i = 1;
+	        // Get each version
+	        async.forEach(resourceHistory.history, function(hist, callback) {
+	            resourceHistory.getVersion(i, function(err, resource) {
+	            	resource.resourceType = resourceHistory.resourceType;
+	            	resource.id = resourceHistory.resourceType + "/" + hist._id.str;
+	            	resource.meta = {
+	            		    versionId : i,
+	            		    lastUpdated : hist._id.getTimestamp(),
+	            		    addedBy : hist.addedBy
+	            		  }
+	            	history.push(resource);
+	            	i++;
+	            	callback();
+	            });
+	          }, function(err) {
+	              req.resource = history;
+	              next(resource);
+	          });
+	      }else{
+              req.resource = history;
+              next(resource);
+	      }
+	    });
 };
 
 exports.show = function(req, res) {
-  var <LowerCaseModelName> = req.<LowerCaseModelName>;
-  var json = JSON.stringify(<LowerCaseModelName>);
+  var resource = req.resource;
+  var json = JSON.stringify(resource);
   res.send(json);
 };
 
 exports.create = function(req, res) {
-  var <LowerCaseModelName> = new <ModelName>(req.body);
-  <LowerCaseModelName>.save(function(err, saved<ModelName>) {
+	
+  var modelName = req.params.model.toLowerCase();
+  modelName.charAt(0).toUpperCase();
+  
+  var model = mongoose.model(modelName);
+  var resource = new model(req.body);
+  
+  delete resource._id;
+  
+  resource.save(function(err, savedresource) {
     if(err) {
       res.send(500);
     } else {
-      var resourceHistory = new ResourceHistory({resourceType: '<ModelName>'});
-      resourceHistory.addVersion(saved<ModelName>.id);
+      var resourceHistory = new ResourceHistory({resourceType:  modelName});
+      resourceHistory.addVersion(savedresource.id);
       resourceHistory.save(function(rhErr, savedResourceHistory){
         if (rhErr) {
           res.send(500);
         } else {
-          res.set('Location', ("http://localhost:3000/<LowerCaseModelName>/@" + resourceHistory.id));
           res.send(201);
         }
       });
@@ -121,14 +143,20 @@ exports.create = function(req, res) {
 };
 
 exports.update = function(req, res) {
-  var <LowerCaseModelName> = req.<LowerCaseModelName>;
-  <LowerCaseModelName> = _.extend(<LowerCaseModelName>, req.body);
-  <LowerCaseModelName>.save(function(err, saved<LowerCaseModelName>) {
+  var resource = req.resource;
+  resource = _.extend(resource, req.body);
+  
+  delete resource._id;
+  delete resource.meta;
+  delete resource.id;
+  delete resource.resourceType;
+  
+  resource.save(function(err, savedresource) {
     if(err) {
       res.send(500);
     } else {
       var resourceHistory = req.resourceHistory;
-      resourceHistory.addVersion(saved<LowerCaseModelName>);
+      resourceHistory.addVersion(savedresource);
       resourceHistory.save(function(rhErr, savedResourceHistory) {
         if (rhErr) {
           res.send(500);
@@ -141,8 +169,8 @@ exports.update = function(req, res) {
 };
 
 exports.remove = function(req, res) {
-  var <LowerCaseModelName> = req.<LowerCaseModelName>;
-  <LowerCaseModelName>.remove(function (err) {
+  var resource = req.resource;
+  resource.remove(function (err) {
     if(err) {
       res.send(500);
     } else {
@@ -173,7 +201,7 @@ exports.list = function(req, res) {
     async.forEach(histories, function(history, callback) {
       counter++;
       content.totalResults = counter;
-      history.findLatest( function(err, <LowerCaseModelName>) {
+      history.findLatest( function(err, resource) {
         var entrywrapper = {
           title: "<ModelName> " + history.vistaId + " Version " + history.versionCount(),
           id: "http://localhost:3000/<LowerCaseModelName>/@" + history.vistaId,
@@ -183,7 +211,7 @@ exports.list = function(req, res) {
           },
           updated: history.lastUpdatedAt(),
           published: new Date(Date.now()),
-          content: <LowerCaseModelName>
+          content: resource
         };
         content.entry.push(entrywrapper);
         callback();

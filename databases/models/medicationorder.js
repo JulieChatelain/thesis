@@ -161,4 +161,4 @@ var MedicationOrderSchema = new mongoose.Schema({
 });
 
 var medicationOrder = mongoose.model('MedicationOrder', MedicationOrderSchema);
-exports.medicationOrderModel = medicationOrder;
+exports.MedicationOrder = medicationOrder;

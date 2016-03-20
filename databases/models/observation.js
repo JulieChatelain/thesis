@@ -187,4 +187,4 @@ var ObservationSchema = new mongoose.Schema({
 });
 
 var observation = mongoose.model('Observation', ObservationSchema);
-exports.observationModel = observation;
+exports.Observation = observation;
