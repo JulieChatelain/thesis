@@ -5,6 +5,7 @@
 
 var express = require('express')
   , routes = require('./routes')
+  , rest = require('./routes/REST')
   , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
@@ -47,16 +48,14 @@ app.get('/users', user.list);
     Transaction = POST https://example.com/path/ (POST a transaction bundle to the system)
     Operation = GET https://example.com/path/{resourceType}/{id}/${opname}
  */
-app.post('/:model', routes.create);
-app.get('/:model/:id', routes.read);
-app.get('/:model', routes.searchRead);
-app.get('/:model/:id/_history/:vid', routes.vread);
-app.get('/:model/:id/_history', routes.history);
-app.put('/:model/:id', routes.update);
-app.put('/:model', routes.searchUpdate);
-app.del('/:model/:id', routes.del);
-app.del('/:model', routes.searchDel);
 
+app.post('/:model', rest.create);
+app.get('/:model/:id', rest.read);
+app.get('/:model', rest.search);
+app.get('/:model/:id/_history/:vid', rest.vread);
+app.get('/:model/:id/_history', rest.history);
+app.put('/:model/:id', rest.update);
+app.del('/:model/:id', rest.del);
 
 // launch server
 http.createServer(app).listen(app.get('port'), function(){

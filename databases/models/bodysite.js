@@ -26,35 +26,65 @@
 
 var mongoose = require('mongoose');
 
+/**
+ * Specific and identified anatomical location <br>
+ * Record details about the anatomical location of a specimen or body part. This
+ * resource may be used when a coded concept does not provide the necessary
+ * detail needed for the use case.
+ */
+
 var BodySiteSchema = new mongoose.Schema({
-    patient: {
-    	reference: String, 	// Relative, internal or absolute URL reference
-    	display: String		// Text alternative for the resource
-    },
-    identifier: [{
-        use: String,
-        label: String,
-        system: String,
-        value: String
-    }],
-    code: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    modifier: [{
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    }],
-    description: String,
-    image: [{
-    }]
+	patient : {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
+	
+	},
+	identifier : [ {
+		use : {
+			type : String,
+			enum : [ 'usual', 'official', 'temp', 'secondary' ],
+			required : true
+		},
+		assigner : String, 	// Organization that issued id (may be just text)
+		system : String, 	// The namespace for the identifier (uri)
+		value : {			// The value that is unique
+			type : String,
+			required : true
+		}
+	
+	} ],
+	code : { 				// Named anatomical location
+		coding : [ {
+			system : String, 	// Identity of the terminology system (uri)
+			code : String, 		// Symbol in syntax defined by the system
+			display : String	// Representation defined by the system
+		
+		} ],
+		text : String			// Plain text representation of the concept
+	
+	},
+	modifier : [ { 				// Modification to location code
+		coding : [ { 			// ex: 419465000 Unilateral right
+			system : String, 	// Identity of the terminology system (uri)
+			code : String, 		// Symbol in syntax defined by the system
+			display : String	// Representation defined by the system
+		
+		} ],
+		text : String			// Plain text representation of the concept
+	
+	} ],
+	description : String, 		// The Description of anatomical location
+	image : [ { 				// Attached images
+		contentType : String, 	// Mime type of the content, with charset etc.
+		language : String, 		// Human language of the content (BCP-47)
+		data : Buffer, 			// Data inline, base64ed
+		url : String, 			// Uri where the data can be found
+		size : "<unsignedInt>", // Number of bytes of content (if url provided)
+		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
+		title : String, 		// Label to display in place of the data
+		creation : Date			// Date attachment was first created	
+	} ]
 });
 
 var bodysite = mongoose.model('BodySite', BodySiteSchema);
- exports.BodySite = bodysite;
+exports.BodySite = bodysite;

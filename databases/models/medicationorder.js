@@ -28,10 +28,17 @@ var mongoose = require('mongoose');
 
 var MedicationOrderSchema = new mongoose.Schema({
     identifier: [{
-        use: String,
-        label: String,
-        system: String,
-        value: String
+		use : {
+			type : String,
+			enum : [ 'usual', 'official', 'temp', 'secondary' ],
+			required : true
+		},
+		assigner : String, 	// Organization that issued id (may be just text)
+		system : String, 	// The namespace for the identifier (uri)
+		value : {			// The value that is unique
+			type : String,
+			required : true
+		}
     }],
     dateWritten: Date,
     status: String,

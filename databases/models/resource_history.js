@@ -30,12 +30,13 @@ var async = require('async');
 
 var ResourceHistorySchema = new mongoose.Schema({
   resourceType: String,
-  history: [{resourceId: mongoose.Schema.Types.ObjectId, addedBy: String}]
+  createdBy: String,
+  history: [{resourceId: mongoose.Schema.Types.ObjectId, updatedBy: String}]
 });
 
 ResourceHistorySchema.methods = {
-  addVersion: function (resourceId, addedBy) {
-    this.history.push({resourceId: resourceId, addedBy: addedBy});
+  addVersion: function (resourceId, upBy) {
+    this.history.push({resourceId: resourceId, updatedBy: upBy});
   },
 
   getVersion: function (version, callback) {

@@ -26,108 +26,148 @@
 
 var mongoose = require('mongoose');
 
+/**
+ * Detailed information about conditions, problems or diagnoses <br>
+ * Use to record detailed information about conditions, problems or diagnoses
+ * recognized by a clinician. There are many uses including: recording a
+ * diagnosis during an encounter; populating a problem list or a summary
+ * statement, such as a discharge summary.
+ */
+
 var ConditionSchema = new mongoose.Schema({
-    identifier: [{
-        use: String,
-        label: String,
-        system: String,
-        value: String
-    }],
-    patient: {
-    	reference: String, 	// Relative, internal or absolute URL reference
-    	display: String		// Text alternative for the resource
-    },
-    encounter: {
-    	reference: String, 	// Relative, internal or absolute URL reference
-    	display: String		// Text alternative for the resource
-    },
-    asserter: {
-    	reference: String, 	// Relative, internal or absolute URL reference
-    	display: String		// Text alternative for the resource
-    },
-    dateRecorded: Date,
-    code: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    category: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    clinicalStatus: String,
-    verificationStatus: String,
-    severity: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    onsetDateTime: Date,
-    onsetAge: {
-        value: String,
-        units: String,
-        system: String,
-        code: String
-    },
-    onsetPeriod: {			
-	  	start: Date, 
-	  	end: Date 
-    },
-    onsetRange: {	
-    },
-    onsetString: String,
-    abatementDateTime: Date,
-    abatementAge: {
-        value: String,
-        units: String,
-        system: String,
-        code: String
-    },
-    abatementBoolean: Boolean,
-    abatementPeriod: {		
-	  	start: Date, 
-	  	end: Date 
-    },
-    abatementRange: {
-    },
-    abatementString: String,
-    stage: {
-        summary: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        assessment: [{
-        }]
-    },
-    evidence: [{
-        code: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        detail: [{
-        }]
-    }],
-    bodySite: [{
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    }],
-    notes: String
+	identifier : [ {
+		use : {
+			type : String,
+			enum : [ 'usual', 'official', 'temp', 'secondary' ],
+			required : true
+		},
+		assigner : String, 	// Organization that issued id (may be just text)
+		system : String, 	// The namespace for the identifier (uri)
+		value : {			// The value that is unique
+			type : String,
+			required : true
+		}
+	
+	} ],
+	patient : {				// 	Who has the condition?
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
+	
+	},
+	encounter : {			// Encounter when condition first asserted
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
+	
+	},
+	asserter : {			// Person who asserts this condition
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
+	},
+	dateRecorded : Date,	// When first entered
+	code : {				// Identification of the condition, problem or diagnosis
+		coding : [ {
+			system : String, 	// Identity of the terminology system (uri)
+			code : String, 		// Symbol in syntax defined by the system
+			display : String	// Representation defined by the system
+		
+		} ],
+		text : String			// Plain text representation of the concept
+	},
+	category : {				// complaint | symptom | finding | diagnosis
+		coding : [ {
+			system : String, 	// Identity of the terminology system (uri)
+			code : String, 		// Symbol in syntax defined by the system
+			display : String	// Representation defined by the system
+		
+		} ],
+		text : String			// Plain text representation of the concept
+	},
+	clinicalStatus : {
+		type : String,
+		enum : [ 'active', 'relapse', 'remission', 'resolved' ]
+	},
+	verificationStatus : {
+		type : String,
+		required : true,
+		enum : [ 'provisional', 'differential', 'confirmed', 'refuted',
+				'entered-in-error', 'unknown' ]
+	},
+	severity : {				// Subjective severity of condition
+		coding : [ {
+			system : String, 	// Identity of the terminology system (uri)
+			code : String, 		// Symbol in syntax defined by the system
+			display : String	// Representation defined by the system
+		
+		} ],
+		text : String			// Plain text representation of the concept
+	},
+	onsetDateTime : Date,
+	onsetAge : {
+		value : String,
+		units : String,
+		system : String,
+		code : String
+	},
+	onsetPeriod : {
+		start : Date,
+		end : Date
+	},
+	onsetRange : {low : String, high : String},
+	onsetString : String,
+	abatementDateTime : Date,
+	abatementAge : {
+		value : String,
+		units : String,
+		system : String,
+		code : String
+	},
+	abatementBoolean : Boolean,
+	abatementPeriod : {
+		start : Date,
+		end : Date
+	},
+	abatementRange : {low : String, high : String},
+	abatementString : String,
+	stage : {					// Stage/grade, usually assessed formally
+		summary : {				// Simple summary (disease specific)
+			coding : [ {
+				system : String, 	// Identity of the terminology system (uri)
+				code : String, 		// Symbol in syntax defined by the system
+				display : String	// Representation defined by the system
+			
+			} ],
+			text : String			// Plain text representation of the concept
+		},
+		assessment : [ {		// Formal record of assessment
+			reference : String, // Relative, internal or absolute URL reference
+			display : String	// Text alternative for the resource
+			} ]
+	},
+	evidence : [ {				// Supporting evidence
+		code : {				// 	Manifestation/symptom
+			coding : [ {
+				system : String, 	// Identity of the terminology system (uri)
+				code : String, 		// Symbol in syntax defined by the system
+				display : String	// Representation defined by the system
+			
+			} ],
+			text : String			// Plain text representation of the concept
+		},
+		detail : [ {			// Supporting information found elsewhere
+			reference : String, // Relative, internal or absolute URL reference
+			display : String	// Text alternative for the resource
+			} ]
+	} ],
+	bodySite : [ {				// 	Anatomical location, if relevant
+		coding : [ {
+			system : String, 	// Identity of the terminology system (uri)
+			code : String, 		// Symbol in syntax defined by the system
+			display : String	// Representation defined by the system
+		
+		} ],
+		text : String			// Plain text representation of the concept
+	} ],
+	notes : String				// Additional information about the Condition
 });
 
 var condition = mongoose.model('Condition', ConditionSchema);
