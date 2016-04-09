@@ -79,7 +79,7 @@ var BodySiteSchema = new mongoose.Schema({
 		language : String, 		// Human language of the content (BCP-47)
 		data : Buffer, 			// Data inline, base64ed
 		url : String, 			// Uri where the data can be found
-		size : "<unsignedInt>", // Number of bytes of content (if url provided)
+		size : Number, 			// Number of bytes of content (if url provided)
 		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
 		title : String, 		// Label to display in place of the data
 		creation : Date			// Date attachment was first created	

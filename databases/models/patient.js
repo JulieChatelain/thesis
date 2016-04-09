@@ -41,21 +41,50 @@ var PatientSchema = new mongoose.Schema({
 		}
     }],
     active: Boolean,
-    name: [{
+    name: {
         use: String,
         text: String,
         family: [String],
         given: [String],
         prefix: [String],
         suffix: [String]
-    }],
+    },
     telecom: [{
+    	  system : {				// C? phone | fax | email | pager | other
+			type : String,
+			enum : [ 'phone', 'fax', 'email', 'pager', 'other' ],
+			required : true
+			}, 		
+    	  value : String, 			// The actual contact point details
+    	  use : { 					// home | work | temp | old | mobile - purpose of this contact point
+    		type : String,
+  			enum : [ 'home', 'work', 'temp', 'old', 'mobile' ],
+  			required : true
+  			}, 	
+    	  rank : Number, 			// Specify preferred order of use (1 = highest)
+    	  period : { 				// Time period when the contact point was/is in use
+    		  start: Date, 
+    		  end : Date 
+    		  } 		
     }],
     gender: String,
     birthDate: Date,
     deceasedBoolean: Boolean,
     deceasedDateTime: Date,
     address: [{
+        use : String, 		// home | work | temp | old - purpose of this address
+    	  type : String, 		// postal | physical | both
+    	  text : String, 		// Text representation of the address
+    	  line : [String], 		// Street name, number, direction & P.O. Box etc.
+    	  city : String, 		// Name of city, town etc.
+    	  district : String, 	// District name (aka county)
+    	  state : String, 		// Sub-unit of country (abbreviations ok)
+    	  postalCode : String, 	// Postal code for area
+    	  country : String, 	// Country (can be ISO 3166 3 letter code)
+    	  period : { 			// Time period when address was/is in use
+    		  	start: Date, 
+    		  	end: Date 
+    	  } 
     }],
     profession:[String],
     maritalStatus: {
@@ -67,7 +96,15 @@ var PatientSchema = new mongoose.Schema({
     },
     multipleBirthBoolean: Boolean,
     multipleBirthInteger: Number,
-    photo: [{
+    photo: [{					// Attached images
+		contentType : String, 	// Mime type of the content, with charset etc.
+		language : String, 		// Human language of the content (BCP-47)
+		data : Buffer, 			// Data inline, base64ed
+		url : String, 			// Uri where the data can be found
+		size : Number, 			// Number of bytes of content (if url provided)
+		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
+		title : String, 		// Label to display in place of the data
+		creation : Date			// Date attachment was first created	
     }],
     contact: [{
         relationship: [{
@@ -86,56 +123,72 @@ var PatientSchema = new mongoose.Schema({
             suffix: [String]
         },
         telecom: [{
+      	  system : {				// C? phone | fax | email | pager | other
+  			type : String,
+  			enum : [ 'phone', 'fax', 'email', 'pager', 'other' ],
+  			required : true
+  			}, 		
+      	  value : String, 			// The actual contact point details
+      	  use : { 					// home | work | temp | old | mobile - purpose of this contact point
+      		type : String,
+    			enum : [ 'home', 'work', 'temp', 'old', 'mobile' ],
+    			required : true
+    			}, 	
+      	  rank : Number, 			// Specify preferred order of use (1 = highest)
+      	  period : { 				// Time period when the contact point was/is in use
+      		  start: Date, 
+      		  end : Date 
+      		  } 		
         }],
         address: {
+          use : String, 		// home | work | temp | old - purpose of this address
+      	  type : String, 		// postal | physical | both
+      	  text : String, 		// Text representation of the address
+      	  line : [String], 		// Street name, number, direction & P.O. Box etc.
+      	  city : String, 		// Name of city, town etc.
+      	  district : String, 	// District name (aka county)
+      	  state : String, 		// Sub-unit of country (abbreviations ok)
+      	  postalCode : String, 	// Postal code for area
+      	  country : String, 	// Country (can be ISO 3166 3 letter code)
+      	  period : { 			// Time period when address was/is in use
+      		  	start: Date, 
+      		  	end: Date 
+      	  } 
         },
         gender: String,
         organization: {
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
         period: {
+    		start : Date,
+    		end : Date
         }
     }],
-    animal: {
-        species: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        breed: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        genderStatus: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        }
-    },
     communication: [{
-        language: {
+        language: {			// The language which can be used to communicate with the patient about his or her health
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        preferred: Boolean,
+        preferred: Boolean	// Language preference indicator
     }],
     careProvider: [{
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
     managingOrganization: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     link: [{
-        other: {
+        other: {				// The other patient resource that the link refers to
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
-        fhirType: String,
+        type: String,			// replace | refer | seealso - type of link
     }]
 });
 

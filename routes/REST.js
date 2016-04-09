@@ -1,36 +1,35 @@
-
 var controller = require('../databases/controllers/RESTController');
 
+// -----------------------------------------------------------------------------
+// ----------------------------- FUNCTIONS -------------------------------------
+// -----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-//----------------------------- FUNCTIONS -------------------------------------
-//-----------------------------------------------------------------------------
-
-function findModel(name){
+function findModel(name) {
 	var model = name.toLowerCase();
-	model.charAt(0).toUpperCase();
-	
-	switch(model) {
-    case 'Bodysite':
-        'BodySite'
-        break;
-    case 'Diagnosticreport':
-        'DiagnosticReport'
-        break;
-    case 'Medicationorder':
-        'MedicationOrder'
-        break;
-    case 'Resourcehistory':
-        'ResourceHistory'
-        break;
-    default:
-        model
-	} 
+	model = model.charAt(0).toUpperCase() + model.slice(1);
+
+	switch (model) {
+	case 'Bodysite':
+		return 'BodySite';
+		break;
+	case 'Diagnosticreport':
+		return 'DiagnosticReport';
+		break;
+	case 'Medicationorder':
+		return 'MedicationOrder';
+		break;
+	case 'Resourcehistory':
+		return 'ResourceHistory';
+		break;
+	default:
+		return model;
+		break;
+	}
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // ------------------------------ ROUTES --------------------------------------
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 /*
  * app.post('/:model', routes.create); app.get('/:model', routes.list);
@@ -64,7 +63,7 @@ exports.read = function(req, res) {
 
 exports.vread = function(req, res) {
 	req.params.model = findModel(req.params.model);
-	controller.read(req, res, req.params.id, req.params.vid, function(obj) {
+	controller.vread(req, res, req.params.id, req.params.vid, function(obj) {
 		if (obj.constructor.name == "Error") {
 			console.log("Got an error: " + obj);
 			res.send(500);
@@ -77,19 +76,11 @@ exports.vread = function(req, res) {
 
 exports.history = function(req, res) {
 	req.params.model = findModel(req.params.model);
-	controller.history(req, res, req.params.id, function(obj) {
-		if (obj.constructor.name == "Error") {
-			console.log("Got an error: " + obj);
-			res.send(500);
-		} else {
-			controller.show(req, res);
-		}
-
-	});
+	controller.history(req, res, req.params.id);
 };
 
 exports.update = function(req, res) {
-	req.params.model = findModel(req.params.model);	
+	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
 		if (obj.constructor.name == "Error") {
 			console.log("Got an error: " + obj);
@@ -113,8 +104,3 @@ exports.del = function(req, res) {
 
 	});
 };
-
-
-
-
-

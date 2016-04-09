@@ -27,11 +27,55 @@
 var mongoose = require('mongoose');
 var _ = require('underscore');
 var fs = require('fs');
-var eco = require('eco');
 var async = require('async');
 var ResourceHistory = mongoose.model('ResourceHistory');
 // var ResponseFormatHelper = require(__dirname +
 // '/../../lib/response_format_helper');
+
+/**
+ * Generate a small summary text of the resource
+ */
+var generateText = function(resource) {
+	var humanReadable = "<p>" + "<strong>" + resource.resourceType
+			+ "</strong><br>" + "<strong>url : </strong>" + resource.id
+			+ "<br>";
+	if ('name' in resource) {
+		humanReadable = humanReadable + "<strong>Name : </strong> "
+				+ resource.name.given[0] + " " + resource.name.family[0]
+				+ "<br>"
+	}
+	if ('code' in resource) {
+		humanReadable = humanReadable + "<strong>"
+				+ resource.code.coding[0].display + "</strong><br>"
+	}
+	if ('patient' in resource) {
+		humanReadable = humanReadable + "<strong>Concerns : </strong>"
+				+ resource.patient.display + "<br>";
+	}
+	if ('subject' in resource) {
+		humanReadable = humanReadable + "<strong>Concerns : </strong>"
+				+ resource.subject.display + "<br>";
+	}
+	humanReadable = humanReadable + "</p>";
+	return humanReadable;
+}
+
+/**
+ * Put the resource in jason format and send it.
+ */
+exports.show = function(req, res) {
+	var resource = req.resource;
+	var humanReadable = generateText(resource);
+	resource.text = {
+		status : "generated",
+		div : humanReadable
+	};
+	var json = JSON.stringify(resource, null, 2);
+	res.contentType('application/fhir+json');
+	res.location(resource.id);
+	res.status(200);
+	res.send(json);
+};
 
 /**
  * Return the latest version of a resource.
@@ -45,15 +89,18 @@ exports.read = function(req, res, id, next) {
 			req.resourceHistory = resourceHistory;
 			var vid = resourceHistory.versionCount();
 			req.resourceHistory.findLatest(function(err, resource) {
+
+				resource = JSON.parse(JSON.stringify(resource));
 				resource.resourceType = resourceHistory.resourceType;
 				resource.id = resourceHistory.resourceType + "/" + id;
 				resource.meta = {
 					versionId : resourceHistory.versionCount(),
 					created : resourceHistory._id.getTimestamp(),
-					lastUpdated : resource._id.getTimestamp(),
+					lastUpdated : resourceHistory.history[vid - 1].resourceId
+							.getTimestamp(),
 					createdBy : resourceHistory.createdBy,
 					updatedBy : resourceHistory.history[vid - 1].updatedBy
-				}
+				};
 				req.resource = resource;
 				next(resource);
 			});
@@ -72,16 +119,18 @@ exports.vread = function(req, res, id, vid, next) {
 		if (resourceHistory !== null) {
 			req.resourceHistory = resourceHistory;
 			req.resourceHistory.getVersion(vid, function(err, resource) {
+				resource = JSON.parse(JSON.stringify(resource));
 				resource.resourceType = resourceHistory.resourceType;
-				resource.id = resourceHistory.resourceType + "/" + id + "/"
-						+ vid;
+				resource.id = resourceHistory.resourceType + "/" + id
+						+ "/_history/" + vid;
 				resource.meta = {
 					versionId : vid,
 					created : resourceHistory._id.getTimestamp(),
-					lastUpdated : resource._id.getTimestamp(),
+					lastUpdated : resourceHistory.history[vid - 1].resourceId
+							.getTimestamp(),
 					createdBy : resourceHistory.createdBy,
 					updatedBy : resourceHistory.history[vid - 1].updatedBy
-				}
+				};
 				req.resource = resource;
 				next(resource);
 			});
@@ -96,7 +145,7 @@ exports.history = function(req, res, id, next) {
 	// Find the history
 	ResourceHistory.findById(id, function(rhErr, resourceHistory) {
 		if (rhErr) {
-			next(rhErr);
+			res.send(500);
 		}
 		var history = [];
 		if (resourceHistory !== null) {
@@ -104,38 +153,39 @@ exports.history = function(req, res, id, next) {
 			// Get each version
 			async.forEach(resourceHistory.history, function(hist, callback) {
 				resourceHistory.getVersion(i, function(err, resource) {
+					resource = JSON.parse(JSON.stringify(resource));
 					resource.resourceType = resourceHistory.resourceType;
-					resource.id = resourceHistory.resourceType + "/" + id + "/"
-							+ i;
+					resource.id = resourceHistory.resourceType + "/" + id
+							+ "/_history/" + i;
+					var humanReadable = generateText(resource);
+					resource.text = {
+						status : "generated",
+						div : humanReadable
+					};
 					resource.meta = {
 						versionId : i,
 						created : resourceHistory._id.getTimestamp(),
 						lastUpdated : hist.resourceId.getTimestamp(),
 						createdBy : resourceHistory.createdBy,
 						updatedBy : hist.updatedBy
-					}
+					};
 					history.push(resource);
 					i++;
 					callback();
 				});
 			}, function(err) {
-				req.resource = history;
-				next(resource);
+				res.contentType('application/fhir+json');
+				res.location(id);
+				res.status(200);
+				res.send(JSON.stringify(history, null, ' '));
 			});
 		} else {
-			req.resource = history;
-			next(resource);
+			res.contentType('application/fhir+json');
+			res.location(id);
+			res.status(200);
+			res.send(JSON.stringify(history, null, ' '));
 		}
 	});
-};
-
-/**
- * Put the resource in jason format and send it.
- */
-exports.show = function(req, res) {
-	var resource = req.resource;
-	var json = JSON.stringify(resource);
-	res.send(json);
 };
 
 /**
@@ -152,17 +202,40 @@ exports.create = function(req, res) {
 
 	resource.save(function(err, savedresource) {
 		if (err) {
-			res.send(500);
+			var response = {
+				resourceType : "OperationOutcome",
+				text : {
+					status : "generated",
+					div : "<div>Error : " + err + "</div>"
+				},
+			};
+			res.status(500).send(response);
 		} else {
 			var resourceHistory = new ResourceHistory({
 				resourceType : modelName
 			});
-			resourceHistory.addVersion(savedresource.id);
+			resourceHistory.addVersion(savedresource.id, "");
 			resourceHistory.save(function(rhErr, savedResourceHistory) {
 				if (rhErr) {
-					res.send(500);
+					var response = {
+						resourceType : "OperationOutcome",
+						text : {
+							status : "generated",
+							div : "<div>Error : " + rhErr + "</div>"
+						},
+					};
+					res.status(500).send();
 				} else {
-					res.send(201);
+					var response = {
+						resourceType : "OperationOutcome",
+						text : {
+							status : "generated",
+							div : "<div>The operation was successful.</div>"
+						}
+					};
+					res.contentType('application/fhir+json');
+					res.location(model + "/" + savedResourceHistory.id);
+					res.status(201).send(JSON.stringify(response));
 				}
 			});
 		}
@@ -183,15 +256,38 @@ exports.update = function(req, res) {
 
 	resource.save(function(err, savedresource) {
 		if (err) {
+			var response = {
+				resourceType : "OperationOutcome",
+				text : {
+					status : "generated",
+					div : "<div>Error : " + err + "</div>"
+				},
+			};
+			res.status(500).send(response);
 			res.send(500);
 		} else {
 			var resourceHistory = req.resourceHistory;
 			resourceHistory.addVersion(savedresource);
 			resourceHistory.save(function(rhErr, savedResourceHistory) {
 				if (rhErr) {
-					res.send(500);
+					var response = {
+						resourceType : "OperationOutcome",
+						text : {
+							status : "generated",
+							div : "<div>Error : " + rhErr + "</div>"
+						},
+					};
+					res.status(500).send(response);
 				} else {
-					res.send(200);
+					var response = {
+						resourceType : "OperationOutcome",
+						text : {
+							status : "generated",
+							div : "<div>The operation was successful.</div>"
+						}
+					};
+					res.contentType('application/fhir+json');
+					res.status(200).send(response);
 				}
 			});
 		}
@@ -205,28 +301,69 @@ exports.remove = function(req, res) {
 	var resource = req.resource;
 	resource.remove(function(err) {
 		if (err) {
-			res.send(500);
+			var response = {
+				resourceType : "OperationOutcome",
+				text : {
+					status : "generated",
+					div : "<div>Error : " + err + "</div>"
+				},
+			};
+			res.status(500).send(response);
 		} else {
-			res.send(204);
+			var response = {
+				resourceType : "OperationOutcome",
+				text : {
+					status : "generated",
+					div : "<div>The operation was successful.</div>"
+				}
+			};
+			res.contentType('application/fhir+json');
+			res.status(204).send(response);
 		}
 	});
 };
 
+// Useful function
+var compareObjects = function(a, b) {
+	for ( var propA in a) {
+		propB = propA.trim();
+		if (!propB in b) {
+			return false;
+		}
+		var propValue = a[propA];
+		if (a[propA].charAt(0) == '{' || a[propA].charAt(0) == '[') {
+			propValue = JSON.parse(a[propA]);
+		}
+		if (typeof propValue === 'object') {
+			console.log("propValue: " + JSON.stringify(propValue)
+					+ " b[propB]: " + JSON.stringify(b[propB]));
+			return compareObjects(propValue, b[propB]);
+		} else {
+			console.log("propValue: " + propValue + " b[propB]: " + b[propB]);
+			return (propValue == b[propB]);
+		}
+	}
+	return true;
+};
+
 /**
- * List all resources of one type that respect the conditions.
+ * List all resources of one type that respect the conditions.<br>
+ * Useful for basic search.
  */
 exports.list = function(req, res) {
 
 	var result = [];
 
 	var conditions = req.query;
-	
+
 	var historyConditions = {
-		resourType : req.params.model
+		resourceType : req.params.model
 	}
-	if(createdBy in req.query){
-		historyConditions.createdBy = req.query.createdBy
+
+	if ('createdBy' in conditions) {
+		historyConditions.createdBy = conditions.createdBy
 	}
+
 	delete conditions.resourceType;
 	delete conditions.createdBy;
 
@@ -241,31 +378,38 @@ exports.list = function(req, res) {
 			var vid = history.versionCount();
 
 			history.findLatest(function(err, resource) {
-				var add = true;
-				for (var condition in conditions) {
-					if(!(condition in resource) || 
-							(resource[condition] != conditions[condition])){
-						add = false
-					}
-				}
-				if(add){
-					resource.resourceType = req.params.model,
-							resource.id = req.params.model + "/" + history._id.str,
-							resource.meta = {
-								versionId : vid,
-								created : history._id.getTimestamp(),
-								lastUpdated : history.lastUpdatedAt(),
-								createdBy : history.createdBy,
-								published : new Date(Date.now()),
-								updatedBy : history.history[vid - 1].updatedBy
-							};
-	
+
+				var add = compareObjects(conditions, resource);
+
+				if (add) {
+
+					// weird, but you can't add properties to the resource
+					// without this line:
+					resource = JSON.parse(JSON.stringify(resource));
+
+					resource['resourceType'] = req.params.model;
+					resource['id'] = req.params.model + "/" + history._id;
+					var humanReadable = generateText(resource);
+					resource['text'] = {
+						status : "generated",
+						div : humanReadable
+					};
+					resource['meta'] = {
+						versionId : vid,
+						created : history._id.getTimestamp(),
+						lastUpdated : history.lastUpdatedAt(),
+						createdBy : history.createdBy,
+						published : new Date(Date.now()),
+						updatedBy : history.history[vid - 1].updatedBy
+					};
 					result.push(resource);
 				}
 				callback();
 			});
 		}, function(err) {
-			res.send(JSON.stringify(result));
+			res.contentType('application/fhir+json');
+			res.status(200);
+			res.send(JSON.stringify(result, null, ' '));
 		});
 	});
 };

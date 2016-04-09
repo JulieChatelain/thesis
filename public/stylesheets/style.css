@@ -53,7 +53,6 @@ img { vertical-align: middle; }
 #patientData {
 	background-color: white;
     margin: 0px;
-	padding: 5px;
 }
 
 .patientInfo { margin-left: 5px;}
@@ -61,9 +60,8 @@ img { vertical-align: middle; }
 .dataCard {
 	background-color: #B3E5FC; /* light blue */
 	border: 1px solid #B3E5FC; /* dark blue */
-	border-radius: 5px;
 	padding: 2px;
-	margin: 5px;
+	margin-top: 2px;
 }
 
 .cardContent {

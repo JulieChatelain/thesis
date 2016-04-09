@@ -32,7 +32,7 @@ var ResourceHistorySchema = new mongoose.Schema({
   resourceType: String,
   createdBy: String,
   history: [{resourceId: mongoose.Schema.Types.ObjectId, updatedBy: String}]
-});
+}, { collection: 'resourcehistorys' });
 
 ResourceHistorySchema.methods = {
   addVersion: function (resourceId, upBy) {

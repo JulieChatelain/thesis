@@ -1,9 +1,15 @@
-angular.module('ehr', ['ngCookies']).controller('EHRCtrl', ['$cookies', '$scope',function($scope, $cookies) {
+app.controller('EHRCtrl', function($scope) {
+	
 
-	$scope.patientId = 0;
+	$scope.name = "Bouh"
 		
-	$scope.ehrMenuOptions = [];
-	$scope.patients = [];
+	$http.get("/ehrmenu")
+    .then(function(response) {
+        $scope.ehrMenuOptions = response.data;
+    });
+	
+	$scope.patientId = 0;
+	
 	$scope.practioner = {};
 	
 	$scope.currentDate = new Date();
@@ -23,5 +29,6 @@ angular.module('ehr', ['ngCookies']).controller('EHRCtrl', ['$cookies', '$scope'
 		var ageDate = new Date(ageDifMs);
 		return Math.abs(ageDate.getUTCFullYear() - 1970);
 	}
+	
 
-}]);
+});

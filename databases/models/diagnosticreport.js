@@ -40,53 +40,79 @@ var DiagnosticReportSchema = new mongoose.Schema({
 			required : true
 		}
     }],
-    status: String,
-    category: {
-        coding: [{
+    status: String,			// 	registered | partial | final | corrected | appended | cancelled | entered-in-error
+    category: {				// 	Service category ex: BLB Blood Bank, CG Cytogenetics, CH Chemistry, CP CAT Scan,...
+        coding: [{			//  See : Diagnostic Service Section Codes
             system: String,
             code: String,
             display: String
         }]
     },
-    code: {
-        coding: [{
+    code: {					// Name/Code for this diagnostic report    						
+        coding: [{			// LOINC Diagnostic Report Codes (Preferred)
             system: String,
             code: String,
             display: String
         }]
     },
-    subject: {
+    subject: {				// The subject of the report, usually, but not always, the patient
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    encounter: {
+    encounter: {			// Health care event when test ordered
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    effectiveDateTime: Date,
-    effectivePeriod: {
+    effectiveDateTime: Date,	// Clinically Relevant time/time-period for report
+    effectivePeriod: {			// Clinically Relevant time/time-period for report
+		start : Date,
+		end : Date
     },
-    issued: Date,
-    performer: {
+    issued: Date,			// DateTime this version was released
+    performer: {			// Responsible Diagnostic Service
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    request: [{
+    request: [{				// What was requested (DiagnosticOrder | ProcedureRequest | ReferralRequest)
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
-    specimen: [{
+    specimen: [{			// Specimens this report is based on
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
-    result: [{
+    result: [{				// Observations - simple, or complex nested groups
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
-    imagingStudy: [{
+    imagingStudy: [{		// Reference to full details of imaging associated with the diagnostic report
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
-    image: [{
-        comment: String,
-        link: {
+    image: [{				// Key images associated with this report
+        comment: String,	// Comment about the image (e.g. explanation)
+        link: {				// Reference to the image source
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }
     }],
-    conclusion: String,
-    codedDiagnosis: [{
+    conclusion: String,		// Clinical Interpretation of test results
+    codedDiagnosis: [{		// Codes for the conclusion
         coding: [{
             system: String,
             code: String,
             display: String
         }]
     }],
-    presentedForm: [{
+    presentedForm: [{		// Entire report as issued
+		contentType : String, 	// Mime type of the content, with charset etc.
+		language : String, 		// Human language of the content (BCP-47)
+		data : Buffer, 			// Data inline, base64ed
+		url : String, 			// Uri where the data can be found
+		size : Number, 			// Number of bytes of content (if url provided)
+		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
+		title : String, 		// Label to display in place of the data
+		creation : Date			// Date attachment was first created	
     }]
 });
 

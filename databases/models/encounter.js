@@ -40,21 +40,32 @@ var EncounterSchema = new mongoose.Schema({
 			required : true
 		}
     }],
-    status: String,
-    statusHistory: [{
-        status: String,
+    status: {				// planned | arrived | in-progress | onleave | finished | cancelled
+    	type: String, 
+    	required:true
+    	},			
+    statusHistory: [{		// List of past encounter statuses
+        status: {
+	    	type: String, 
+	    	required:true
+    	},	
         period: {
+    		start : Date,
+    		end : Date
         }
     }],
-    class: String,
-    fhirType: [{
+    class: {				// inpatient | outpatient | ambulatory | emergency +
+    	type: String,
+    	required: true
+    },
+    type: [{				// Specific type of encounter
         coding: [{
             system: String,
             code: String,
             display: String
         }]
     }],
-    priority: {
+    priority: {				//Indicates the urgency of the encounter
         coding: [{
             system: String,
             code: String,
@@ -62,31 +73,48 @@ var EncounterSchema = new mongoose.Schema({
         }]
     },
     patient: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    episodeOfCare: [{
+    episodeOfCare: [{		// Episode(s) of care that this encounter should be recorded against
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
-    incomingReferral: [{
+    incomingReferral: [{	// The ReferralRequest that initiated this encounter
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
-    participant: [{
-        fhirType: [{
+    participant: [{			// List of participants involved in the encounter
+        type: [{				// Role of participant in encounter
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         }],
-        period: {
+        period: {				// 	Period of time during the encounter participant was present
+    		start : Date,
+    		end : Date
         },
-        individual: {
+        individual: {			// Persons involved in the encounter other than the patient
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }
     }],
     appointment: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    period: {
+    period: {				// The start and end time of the encounter
+		start : Date,
+		end : Date
     },
-    length: {
+    length: {				// Quantity of time the encounter lasted (less time absent)
+    	value: Number,
+    	unit: String,
+    	system : String
     },
-    reason: [{
+    reason: [{				// Reason the encounter takes place (code)
         coding: [{
             system: String,
             code: String,
@@ -94,75 +122,96 @@ var EncounterSchema = new mongoose.Schema({
         }]
     }],
     indication: [{
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
-    hospitalization: {
+    hospitalization: {			// Details about the admission to a healthcare service
         preAdmissionIdentifier: {
             use: String,
             label: String,
             system: String,
             value: String
         },
-        origin: {
+        origin: {				// The location from which the patient came before admission
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
-        admitSource: {
+        admitSource: {			// 	From where patient was admitted (physician referral, transfer)
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        admittingDiagnosis: [{
+        admittingDiagnosis: [{  // The admitting diagnosis as reported by admitting practitioner (condition)
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }],
-        reAdmission: {
+        reAdmission: {			// The type of hospital re-admission that has occurred (if any). If the value is absent, then this is not identified as a readmission
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        dietPreference: [{
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        }],
-        specialCourtesy: [{
+        dietPreference: [{		// Diet preferences reported by the patient
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         }],
-        specialArrangement: [{
+        specialCourtesy: [{		// Special courtesies (VIP, board member)
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         }],
-        destination: {
+        specialArrangement: [{	// Wheelchair, translator, stretcher, etc.
+            coding: [{
+                system: String,
+                code: String,
+                display: String
+            }]
+        }],
+        destination: {			// Location to which the patient is discharged
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
-        dischargeDisposition: {
+        dischargeDisposition: {	// Category or kind of location after discharge
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        dischargeDiagnosis: [{
+        dischargeDiagnosis: [{	// The final diagnosis given a patient before release from the hospital after all testing, surgery, and workup are complete
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }]
     },
-    location: [{
-        location: {
+    location: [{				// List of locations where the patient has been
+        location: {				// Location the encounter takes place
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
-        status: String,
-        period: {
+        status: {				// 	planned | active | reserved | completed        	
+        	type: String,		// EncounterLocationStatus (Required)
+        	required: true
+        },
+        period: {				// Time period during which the patient was present at the location
+    		start : Date,
+    		end : Date
         }
     }],
-    serviceProvider: {
+    serviceProvider: {		// The custodian organization of this Encounter record
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    partOf: {
+    partOf: {				// Another Encounter this encounter is part of
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }
 });
 

@@ -102,7 +102,7 @@ var ConditionSchema = new mongoose.Schema({
 		text : String			// Plain text representation of the concept
 	},
 	onsetDateTime : Date,
-	onsetAge : {
+	onsetQuantity : {
 		value : String,
 		units : String,
 		system : String,
@@ -115,7 +115,7 @@ var ConditionSchema = new mongoose.Schema({
 	onsetRange : {low : String, high : String},
 	onsetString : String,
 	abatementDateTime : Date,
-	abatementAge : {
+	abatementQuantity : {
 		value : String,
 		units : String,
 		system : String,

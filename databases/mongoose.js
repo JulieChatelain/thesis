@@ -12,3 +12,15 @@ mongoose.connect(mongodbURL, mongodbOptions, function (err, res) {
         console.log('Express server listening on port 27017');
     }
 });
+
+
+var fs = require('fs');
+var models_path = __dirname + '\\models';
+console.log(models_path);
+var models = fs.readdirSync(models_path);
+
+models.forEach(function (file) {
+  if (~file.indexOf('.js')) {
+    require(models_path + '/' + file);
+  }
+});

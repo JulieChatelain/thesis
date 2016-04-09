@@ -1,26 +1,23 @@
+
 var mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;
+/**
+ * 
+ */
 
-var User = new Schema({
-	userID: { type: String, required: true, unique: true },
-	reference: { type: String, required: true },
-	patients : [{
-        reference: { type: String, required: true },
-        display: String,
-        ehrOptions : [{
-    		name : { type: String, required: true, unique: true },
-    		url: { type: String, required: true, unique: true },
-    		show : { type: Boolean, required: true },
-    		unfold : { type: Boolean, required: true }
-    	}]
-    }],
-    created: { type: Date }
+var UserSchema = new mongoose.Schema({
+
+    //email: { type: String, required: true, unique: true },
+    //activationToken: { type: String, required: true },
+    //password: { type: String, required: true },
+    //resetPasswordToken: { type: String, required: false },
+    //resetPasswordExpires: { type: Date, required: false },
+    //language: { type: String, required: true },
+    //created: { type: Date },
+    reference : [{type: String, required : false}], 	// refer to a patient or practitioner resource
+    access : [{id : String, start : Date, end : Date}]	// list of patients the user has access to, for a determined period
+    
 });
 
-//Define Models
-var userModel = mongoose.model('User', User);
-
-
-// Export Models
-exports.UserModel = userModel;
+var user = mongoose.model('User', UserSchema);
+exports.User = user;

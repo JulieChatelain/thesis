@@ -40,14 +40,14 @@ var PersonSchema = new mongoose.Schema({
 			required : true
 		}
     }],
-    name: [{
+    name: {
         use: String,
         text: String,
         family: [String],
         given: [String],
         prefix: [String],
         suffix: [String]
-    }],
+    },
     telecom: [{
     }],
     gender: String,

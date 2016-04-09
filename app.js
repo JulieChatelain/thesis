@@ -3,15 +3,17 @@
  * Module dependencies.
  */
 
+var db = require('./databases/mongoose.js');
+
+var mongoose = require('mongoose');
+
 var express = require('express')
   , routes = require('./routes')
   , rest = require('./routes/REST')
+  , data = require('./routes/data')
   , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
-
-//MongoDB
-//var db = require('./databases/mongoose');
 
 var app = express();
 
@@ -37,25 +39,44 @@ app.get('/', routes.index);
 app.get('/ehr', routes.ehr);
 app.get('/users', user.list);
 
-// REST api
-/* 
-    Create = POST https://example.com/path/{resourceType}
-    Read = GET https://example.com/path/{resourceType}/{id}
-    Update = PUT https://example.com/path/{resourceType}/{id}
-    Delete = DELETE https://example.com/path/{resourceType}/{id}
-    Search = GET https://example.com/path/{resourceType}?search parameters...
-    History = GET https://example.com/path/{resourceType}/{id}/_history
-    Transaction = POST https://example.com/path/ (POST a transaction bundle to the system)
-    Operation = GET https://example.com/path/{resourceType}/{id}/${opname}
- */
+//Data provider
+app.get('/ehrmenu', function(req, res) {
+	
+	var EHROption = mongoose.model('EHROption');
+	EHROption.find({}, function(err, options) {
+		if (err) {
+			console.log("Got an error: " + err);
+			res.send(500);
+		} else {
+			console.log(options);
+			var json = JSON.stringify(options);
+			res.send(json);
+		}
+	});
+});
 
-app.post('/:model', rest.create);
-app.get('/:model/:id', rest.read);
-app.get('/:model', rest.search);
-app.get('/:model/:id/_history/:vid', rest.vread);
-app.get('/:model/:id/_history', rest.history);
-app.put('/:model/:id', rest.update);
-app.del('/:model/:id', rest.del);
+//REST api
+/* 
+ Create = POST https://example.com/path/{resourceType}
+ Read = GET https://example.com/path/{resourceType}/{id}
+ Update = PUT https://example.com/path/{resourceType}/{id}
+ Delete = DELETE https://example.com/path/{resourceType}/{id}
+ Search = GET https://example.com/path/{resourceType}?search parameters...
+ History = GET https://example.com/path/{resourceType}/{id}/_history
+ Todo:
+ Transaction = POST https://example.com/path/ (POST a transaction bundle to the system)
+ Operation = GET https://example.com/path/{resourceType}/{id}/${opname}
+*/
+
+
+app.post('/rest/:model', rest.create);
+app.get('/rest/:model/:id', rest.read);
+app.get('/rest/:model', rest.search);
+app.get('/rest/:model/:id/_history/:vid', rest.vread);
+app.get('/rest/:model/:id/_history', rest.history);
+app.put('/rest/:model/:id', rest.update);
+app.del('/rest/:model/:id', rest.del);
+
 
 // launch server
 http.createServer(app).listen(app.get('port'), function(){
