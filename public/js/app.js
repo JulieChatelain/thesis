@@ -67,6 +67,15 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 				$scope.hospitalized = $scope.hospitalizedForDiabete();
 			});
 		});
+
+		// Get all the observations for this patient
+		var req4 = '/rest/observation?subject={"reference":"'
+				+ encodeURIComponent($scope.patientId) + '"}';
+		$http.get(req4).then(function(response) {
+			$scope.observations = response.data;
+			// search for the history of tobacco use
+			$scope.tobaccoUse = findTobaccoUse();
+		});
 		// Retrieving a cookie
 		// var optionsCookie = $cookies.get('ehrOptionsPatient'
 		// +
@@ -76,9 +85,22 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 	};
 
 	/** -----------------------------------------------------------------------
-	 * Compute age with birthday date
+	 * Find the observation corresponding to the history of tobacco use
 	 *  -----------------------------------------------------------------------
 	 */
+	
+	var findTobaccoUse = function(){
+		if(typeof $scope.observations !== 'undefined'){
+			for (var i = 0, len = $scope.observations.length; i < len; i++) {
+				if($scope.observations[i].code.coding.length > 0)
+					if($scope.observations[i].code.coding[0].code == '11367-0') {
+						return $scope.observations[i];
+					}	
+			}
+		}
+		return null;		
+	}
+	
 	$scope.calculateAge = function(birthday) {
 		var ageDifMs = Date.now() - new Date(birthday);
 		var ageDate = new Date(ageDifMs);
@@ -183,13 +205,9 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 	 */
 	
 	$scope.hospitalizedForDiabete = function(){
-		$log.log("hosp ?! ");
 		if(typeof $scope.diabDiagEncounter !== 'undefined'){
-			$log.log("hosp... ");
 			if('hospitalization' in $scope.diabDiagEncounter)
-				$log.log("hosp! ");
 				if($scope.diabDiagEncounter.hospitalization.admittingDiagnosis.length > 0) {
-					$log.log("hosp... Oui!!! ");
 					return "Oui";
 				}	
 		}

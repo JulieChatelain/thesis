@@ -8,6 +8,7 @@ db.conditions.drop();
 db.encounters.drop();
 db.locations.drop();
 db.diagnosticreports.drop();
+db.observations.drop();
 db.resourcehistorys.drop();
 
 var id3 = ObjectId();
@@ -400,55 +401,38 @@ db.conditions.insert([ {
 
 
 //********************************************************************
+var id258 = ObjectId();
 db.observations.insert([
 {
-status: String,
+	_id : id258,
+status: "final",
 category: {
     coding: [{
-        system: String,
-        code: String,
-        display: String
+        system: "http://hl7.org/fhir/ValueSet/observation-category",
+        code: "social-history",
+        display: "Histoire sociale"
     }]
 },
 code: {
     coding: [{
-        system: String,
-        code: String,
-        display: String
+        system: "http://loinc.org",
+        code: "11367-0",
+        display: "Historique de consommation de tabac"
     }]
 },
 subject: {
-	reference : String, // Relative, internal or absolute URL reference
-	display : String	// Text alternative for the resource
+	reference : "Patient/"+id5.str,
+	display : "Jean Dupont"	
 },
-encounter: {
-	reference : String, // Relative, internal or absolute URL reference
-	display : String	// Text alternative for the resource
-},
-issued: Date,
-performer: [{
-	reference : String, // Relative, internal or absolute URL reference
-	display : String	// Text alternative for the resource
-}],
-valueQuantity: {
-    value: String,
-    units: String,
-    system: String,
-    code: String
-},
+issued: new Date(2015,11,12),
 valueCodeableConcept: {
     coding: [{
-        system: String,
-        code: String,
-        display: String
+        system: "http://loinc.org",
+        code: "LA18981-3",
+        display: "Gros fumeur"
     }]
 },
-valueString: String,
-valueRange: {
-	low : String, 
-	high : String
-},
-comments: String,
+valueString: "2 à 3 paquets par jour"
 }]);
 //********************************************************************
 
@@ -654,6 +638,13 @@ db.resourcehistorys.insert([ {
 	createdBy : "Practitioner/" + id4.str,
 	history : [ {
 		resourceId : id666,
+		updatedBy : "Practitioner/" + id4.str
+	} ]
+}, {
+	resourceType : "Observation",
+	createdBy : "Practitioner/" + id4.str,
+	history : [ {
+		resourceId : id258,
 		updatedBy : "Practitioner/" + id4.str
 	} ]
 } ]);
