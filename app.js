@@ -2,7 +2,6 @@
 /**
  * Module dependencies.
  */
-
 var db = require('./databases/mongoose.js');
 
 var mongoose = require('mongoose');

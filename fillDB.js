@@ -7,12 +7,14 @@ db.practitioners.drop();
 db.conditions.drop();
 db.encounters.drop();
 db.locations.drop();
+db.diagnosticreports.drop();
 db.resourcehistorys.drop();
 
 var id3 = ObjectId();
 var id20 = ObjectId();
 var id21 = ObjectId();
 
+//********************************************************************
 db.locations
 		.insert({
 			_id : id20,
@@ -40,6 +42,7 @@ db.locations
 			mode : "instance",
 		});
 
+//********************************************************************
 db.practitioners.insert({
 	_id : id3,
 	identifier : [ {
@@ -48,8 +51,8 @@ db.practitioners.insert({
 		assigner : "JC"
 	} ],
 	name : {
-		family : [ "Dutronc" ],
-		given : [ "Jean-Marie" ]
+		family : [ "House" ],
+		given : [ "Gregory" ]
 	},
 	photo : [ {
 		url : "/img/avatar/male1.png"
@@ -77,6 +80,7 @@ db.practitioners.insert({
 
 });
 
+//********************************************************************
 db.ehroptions.insert([ {
 	name : "Histoire du diabète",
 	url : "views/ehrOptions/diabHistory.html"
@@ -114,6 +118,7 @@ var id2 = ObjectId();
 var id4 = ObjectId();
 var idi = ObjectId();
 
+//********************************************************************
 db.patients.insert([ {
 	_id : idi,
 	identifier : [ {
@@ -191,6 +196,7 @@ db.patients.insert([ {
 	} ]
 } ]);
 
+//********************************************************************
 var id5 = ObjectId();
 var id6 = ObjectId();
 
@@ -213,6 +219,8 @@ db.users.insert({
 		id : "Patient/" + id6.str
 	} ]
 });
+
+//********************************************************************
 
 db.conditions.insert([ {
 	_id : id15,
@@ -306,12 +314,18 @@ db.conditions.insert([ {
 				system : "http://snomed.info/sct",
 				code : "17173007",
 				display : "Soif excessive"
-			} ],
+			} ]
+		}
+	}, {
+		code : {
 			coding : [ {
 				system : "http://snomed.info/sct",
 				code : "272060000",
 				display : "Fatigue"
-			} ],
+			} ]
+		}
+	}, {
+		code : {
 			coding : [ {
 				system : "http://snomed.info/sct",
 				code : "89362005",
@@ -363,13 +377,17 @@ db.conditions.insert([ {
 				system : "http://snomed.info/sct",
 				code : "17173007",
 				display : "Soif excessive"
-			} ],
+			} ]
+		}
+	}, {
+		code : {
 			coding : [ {
 				system : "http://snomed.info/sct",
 				code : "272060000",
 				display : "Fatigue"
 			} ]
 		}
+	
 	} ],
 	bodySite : [ {
 		coding : [ {
@@ -380,9 +398,63 @@ db.conditions.insert([ {
 	} ]
 } ]);
 
+
+//********************************************************************
+db.observations.insert([
+{
+status: String,
+category: {
+    coding: [{
+        system: String,
+        code: String,
+        display: String
+    }]
+},
+code: {
+    coding: [{
+        system: String,
+        code: String,
+        display: String
+    }]
+},
+subject: {
+	reference : String, // Relative, internal or absolute URL reference
+	display : String	// Text alternative for the resource
+},
+encounter: {
+	reference : String, // Relative, internal or absolute URL reference
+	display : String	// Text alternative for the resource
+},
+issued: Date,
+performer: [{
+	reference : String, // Relative, internal or absolute URL reference
+	display : String	// Text alternative for the resource
+}],
+valueQuantity: {
+    value: String,
+    units: String,
+    system: String,
+    code: String
+},
+valueCodeableConcept: {
+    coding: [{
+        system: String,
+        code: String,
+        display: String
+    }]
+},
+valueString: String,
+valueRange: {
+	low : String, 
+	high : String
+},
+comments: String,
+}]);
+//********************************************************************
+
 db.encounters.insert([ {
 	_id : id7,
-	class : "ambulatory",
+	classCode : "ambulatory",
 	patient : {
 		reference : "Patient/" + id6.str,
 		display : "Marie Dupuis"
@@ -402,7 +474,7 @@ db.encounters.insert([ {
 	} ]
 }, {
 	_id : id9,
-	class : "inpatient",
+	classCode : "inpatient",
 	patient : {
 		reference : "Patient/" + id5.str,
 		display : "Jean Dupont"
@@ -434,8 +506,11 @@ db.encounters.insert([ {
 		}
 	} ]
 } ]);
+
+// ********************************************************************
 var id777 = ObjectId();
 var id666 = ObjectId();
+
 db.diagnosticreports.insert([ {
 	_id: id777,
 	status : "final",
@@ -457,12 +532,12 @@ db.diagnosticreports.insert([ {
 	codedDiagnosis : [ { 
 		coding : [ {
 			system : "http://snomed.info/sct",
-			code : "46635009",
-			display : "Diabetes mellitus type 1"
+			code : "444073006",
+			display : "Type I diabetes mellitus uncontrolled"
 		} ]
 	} ]
 }, {
-	_id: id777,
+	_id: id666,
 	status : "final",
 	subject : {
 		reference : "Patient/" + id6.str,
@@ -482,8 +557,8 @@ db.diagnosticreports.insert([ {
 	codedDiagnosis : [ { 
 		coding : [ {
 			system : "http://snomed.info/sct",
-			code : "46635009",
-			display : "Diabetes mellitus type 1"
+			code : "444073006",
+			display : "Type I diabetes mellitus uncontrolled"
 		} ]
 	} ]
 } ]);

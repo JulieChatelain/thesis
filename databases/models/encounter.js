@@ -84,8 +84,8 @@ var EncounterSchema = new mongoose.Schema({
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     }],
-    participant: [{			// List of participants involved in the encounter
-        type: [{				// Role of participant in encounter
+    participant: [{				// List of participants involved in the encounter
+        role: [{				// Role of participant in encounter
             coding: [{
                 system: String,
                 code: String,

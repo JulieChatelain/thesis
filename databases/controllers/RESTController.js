@@ -39,22 +39,29 @@ var generateText = function(resource) {
 	var humanReadable = "<p>" + "<strong>" + resource.resourceType
 			+ "</strong><br>" + "<strong>url : </strong>" + resource.id
 			+ "<br>";
-	if ('name' in resource) {
+	if ('name' in resource && typeof resource.name.given[0] !== 'undefined'
+			&& typeof resource.name.family[0] !== 'undefined') {
 		humanReadable = humanReadable + "<strong>Name : </strong> "
 				+ resource.name.given[0] + " " + resource.name.family[0]
 				+ "<br>"
 	}
-	if ('code' in resource) {
+	if ('code' in resource && typeof resource.code.coding[0] !== 'undefined') {
 		humanReadable = humanReadable + "<strong>"
 				+ resource.code.coding[0].display + "</strong><br>"
 	}
-	if ('patient' in resource) {
+	if ('patient' in resource
+			&& typeof resource.patient.display !== 'undefined') {
 		humanReadable = humanReadable + "<strong>Concerns : </strong>"
 				+ resource.patient.display + "<br>";
 	}
-	if ('subject' in resource) {
+	if ('subject' in resource
+			&& typeof resource.subject.display !== 'undefined') {
 		humanReadable = humanReadable + "<strong>Concerns : </strong>"
 				+ resource.subject.display + "<br>";
+	}
+	if ('conclusion' in resource && typeof resource.conclusion !== 'undefined') {
+		humanReadable = humanReadable + "<strong>Conclusion : </strong>"
+				+ resource.conclusion + "<br>";
 	}
 	humanReadable = humanReadable + "</p>";
 	return humanReadable;
@@ -335,11 +342,8 @@ var compareObjects = function(a, b) {
 			propValue = JSON.parse(a[propA]);
 		}
 		if (typeof propValue === 'object') {
-			console.log("propValue: " + JSON.stringify(propValue)
-					+ " b[propB]: " + JSON.stringify(b[propB]));
 			return compareObjects(propValue, b[propB]);
 		} else {
-			console.log("propValue: " + propValue + " b[propB]: " + b[propB]);
 			return (propValue == b[propB]);
 		}
 	}
@@ -386,7 +390,6 @@ exports.list = function(req, res) {
 					// weird, but you can't add properties to the resource
 					// without this line:
 					resource = JSON.parse(JSON.stringify(resource));
-
 					resource['resourceType'] = req.params.model;
 					resource['id'] = req.params.model + "/" + history._id;
 					var humanReadable = generateText(resource);

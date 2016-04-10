@@ -56,14 +56,22 @@ var ObservationSchema = new mongoose.Schema({
         }]
     },
     subject: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     encounter: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    effectiveDateTime: Date,
+    effectiveDateTime: Date,	// Clinically relevant time/time-period for observation
     effectivePeriod: {
+		start : Date,
+		end : Date
     },
     issued: Date,
     performer: [{
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     }],
     valueQuantity: {
         value: String,
@@ -80,17 +88,47 @@ var ObservationSchema = new mongoose.Schema({
     },
     valueString: String,
     valueRange: {
+		low : String, 
+		high : String
     },
     valueRatio: {
+    	numerator: {
+    		  value : Number, 				// Numerical value (with implicit precision)
+    		  unit : String, 				// Unit representation
+    		  system : String, 				// C? System that defines coded unit form
+    		  code : String 				// Coded form of the unit    		
+    	},
+    	denominator: {
+  		  value : Number, 				// Numerical value (with implicit precision)
+		  unit : String, 				// Unit representation
+		  system : String, 				// C? System that defines coded unit form
+		  code : String 				// Coded form of the unit    	    		
+    	}
     },
     valueSampledData: {
+    	  origin : String, 			// R!  Zero value and units
+    	  period : Number, 			// R!  Number of milliseconds between samples
+    	  factor : Number, 			// Multiply data by this before adding to origin
+    	  lowerLimit : Number,		// Lower limit of detection
+    	  upperLimit : Number, 		// Upper limit of detection
+    	  dimensions : Number, 		// R!  Number of sample points at each time point
+    	  data : String 			// R!  Decimal values with spaces, or "E" | "U" | "L"
     },
     valueAttachment: {
+		contentType : String, 	// Mime type of the content, with charset etc.
+		language : String, 		// Human language of the content (BCP-47)
+		data : Buffer, 			// Data inline, base64ed
+		url : String, 			// Uri where the data can be found
+		size : Number, 			// Number of bytes of content (if url provided)
+		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
+		title : String, 		// Label to display in place of the data
+		creation : Date			// Date attachment was first created	
     },
-    valueTime: {
-    },
+    valueTime: String,
     valueDateTime: Date,
     valuePeriod: {
+		start : Date,
+		end : Date
     },
     dataAbsentReason: {
         coding: [{
@@ -122,31 +160,38 @@ var ObservationSchema = new mongoose.Schema({
         }]
     },
     specimen: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     device: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
-    referenceRange: [{
-        low: {
-        },
-        high: {
-        },
-        meaning: {
+    referenceRange: [{		// Provides guide for interpretation
+    						// Must have at least a low or a high or text
+        low: String,
+        high: String,
+        meaning: {			// Indicates the meaning/use of this range of this range
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        age: {
+        age: {				// Applicable age range, if relevant
+            low: String,
+            high: String,
         },
-        text: String,
+        text: String,		// Text based reference range in an observation
     }],
-    related: [{
-        fhirType: String,
+    related: [{				// Resource related to this observation
+        fhirType: String,	// has-member | derived-from | sequel-to | replaces | qualified-by | interfered-by
         target: {
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }
     }],
-    component: [{
+    component: [{				// 	Component results
         code: {
             coding: [{
                 system: String,
@@ -169,17 +214,47 @@ var ObservationSchema = new mongoose.Schema({
         },
         valueString: String,
         valueRange: {
+    		low : String, 
+    		high : String
         },
         valueRatio: {
+        	  numerator: {
+      		  value : Number, 				// Numerical value (with implicit precision)
+      		  unit : String, 				// Unit representation
+      		  system : String, 				// C? System that defines coded unit form
+      		  code : String 				// Coded form of the unit    		
+	      	},
+	      	denominator: {
+	    		  value : Number, 				// Numerical value (with implicit precision)
+	  		  unit : String, 				// Unit representation
+	  		  system : String, 				// C? System that defines coded unit form
+	  		  code : String 				// Coded form of the unit    	    		
+	      	}
         },
         valueSampledData: {
+    	  origin : String, 			// R!  Zero value and units
+    	  period : Number, 			// R!  Number of milliseconds between samples
+    	  factor : Number, 			// Multiply data by this before adding to origin
+    	  lowerLimit : Number,		// Lower limit of detection
+    	  upperLimit : Number, 		// Upper limit of detection
+    	  dimensions : Number, 		// R!  Number of sample points at each time point
+    	  data : String 			// R!  Decimal values with spaces, or "E" | "U" | "L"
+	    },
+	    valueAttachment: {
+			contentType : String, 	// Mime type of the content, with charset etc.
+			language : String, 		// Human language of the content (BCP-47)
+			data : Buffer, 			// Data inline, base64ed
+			url : String, 			// Uri where the data can be found
+			size : Number, 			// Number of bytes of content (if url provided)
+			hash : Buffer, 			// Hash of the data (sha-1, base64ed)
+			title : String, 		// Label to display in place of the data
+			creation : Date			// Date attachment was first created	
         },
-        valueAttachment: {
-        },
-        valueTime: {
-        },
+        valueTime: String,
         valueDateTime: Date,
         valuePeriod: {
+    		start : Date,
+    		end : Date
         },
         dataAbsentReason: {
             coding: [{
@@ -188,7 +263,22 @@ var ObservationSchema = new mongoose.Schema({
                 display: String
             }]
         },
-        referenceRange: [{
+        referenceRange: [{	// Provides guide for interpretation
+			// Must have at least a low or a high or text
+            low: String,
+            high: String,
+            meaning: {			// Indicates the meaning/use of this range of this range
+                coding: [{
+                    system: String,
+                    code: String,
+                    display: String
+                }]
+            },
+            age: {				// Applicable age range, if relevant
+                low: String,
+                high: String,
+            },
+            text: String,		// Text based reference range in an observation
         }]
     }]
 });

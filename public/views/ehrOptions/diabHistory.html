@@ -1,12 +1,15 @@
 <ul class="cardContent" ng-show="elem.unfold">
-	<li><strong>Date du diagnostic :</strong> <span>{{dateDiag
+	<li><strong>Date du diagnostic :</strong> <span>{{diagDiabete.issued
 			| date:'dd-MM-yyyy'}}</span></li>
-	<li><strong>Symptômes :</strong> {{symptoms.desc}}</li>
+	<li><strong>Symptômes :</strong> 
+		<span ng-repeat="symptom in diabeteSymptoms">
+		{{symptom}}; 
+		</span>
+	</li>
 	<li><strong>Durée du ou des symptômes:</strong>
-		{{symptomsTime.desc}}</li>
-	<li><strong>Hospitalisation:</strong> {{hospitalisation.desc}}
-		{{hospitalisation.where}} {{hospitalisation.why}}</li>
-	<li><strong>Traitement depuis le diagnostic et à ce
+		{{symptomsDuration}}</li>
+	<li><strong>Hospitalisation:</strong> {{ hospitalized }}</li>
+	<li><strong>Traitement depuis le diagnostic à ce
 			jour :</strong> {{treatmentSince.desc}}</li>
 	<li><strong>Consommation de tabac actuelle:</strong></li>
 	<li><strong>Consommation de tabac passée:</strong></li>

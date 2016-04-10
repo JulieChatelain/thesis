@@ -112,7 +112,10 @@ var ConditionSchema = new mongoose.Schema({
 		start : Date,
 		end : Date
 	},
-	onsetRange : {low : String, high : String},
+	onsetRange : {
+		low : String, 
+		high : String
+		},
 	onsetString : String,
 	abatementDateTime : Date,
 	abatementQuantity : {

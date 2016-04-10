@@ -25,7 +25,7 @@ showReports=false;showProtocols=false;">
 	Autre patient</h3>		
 	<ul ng-hide="(showPatients==false)">
 		<li class="menuElem" ng-repeat="p in patients | orderBy :'name.family[0]'"> 
-		<div ng-click="selectPatient($index)">{{p.name.family[0].toUpperCase()}} {{p.name.given[0]}}</div></li> 
+		<div ng-click="selectPatient(p.id)">{{p.name.family[0].toUpperCase()}} {{p.name.given[0]}}</div></li> 
 	</ul>
 		
     <h3 class="menuTitle">
@@ -90,11 +90,11 @@ showReports=false;showProtocols=false;">
 		<div id="patientSummary"> 
 			<img src="/img/more.png" alt="Plus"  ng-hide="(showPatientData==true)" ng-click="showPatientData=(showPatientData==false)"/>
 			<img src="/img/less.png" alt="Less"  ng-show="showPatientData" ng-click="showPatientData=(showPatientData==false)"/>
-			<img src="{{patients[patientId].photo[0].url}}" alt="Photo du patient" />
-			<div class="patientInfo"> {{patients[patientId].name.given[0]}} {{patients[patientId].name.family[0] | uppercase}} </div>
-			<div class="patientInfo"> ({{calculateAge(patients[patientId].birthDate)}} ans) </div>
-			<div class="patientInfo">Profession : {{patients[patientId].profession[0]}}</div>
-			<div class="patientInfo"> Tel : {{patients[patientId].telecom[0].value}}</div>
+			<img src="{{patient.photo[0].url}}" alt="Photo du patient" />
+			<div class="patientInfo"> {{patient.name.given[0]}} {{patient.name.family[0] | uppercase}} </div>
+			<div class="patientInfo"> ({{calculateAge(patient.birthDate)}} ans) </div>
+			<div class="patientInfo">Profession : {{patient.profession[0]}}</div>
+			<div class="patientInfo"> Tel : {{patient.telecom[0].value}}</div>
 			<div class="patientInfo"> Diabétique depuis {{findStartDiabete()}} ans</div>
 		</div>
 		
