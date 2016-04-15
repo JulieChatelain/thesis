@@ -1,23 +1,41 @@
 <!DOCTYPE html>
-<html>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<html ng-app="">
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    
-    
   </head>
+  
   <body>
-    <h1><%= title %></h1>
-    <p>
-    Welcome to <%= title %><br/>
-    <a href="/ehr">Dossier Médical</a><br>
+  
+  <div ng-include="'views/header.html'"></div>
     
-		<div ng-app="">
-		  <p>Name: <input type="text" ng-model="name"></p>
-		  <p ng-bind="name"></p>
+  <div id="horizontal">  
+  <nav>
+  <h3 class="menuTitle">Downloads</h3>		
+	<ul>
+		<li class="menuElem"><a href="#">Downloads schémas</a></li> 
+	</ul>
+  </nav>
+  
+  <section id="contents">
+    <h1>Bienvenue sur le <%= title %></h1>
+    <p>
+    <a href="/ehr/#/">Dossier Médical (test)</a><br>
+    
+		<div>
+			<p>Connexion : </p>
+		  <p>Identifiant:  <input type="text" ><br>
+		  Mot de passe: <input type="password" ><br>
+		  <input type="submit" value="Se connecter"><br>
+		  </p>
 		</div>
 		
     </p>
+    </section>
+    </div>
+    
+<script src="/js/lib/angular/angular.js"></script>
+<script src="/js/lib/angular/angular-cookies.js"></script>
+    
   </body>
 </html>

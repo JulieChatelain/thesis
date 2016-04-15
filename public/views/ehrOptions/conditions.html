@@ -1,2 +1,6 @@
 <ul class="cardContent" ng-show="elem.unfold">
+<li ng-repeat="condition in conditions | filter : {clinicalStatus:'active'} | orderBy:'dateRecorded'">
+<strong>{{condition.code.coding[0].display}}</strong><br>
+Enregistré le {{condition.dateRecorded | date:'dd-MM-yyyy'}}<br>
+</li>
 </ul>

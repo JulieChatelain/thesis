@@ -1,4 +1,4 @@
-<ul class="cardContent" ng-show="elem.unfold">
+<ul class="cardContent" ng-show="elem.unfold && isPatientDiabetic">
 	<li><strong>Date du diagnostic :</strong> <span>{{diagDiabete.issued
 			| date:'dd-MM-yyyy'}}</span></li>
 	<li><strong>Symptômes :</strong> 
@@ -9,9 +9,13 @@
 	<li><strong>Durée du ou des symptômes:</strong>
 		{{symptomsDuration}}</li>
 	<li><strong>Hospitalisation:</strong> {{ hospitalized }}</li>
-	<li><strong>Traitement depuis le diagnostic à ce
-			jour :</strong> {{treatmentSince.desc}}</li>
-	<li><strong>Consommation de tabac actuelle:</strong></li>
-	<li><strong>Consommation de tabac passée:</strong>{{tobaccoUse.valueString}}</li>
+	<!-- <li><strong>Traitement depuis le diagnostic à ce
+			jour :</strong></li> -->
+	<li><strong>Consommation de tabac actuelle:</strong> {{tobaccoUse.valueString}}</li>
+	<li><strong>Consommation de tabac passée:</strong> {{tobaccoHistory.valueString}}</li>
+
+</ul>
+<ul class="cardContent" ng-show="elem.unfold && !isPatientDiabetic">
+	<li>Ce patient n'est pas diabétique.</li>
 
 </ul>

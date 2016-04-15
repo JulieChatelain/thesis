@@ -7,7 +7,8 @@
   
   
   <body>
-    
+  
+  <div ng-include="'../views/header.html'"></div>
     
 <!--  ================================================================== -->
 <!--  ============================ MENU ================================ -->
@@ -95,7 +96,7 @@ showReports=false;showProtocols=false;">
 			<div class="patientInfo"> ({{calculateAge(patient.birthDate)}} ans) </div>
 			<div class="patientInfo">Profession : {{patient.profession[0]}}</div>
 			<div class="patientInfo"> Tel : {{patient.telecom[0].value}}</div>
-			<div class="patientInfo"> Diabétique depuis {{findStartDiabete()}} ans</div>
+			<div class="patientInfo" ng-show="isPatientDiabetic"> Diabétique depuis {{findStartDiabete()}} ans</div>
 		</div>
 		
 		<div id="patientData" ng-show="showPatientData">
@@ -106,16 +107,17 @@ showReports=false;showProtocols=false;">
 				<img src="/img/less.png" alt="Plus"  ng-hide="(elem.unfold==false)" ng-click="elem.unfold=(elem.unfold==false)"/>
 				</a> 
 				<strong>{{elem.name}} : </strong></p>
-				<div ng-include="elem.url"></div>
+				<div ng-include="'../'+elem.url"></div>
 			</div>
+			
 		</div>
 	</section>
 
-</div>	
+</section>	
 
 <script src="/js/lib/angular/angular.js"></script>
 <script src="/js/lib/angular/angular-cookies.js"></script>
-<script src="/js/app.js"></script>
+<script src="/js/appEHR.js"></script>
     
     
   </body>

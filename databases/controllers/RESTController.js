@@ -330,7 +330,9 @@ exports.remove = function(req, res) {
 	});
 };
 
-// Useful function
+/**
+ * Check if two objects are similar
+ */
 var compareObjects = function(a, b) {
 	for ( var propA in a) {
 		propB = propA.trim();
@@ -338,12 +340,26 @@ var compareObjects = function(a, b) {
 			return false;
 		}
 		var propValue = a[propA];
-		if (a[propA].charAt(0) == '{' || a[propA].charAt(0) == '[') {
+		if (a[propA].charAt(0) == '{') {
 			propValue = JSON.parse(a[propA]);
+			if (typeof propValue === 'object') {
+				return compareObjects(propValue, b[propB]);
+			} else {
+				return (propValue == b[propB]);
+			}
 		}
-		if (typeof propValue === 'object') {
-			return compareObjects(propValue, b[propB]);
-		} else {
+		else if(a[propA].charAt(0) == '['){
+			propValue = JSON.parse(a[propA]);
+			propBValue = b[propB];
+			for (var i = 0, len = propValue.length; i < len; i++) {
+				var elemFound = false;			
+				for (var k = 0, klen = propBValue.length; k < klen; k++) 
+					if(compareObjects(propValue[i],propBValue[k]))
+						elemFound = true;
+				if(!elemFound)
+					return false;
+			}
+		}else {
 			return (propValue == b[propB]);
 		}
 	}

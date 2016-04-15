@@ -401,7 +401,10 @@ db.conditions.insert([ {
 
 
 //********************************************************************
+
 var id258 = ObjectId();
+var id259 = ObjectId();
+
 db.observations.insert([
 {
 	_id : id258,
@@ -418,6 +421,37 @@ code: {
         system: "http://loinc.org",
         code: "11367-0",
         display: "Historique de consommation de tabac"
+    }]
+},
+subject: {
+	reference : "Patient/"+id5.str,
+	display : "Jean Dupont"	
+},
+issued: new Date(2015,11,12),
+valueCodeableConcept: {
+    coding: [{
+        system: "http://loinc.org",
+        code: "LA18981-3",
+        display: "Gros fumeur"
+    }]
+},
+valueString: "2 à 3 paquets par jour"
+},
+{
+	_id : id259,
+status: "final",
+category: {
+    coding: [{
+        system: "http://hl7.org/fhir/ValueSet/observation-category",
+        code: "social-history",
+        display: "Histoire sociale"
+    }]
+},
+code: {
+    coding: [{
+        system: "http://loinc.org",
+        code: "72166-2",
+        display: "Status de la consommation de tabac"
     }]
 },
 subject: {
@@ -645,6 +679,13 @@ db.resourcehistorys.insert([ {
 	createdBy : "Practitioner/" + id4.str,
 	history : [ {
 		resourceId : id258,
+		updatedBy : "Practitioner/" + id4.str
+	} ]
+}, {
+	resourceType : "Observation",
+	createdBy : "Practitioner/" + id4.str,
+	history : [ {
+		resourceId : id259,
 		updatedBy : "Practitioner/" + id4.str
 	} ]
 } ]);

@@ -1,2 +1,7 @@
 <ul class="cardContent" ng-show="elem.unfold">
+<li ng-repeat="condition in conditions | orderBy:'dateRecorded'">
+<strong>{{condition.code.coding[0].display}}</strong><br>
+Enregistré le {{condition.dateRecorded | date:'dd-MM-yyyy'}}<br>
+Status : <em>{{condition.clinicalStatus}}</em>
+</li>
 </ul>

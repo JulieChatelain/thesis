@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html ng-app="patients" ng-controller="patientsCtrl">
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>  
+  
+  <body>
+    
+    
+  <div ng-include="'views/header.html'"></div>
+    
+<!--  ================================================================== -->
+<!--  ============================ MENU ================================ -->
+<!--  ================================================================== -->
+
+<div id="horizontal">
+<nav>
+	<h3 class="menuTitle">
+	Mes patients</h3>		
+	<ul>
+		<li class="menuElem" ng-repeat="p in patients | orderBy :'name.family[0]'"> 
+		<a href="/ehr/#/{{p.id}}">{{p.name.family[0].toUpperCase()}} {{p.name.given[0]}}</a></li> 
+	</ul>
+</nav>
+
+
+<!--  ================================================================== -->
+<!--  =================== CENTRAL SECTION ============================== -->
+<!--  ================================================================== -->
+
+
+<!--  ==================== Patient Data ================================ -->
+
+<section id="contents">
+
+	<p><input type="text" ng-model="nameFilter"></p>
+	
+	<ul>
+	  <li ng-repeat="patient in patients | filter : nameFilter">
+	    {{ patient.name.family[0].toUpperCase() }} {{ patient.name.given[0] }}
+		({{ calculateAge(patient.birthDate)}} ans)<br>
+	  </li>
+	</ul>
+
+
+</section>	
+
+<script src="/js/lib/angular/angular.js"></script>
+<script src="/js/lib/angular/angular-cookies.js"></script>
+<script src="/js/appPatients.js"></script>
+    
+    
+  </body>
+</html>

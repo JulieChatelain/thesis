@@ -1,9 +1,7 @@
 body 
 {
   height:100%;
-  padding: 10px;
-  font: 1em "Lucida Grande", Helvetica, Arial, sans-serif;
-  
+  font: 1em "Lucida Grande", Helvetica, Arial, sans-serif;  
 }
 
 #horizontal {
@@ -26,6 +24,29 @@ p {
 	margin: 5px;
 	padding: 5px;
 	text-align: left 
+}
+
+/* ------------------------------------------------------------------------- */
+/* ---------------------------- Header ------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+header {
+	width: 99%;
+	padding: 10px;
+	margin: 2px;	
+	background-color: #039BE5; /* blue */
+	color: white;
+  	display: flex;
+  	flex-wrap: wrap;   
+    align-items: center;
+}
+
+header a {
+	color: white;
+	padding: 5px;	
+}
+header a:selected {
+	color: white;	
 }
 
 /* ------------------------------------------------------------------------- */

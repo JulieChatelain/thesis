@@ -1,11 +1,9 @@
 var app = angular.module("ehr", [ 'ngCookies' ]);
 
-app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
+app.controller('EHRCtrl',function($log, $location, $scope, $http, $cookies) {
 	$scope.$log = $log;
-	$scope.patientId = 0;
-	$scope.practioner = {};
-	$scope.currentDate = new Date();
-
+	$scope.isPatientDiabetic = false;
+	
 	// Get the ehr options
 	$http.get("/ehrmenu").then(function(response) {
 		$scope.ehrMenuOptions = response.data;
@@ -18,9 +16,16 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 	// Get the patient list
 	$http.get("/rest/patient").then(function(response) {
 			$scope.patients = response.data;
-			// Select the first patient in the list
-			if($scope.patients.length > 0)
+			// Select a patient
+
+			var path = $location.path().split("/");
+			if(path.length > 2)
+				$scope.patientId = path[path.length-2]+ "/" +path[path.length-1];
+			
+			if(path.length < 2 && $scope.patients.length > 0)
 				$scope.selectPatient($scope.patients[0].id);
+			else
+				$scope.selectPatient($scope.patientId);
 		});
 	
 	/** -----------------------------------------------------------------------
@@ -29,6 +34,8 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 	 */
 	$scope.selectPatient = function selectPatient(id) {
 		$scope.patientId = id;
+		$location.path("/"+id);
+		$scope.isPatientDiabetic = false;
 
 		// Get the patient according to his id
 		var req2 = '/rest/' + $scope.patientId + '';
@@ -42,11 +49,14 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 		$http.get(req).then(function(response) {
 			$scope.conditions = response.data;
 			// search for the record of the diabete condition
-			$scope.diabete = findDiabete();
-			// update the diabete symptoms list
-			$scope.diabeteSymptoms = findDiabeteSymptoms();
-			// compute the aproximate duration of the symptoms
-			$scope.symptomsDuration = computeSymptomsDuration();
+			$scope.diabete = findDiabete($scope.conditions);
+			if($scope.diabete != null){
+				$scope.isPatientDiabetic = true;
+				// update the diabete symptoms list
+				$scope.diabeteSymptoms = findDiabeteSymptoms($scope.diabete, $scope.diagDiabete);
+				// compute the aproximate duration of the symptoms
+				$scope.symptomsDuration = computeSymptomsDuration($scope.diagDiabete, $scope.diabete);
+			}
 		});
 		// Get all the diagnostic reports of the first patient
 		var req3 = '/rest/diagnosticreport?subject={"reference":"'
@@ -54,18 +64,21 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 		$http.get(req3).then(function(res) {
 			$scope.diagnostics = res.data;
 			// Search for the diagnostic confirming the diabete
-			$scope.diagDiabete = findDiagDiabete();
-			// update the diabete symptoms list
-			$scope.diabeteSymptoms = findDiabeteSymptoms();
-			// compute the aproximate duration of the symptoms
-			$scope.symptomsDuration = computeSymptomsDuration();
-			// find encounter where diabetes diagnosis was established
-			var req4 = '/rest/'+ $scope.diagDiabete.encounter.reference + '';
-			$http.get(req4).then(function(response) {
-				$scope.diabDiagEncounter = response.data;
-				// check if the patient was hospitalized
-				$scope.hospitalized = $scope.hospitalizedForDiabete();
-			});
+			$scope.diagDiabete = findDiagDiabete($scope.diagnostics);
+			if($scope.diagDiabete != null){
+				$scope.isPatientDiabetic = true;	
+				// update the diabete symptoms list
+				$scope.diabeteSymptoms = findDiabeteSymptoms($scope.diabete, $scope.diagDiabete);
+				// compute the aproximate duration of the symptoms
+				$scope.symptomsDuration = computeSymptomsDuration($scope.diagDiabete, $scope.diabete);
+				// find encounter where diabetes diagnosis was established
+				var req4 = '/rest/'+ $scope.diagDiabete.encounter.reference + '';
+				$http.get(req4).then(function(response) {
+					$scope.diabDiagEncounter = response.data;
+					// check if the patient was hospitalized
+					$scope.hospitalized = hospitalizedForDiabete($scope.diabDiagEncounter);
+				});
+			}
 		});
 
 		// Get all the observations for this patient
@@ -74,7 +87,9 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 		$http.get(req4).then(function(response) {
 			$scope.observations = response.data;
 			// search for the history of tobacco use
-			$scope.tobaccoUse = findTobaccoUse();
+			$scope.tobaccoHistory = findTobaccoHistory($scope.observations);
+			// search for the current tobacco use
+			$scope.tobaccoUse = findTobaccoUse($scope.observations);
 		});
 		// Retrieving a cookie
 		// var optionsCookie = $cookies.get('ehrOptionsPatient'
@@ -84,23 +99,60 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 		// $cookies.put('myFavorite', 'oatmeal');
 	};
 
+
+	/** -----------------------------------------------------------------------
+	 * Find since how long the patient has been diabetic.
+	 *  -----------------------------------------------------------------------
+	 */
+	$scope.findStartDiabete = function() {
+		if($scope.isPatientDiabetic == true && $scope.diabete != null && 
+				typeof $scope.diabete !== 'undefined'){
+			if ('onsetDateTime' in $scope.diabete) 
+				return $scope.calculateAge($scope.diabete.onsetDateTime);
+			if('onsetPeriod' in $scope.diabete){
+				return $scope.calculateAge($scope.diabete.onsetPeriod.start);				
+			}
+			if('onsetQuantity' in $scope.diabete){
+				return $scope.diabete.onsetQuantity.value;				
+			}
+		}
+		return 'unknow';		
+	}
+
 	/** -----------------------------------------------------------------------
 	 * Find the observation corresponding to the history of tobacco use
 	 *  -----------------------------------------------------------------------
 	 */
 	
-	var findTobaccoUse = function(){
-		if(typeof $scope.observations !== 'undefined'){
-			for (var i = 0, len = $scope.observations.length; i < len; i++) {
-				if($scope.observations[i].code.coding.length > 0)
-					if($scope.observations[i].code.coding[0].code == '11367-0') {
-						return $scope.observations[i];
+	var findTobaccoUse = function(observations){
+		if(typeof observations !== 'undefined'){
+			for (var i = 0, len = observations.length; i < len; i++) {
+				if(observations[i].code.coding.length > 0)
+					if(observations[i].code.coding[0].code == '72166-2') {
+						return observations[i];
 					}	
 			}
 		}
-		return null;		
+		return {valueString: 'unknown'};		
 	}
 	
+
+	var findTobaccoHistory = function(observations){
+		if(typeof observations !== 'undefined'){
+			for (var i = 0, len = observations.length; i < len; i++) {
+				if(observations[i].code.coding.length > 0)
+					if(observations[i].code.coding[0].code == '11367-0') {
+						return observations[i];
+					}	
+			}
+		}
+		return {valueString: 'unknown'};		
+	}
+
+	/** -----------------------------------------------------------------------
+	 * Compute the age from the birthday
+	 *  -----------------------------------------------------------------------
+	 */
 	$scope.calculateAge = function(birthday) {
 		var ageDifMs = Date.now() - new Date(birthday);
 		var ageDate = new Date(ageDifMs);
@@ -121,15 +173,15 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 		return ""+years+" an(s), "+months+" mois, "+days+" jour(s)";
 	}
 	/** -----------------------------------------------------------------------
-	 * Compute the duration of the diabetes symptoms from the recorded onset
+	 * Compute the duration of the symptoms from the recorded onset
 	 * to when the diagnostic is issued.
 	 *  -----------------------------------------------------------------------
 	 */
-	var computeSymptomsDuration = function(){
-		if(typeof $scope.diagDiabete !== 'undefined'){
-			var end = $scope.diagDiabete.issued;
-			if(typeof $scope.diabete !== 'undefined'){
-				var start = $scope.diabete.onsetDateTime;
+	var computeSymptomsDuration = function(diagnostic, condition){
+		if(diagnostic != null && typeof diagnostic !== 'undefined'){
+			var end = diagnostic.issued;
+			if(condition != null && typeof condition !== 'undefined'){
+				var start = condition.onsetDateTime;
 				return computeDuration(start, end);
 			}
 		}
@@ -139,9 +191,9 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 	 * Search for the conditions "type 1 diabetes"
 	 * -----------------------------------------------------------------------
 	 */
-	var findDiabete = function() {
-		for (var i = 0, len = $scope.conditions.length; i < len; i++) {
-			var condition = $scope.conditions[i];
+	var findDiabete = function(conditions) {
+		for (var i = 0, len = conditions.length; i < len; i++) {
+			var condition = conditions[i];
 			for (var k = 0, klen = condition.code.coding.length; k < klen; k++) {
 				var coding = condition.code.coding[k];
 				if (coding.code == '46635009'
@@ -153,16 +205,16 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 				}
 			}
 		}
-		return {};
+		return null;
 	};
 
 	/** -----------------------------------------------------------------------
 	 * Search for a diabete diagnostic
 	 *  -----------------------------------------------------------------------
 	 */
-	var findDiagDiabete = function() {
-		for (var i = 0, len = $scope.diagnostics.length; i < len; i++) {
-			var diag = $scope.diagnostics[i];
+	var findDiagDiabete = function(diagnostics) {
+		for (var i = 0, len = diagnostics.length; i < len; i++) {
+			var diag = diagnostics[i];
 			for (var k = 0, klen = diag.codedDiagnosis.length; k < klen; k++) {
 				var coded = diag.codedDiagnosis[k];
 				for (var l = 0, llen = coded.coding.length; l < llen; l++) {
@@ -178,36 +230,20 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 				}
 			}
 		}
-		return {};
+		return null;
 	};
+	
 
-	/** -----------------------------------------------------------------------
-	 * Find since how long the patient has been diabetic.
-	 *  -----------------------------------------------------------------------
-	 */
-	$scope.findStartDiabete = function() {
-		if(typeof $scope.diabete !== 'undefined'){
-			if ('onsetDateTime' in $scope.diabete) 
-				return $scope.calculateAge($scope.diabete.onsetDateTime);
-			if('onsetPeriod' in $scope.diabete){
-				return $scope.calculateAge($scope.diabete.onsetPeriod.start);				
-			}
-			if('onsetQuantity' in $scope.diabete){
-				return $scope.diabete.onsetQuantity.value;				
-			}
-		}
-		return 'unknow';		
-	}
 	/** -----------------------------------------------------------------------
 	 * Check if the diabetes was discovered when the patient was admitted in
 	 * the hospital.
 	 *  -----------------------------------------------------------------------
 	 */
 	
-	$scope.hospitalizedForDiabete = function(){
-		if(typeof $scope.diabDiagEncounter !== 'undefined'){
-			if('hospitalization' in $scope.diabDiagEncounter)
-				if($scope.diabDiagEncounter.hospitalization.admittingDiagnosis.length > 0) {
+	 var hospitalizedForDiabete = function(diabDiagEncounter){
+		if(diabDiagEncounter != null && typeof diabDiagEncounter !== 'undefined'){
+			if('hospitalization' in diabDiagEncounter)
+				if(diabDiagEncounter.hospitalization.admittingDiagnosis.length > 0) {
 					return "Oui";
 				}	
 		}
@@ -218,24 +254,24 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 	 * Search all the symptoms of the diabete.
 	 *  -----------------------------------------------------------------------
 	 */
-	var findDiabeteSymptoms = function() {
+	var findDiabeteSymptoms = function(diabete, diagDiabete) {
 		var symptoms = [];
-		if(typeof $scope.diabete !== 'undefined') {
-			if('evidence' in $scope.diabete) {
-				for (var i = 0, len = $scope.diabete.evidence.length; i < len; i++) {
-					if('code' in $scope.diabete.evidence[i]){						
-						if('text' in $scope.diabete.evidence[i].code){
-							symptoms.push($scope.diabete.evidence[i].code.text);							
+		if(diabete != null && typeof diabete !== 'undefined') {
+			if('evidence' in diabete) {
+				for (var i = 0, len = diabete.evidence.length; i < len; i++) {
+					if('code' in diabete.evidence[i]){						
+						if('text' in diabete.evidence[i].code){
+							symptoms.push(diabete.evidence[i].code.text);							
 						}
-						else if('coding' in  $scope.diabete.evidence[i].code) {
-							var coding = $scope.diabete.evidence[i].code.coding;
+						else if('coding' in  diabete.evidence[i].code) {
+							var coding = diabete.evidence[i].code.coding;
 							if(coding.length > 0 && 'display' in coding[0]){
 								symptoms.push(coding[0].display);
 							}
 						}						
 					}
-					else if('detail' in $scope.diabete.evidence[i]){
-						var detail = $scope.diabete.evidence[i].detail;
+					else if('detail' in diabete.evidence[i]){
+						var detail = diabete.evidence[i].detail;
 						for (var k = 0, klen = detail.length; k < klen; k++) {
 							symptoms.push('<a href="../rest/' + detail[k] +'">(' + 
 									detail[k] + ')</a>');
@@ -244,11 +280,11 @@ app.controller('EHRCtrl',function($log, $scope, $http, $cookies) {
 				}
 			}		
 		}
-		if(typeof $scope.diagDiabete !== 'undefined'){
-			if('result' in $scope.diagDiabete){
-				for (var i = 0, len = $scope.diagDiabete.result.length; i < len; i++) {
-					symptoms.push('<a href="../rest/' + $scope.diagDiabete.result[i] +
-							'">(' + $scope.diagDiabete.result[i] + ')</a>');					
+		if(diagDiabete != null && typeof diagDiabete !== 'undefined'){
+			if('result' in diagDiabete){
+				for (var i = 0, len = diagDiabete.result.length; i < len; i++) {
+					symptoms.push('<a href="../rest/' + diagDiabete.result[i] +
+							'">(' + diagDiabete.result[i] + ')</a>');					
 				}
 			}
 		}

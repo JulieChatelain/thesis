@@ -51,10 +51,16 @@ var MedicationOrderSchema = new mongoose.Schema({
         }]
     },
     patient: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     prescriber: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     encounter: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     reasonCodeableConcept: {
         coding: [{
@@ -64,6 +70,8 @@ var MedicationOrderSchema = new mongoose.Schema({
         }]
     },
     reasonReference: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     note: String,
     medicationCodeableConcept: {
@@ -102,6 +110,8 @@ var MedicationOrderSchema = new mongoose.Schema({
             }]
         },
         siteReference: {
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
         route: {
             coding: [{
