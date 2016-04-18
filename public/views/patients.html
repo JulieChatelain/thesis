@@ -33,13 +33,15 @@
 <!--  ==================== Patient Data ================================ -->
 
 <section id="contents">
-
-	<p><input type="text" ng-model="nameFilter"></p>
+	<div id="patientSummary"> 
+		<span>Rechercher un patient</span>
+	</div>
+	<p>Nom de famille: <input type="text" ng-model="nameFilter"></p>
 	
 	<ul>
 	  <li ng-repeat="patient in patients | filter : nameFilter">
-	    {{ patient.name.family[0].toUpperCase() }} {{ patient.name.given[0] }}
-		({{ calculateAge(patient.birthDate)}} ans)<br>
+	    <a href="/ehr/#/{{patient.id}}">{{ patient.name.family[0].toUpperCase() }} {{ patient.name.given[0] }}
+		({{ calculateAge(patient.birthDate)}} ans)</a><br>
 	  </li>
 	</ul>
 

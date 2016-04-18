@@ -127,6 +127,7 @@ footer button:hover {
 nav {	
 	width: 20%;
 	padding: 5px;
+	padding-top:0px;
 	list-style-type: none;
 }
 
