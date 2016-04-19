@@ -33,13 +33,15 @@
 <!--  ==================== Patient Data ================================ -->
 
 <section id="contents">
-	<div id="patientSummary"> 
+	<div id="title"> 
 		<span>Rechercher un patient</span>
 	</div>
-	<p>Nom de famille: <input type="text" ng-model="nameFilter"></p>
+	<p>Nom de famille: <input type="text" ng-model="nameFilter"><br>
+	Résultat : 
+	</p>
 	
 	<ul>
-	  <li ng-repeat="patient in patients | filter : nameFilter">
+	  <li ng-repeat="patient in patients | patientFilter : nameFilter">
 	    <a href="/ehr/#/{{patient.id}}">{{ patient.name.family[0].toUpperCase() }} {{ patient.name.given[0] }}
 		({{ calculateAge(patient.birthDate)}} ans)</a><br>
 	  </li>
@@ -51,6 +53,7 @@
 <script src="/js/lib/angular/angular.js"></script>
 <script src="/js/lib/angular/angular-cookies.js"></script>
 <script src="/js/appPatients.js"></script>
+<script src="/js/filters.js"></script>
     
     
   </body>

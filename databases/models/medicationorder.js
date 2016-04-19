@@ -82,6 +82,8 @@ var MedicationOrderSchema = new mongoose.Schema({
         }]
     },
     medicationReference: {
+		reference : String, // Relative, internal or absolute URL reference
+		display : String	// Text alternative for the resource
     },
     dosageInstruction: [{
         text: String,
@@ -147,6 +149,8 @@ var MedicationOrderSchema = new mongoose.Schema({
             }]
         },
         medicationReference: {
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
         validityPeriod: {
         },

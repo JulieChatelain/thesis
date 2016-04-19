@@ -1,11 +1,23 @@
-
-angular.module('ehr', []).
-  filter('range', function() {
-    	return function(input, total) {
-    		total = parseInt(total);
-    		for (var i = 1; i <= total; i++) {
-    			input.push(i);
-    		}
-    		return input;
-    	};
-   });
+app.filter('patientFilter',
+	function() {
+		return function(patients, name) {
+			var filtered = [];
+			if(patients != null && name != null && patient != 'undefined' && name != 'undefined'){
+				var name = name.toLowerCase();
+				for (var i = 0; i < patients.length; i++) {
+					var patient = patients[i];
+					if (patient.name.family[0].toLowerCase().indexOf(
+							name) > -1)
+						filtered.push(patient);
+					else if (patient.name.given[0].toLowerCase()
+							.indexOf(name) > -1)
+						filtered.push(patient);
+					else if ((patient.name.family[0].toLowerCase()
+							+ " " + patient.name.given[0].toLowerCase())
+							.indexOf(name) > -1)
+						filtered.push(patient);
+				}
+			}
+			return filtered;
+		};
+	});

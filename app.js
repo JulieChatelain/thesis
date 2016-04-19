@@ -38,6 +38,7 @@ app.get('/', routes.index);
 app.get('/ehr/', routes.ehr);
 app.get('/ehr/#/Patient/:id', routes.ehr);
 app.get('/patients', routes.patients);
+app.get('/register', routes.register);
 app.get('/users', user.list);
 
 //Data provider

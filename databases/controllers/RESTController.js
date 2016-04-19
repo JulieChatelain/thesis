@@ -334,6 +334,8 @@ exports.remove = function(req, res) {
  * Check if two objects are similar
  */
 var compareObjects = function(a, b) {
+	if(a == null && b != null) return false;
+	if(b == null && a!= null) return false;
 	for ( var propA in a) {
 		propB = propA.trim();
 		if (!propB in b) {
@@ -383,7 +385,7 @@ exports.list = function(req, res) {
 	if ('createdBy' in conditions) {
 		historyConditions.createdBy = conditions.createdBy
 	}
-
+	
 	delete conditions.resourceType;
 	delete conditions.createdBy;
 

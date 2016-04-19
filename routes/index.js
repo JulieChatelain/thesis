@@ -16,6 +16,12 @@ exports.ehr = function(req, res) {
 	});
 };
 
+exports.register = function(req, res) {
+	res.render('register', {
+		title : 'Créer un compte'
+	});
+};
+
 exports.patients = function(req, res) {
 	res.render('patients', {
 		title : 'Patiens'

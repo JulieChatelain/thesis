@@ -135,24 +135,9 @@ db.ehroptions.insert([ {
 }, {
 	name : "Historique des traitements",
 	url : "views/ehrOptions/treatmentsHistory.html"
-}, {
-	name : "Antécédents principaux",
-	url : "views/ehrOptions/mainHistory.html"
-}, {
+},  {
 	name : "Antécédents personnels",
 	url : "views/ehrOptions/personalHistory.html"
-}, {
-	name : "Antécédents familiaux",
-	url : "views/ehrOptions/familyHistory.html"
-}, {
-	name : "Prises de sang",
-	url : "views/ehrOptions/bloodTests.html"
-}, {
-	name : "Complications",
-	url : "views/ehrOptions/complications.html"
-}, {
-	name : "Facteurs de risque",
-	url : "views/ehrOptions/riskFactors.html"
 }, {
 	name : "Maladies actuelles",
 	url : "views/ehrOptions/conditions.html"

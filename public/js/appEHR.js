@@ -3,6 +3,7 @@ var app = angular.module("ehr", [ 'ngCookies' ]);
 app.controller('EHRCtrl',function($log, $location, $scope, $http, $cookies) {
 	$scope.$log = $log;
 	$scope.isPatientDiabetic = false;
+	$scope.nameFilter = '';
 	
 	// Get the ehr options
 	$http.get("/ehrmenu").then(function(response) {
@@ -91,6 +92,16 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $cookies) {
 			// search for the current tobacco use
 			$scope.tobaccoUse = findTobaccoUse($scope.observations);
 		});
+		
+		// Get all prescriptions for this patient
+		var req5 = '/rest/MedicationOrder?patient={"reference":"'
+			+ encodeURIComponent($scope.patientId) + '"}';
+		$log.log("req5: "+req5);
+		$http.get(req5).then(function(response) {
+			$scope.prescriptions = response.data;
+		});
+		
+		
 		// Retrieving a cookie
 		// var optionsCookie = $cookies.get('ehrOptionsPatient'
 		// +

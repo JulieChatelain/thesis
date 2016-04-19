@@ -23,9 +23,10 @@ showReports=false;showProtocols=false;">
 	<img src="/img/more.png" alt="Plus"  ng-hide="(showPatients==true)" ng-click="showPatients=(showPatients==false)"/>
 	<img src="/img/less.png" alt="Less"  ng-hide="(showPatients==false)" ng-click="showPatients=(showPatients==false)"/>
 	</a> 
-	Autre patient</h3>		
+	Autre patient</h3>	
 	<ul ng-hide="(showPatients==false)">
-		<li class="menuElem" ng-repeat="p in patients | orderBy :'name.family[0]'"> 
+		<li><input type="text" ng-model="nameFilter"></li>
+		<li class="menuElem" ng-repeat="p in patients | patientFilter : nameFilter | orderBy :'name.family[0]'"> 
 		<div ng-click="selectPatient(p.id)">{{p.name.family[0].toUpperCase()}} {{p.name.given[0]}}</div></li> 
 	</ul>
 		
@@ -36,7 +37,7 @@ showReports=false;showProtocols=false;">
 	</a> 
     Options du dossier</h3>
     <ul ng-hide="(showOptions==false)">
-   		<li class="menuElem" ng-repeat="elem in ehrMenuOptions"> 
+   		<li class="menuElemNonClickable" ng-repeat="elem in ehrMenuOptions"> 
 		<input type="checkbox" ng-model="elem.show" value="true">
 		{{elem.name}}<br></li> 
 	</ul>
@@ -52,16 +53,11 @@ showReports=false;showProtocols=false;">
 	<div class="menuElem">
 	</div>
 	
-	<div class="menuElem">
-	</div>
-	
 	<div class="encounterBlocked">
 	</div>
 	
-	<div class="menuElem">
 	</div>
-	</div>
-	
+	<!-- 
     <h3 class="menuTitle">
 	<a href="">
 	<img src="/img/more.png" alt="Plus"  ng-hide="(showReports==true)" ng-click="showReports=(showReports==false)"/>
@@ -75,6 +71,8 @@ showReports=false;showProtocols=false;">
 	<img src="/img/less.png" alt="Less"  ng-hide="(showProtocols==false)" ng-click="showProtocols=(showProtocols==false)"/>
 	</a> 
     Protocols</h3>
+    
+     -->
 </nav>
 
 
@@ -88,7 +86,7 @@ showReports=false;showProtocols=false;">
 <section id="contents">
 	<section id="patient" ng-init="showPatientData=true">
 	
-		<div id="patientSummary"> 
+		<div id="title"> 
 			<img src="/img/more.png" alt="Plus"  ng-hide="(showPatientData==true)" ng-click="showPatientData=(showPatientData==false)"/>
 			<img src="/img/less.png" alt="Less"  ng-show="showPatientData" ng-click="showPatientData=(showPatientData==false)"/>
 			<img src="{{patient.photo[0].url}}" alt="Photo du patient" />
@@ -118,6 +116,7 @@ showReports=false;showProtocols=false;">
 <script src="/js/lib/angular/angular.js"></script>
 <script src="/js/lib/angular/angular-cookies.js"></script>
 <script src="/js/appEHR.js"></script>
+<script src="/js/filters.js"></script>
     
     
   </body>
