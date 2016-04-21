@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="">
+<html ng-app="register" ng-controller="registerCtrl">
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
@@ -24,10 +24,54 @@
     <p>
     
 		<form>
-		  <label>Adresse e-mail:</label>  <input type="email" ><br>
-		  <label>Mot de passe:</label> <input type="password" ><br>
-		  <label>Confirmer le mot de passe:</label> <input type="password" ><br>
-		  <input type="submit" value="Se connecter"><br>
+		<fieldset>
+		  	<label>Adresse e-mail:</label>  <input type="email" ><br>
+		  	<label>Mot de passe:</label> <input type="password" ><br>
+		  	<label>Confirmer le mot de passe:</label> <input type="password" ><br>
+		  	<label>Je suis:</label> 
+		  	<input type="radio" ng-model="userKind" value="patient" checked> Un patient
+  		  	<input type="radio" ng-model="userKind" value="practitioner"> Un médecin
+  		  	<input type="radio" ng-model="userKind" value="both"> Les deux<br>
+		</fieldset>
+		  
+		<fieldset>
+		<legend>Informations générales</legend>
+		  	<label>Nom:</label>  <input type="text" ng-model="nameFamily"><br>
+		  	<label>Prénom:</label> <input type="text" ng-model="nameGiven"><br>
+		  	<label>Genre:</label> 
+		  	<input type="radio" ng-model="gender" value="male" checked> Homme
+  		  	<input type="radio" ng-model="gender" value="female"> Femme<br>
+		  	<label>Date de naissance:</label> <input type="date" ng-model="birthDate"><br>
+		  	<label>Profession:</label>  <input type="text" ng-model="job"><br>
+		  	<p class="align">
+		  	<label>Adresse:</label>
+		  	<textarea rows="2" placeholder="Rue ..." ng-model="address"></textarea>
+		  	</p>
+		  	<label>Contact:</label><br>
+		  	<label>Tel:</label> <input type="tel" ng-model="contactTel"><br>
+		  	<label>E-mail:</label> <input type="email" ng-model="contactEMail"><br>	
+		  	<label>Langages parlés:</label>				  	
+			<input type="checkbox" ng-model="speakFrench"> Français
+			<input type="checkbox" ng-model="speakEnglish"> English 
+			<input type="checkbox" ng-model="speakDutch"> Nederlands 
+			<input type="checkbox" ng-model="speakGerman"> Deutsch <br>
+		  	<label>Langage principal:</label>				  	
+			<input type="radio" ng-model="mainLanguage" value="fr"> Français
+			<input type="radio" ng-model="mainLanguage" value="en"> English 
+			<input type="radio" ng-model="mainLanguage" value="nl"> Nederlands 
+			<input type="radio" ng-model="mainLanguage" value="de"> Deutsch 
+		</fieldset>
+		
+		<fieldset ng-hide="(userKind == 'patient')">
+			<legend>Pour les médecins</legend>
+		  	<label>Specialité:</label> <input type="text" ng-model="speciality"><br>
+		  	<p class="align">
+		  	<label>Lieu de travail:</label>
+		  	<textarea rows="2" placeholder="Hopital St-Machin, Rue ..." ng-model="workLocation"></textarea>
+		  	</p>
+		</fieldset>				
+		  
+		  <input type="submit" value="Enregistrer"><br>
 		</form>
 		
     </p>
@@ -36,6 +80,7 @@
     
 <script src="/js/lib/angular/angular.js"></script>
 <script src="/js/lib/angular/angular-cookies.js"></script>
+<script src="/js/appRegister.js"></script>
     
   </body>
 </html>

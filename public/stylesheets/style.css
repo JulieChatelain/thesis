@@ -80,9 +80,13 @@ img { vertical-align: middle; }
 
 .dataCard {
 	background-color: #B3E5FC; /* light blue */
-	border: 1px solid #B3E5FC; /* dark blue */
-	padding: 2px;
+	border: 1px solid #B3E5FC; /* light blue */
 	margin-top: 2px;
+}
+
+.dataCard p{
+	margin: 2px;
+	padding: 2px;
 }
 
 .cardContent {
@@ -233,8 +237,7 @@ th {
 /* ----------------------------- FORMS ------------------------------------- */
 /* ------------------------------------------------------------------------- */
 form {
-    width: 80%;
-    text-align: center;
+    width: 100%;
 }
 label{
     width: 15%;
@@ -251,15 +254,14 @@ fieldset {
 }
 
 textarea {
-	width:97%;
 	background-color:#E1F5FE; /* light blue */
 	margin-right: 5px;
 }
 
-.align{	
-    display:inline-block;
-    width:100px;
+.align *{	
+	vertical-align: middle;
 }
+
 
 
 /* ------------------------------------------------------------------------- */

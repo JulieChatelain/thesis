@@ -1,14 +1,17 @@
 
+app.service('utils', function() {
+	
+
 	/** -----------------------------------------------------------------------
 	 * Find the observation corresponding to the history of tobacco use
 	 *  -----------------------------------------------------------------------
 	 */
 	
-	var findTobaccoUse = function(observations){
+	this.findTobaccoUse = function(observations){
 		if(typeof observations !== 'undefined'){
 			for (var i = 0, len = observations.length; i < len; i++) {
 				if(observations[i].code.coding.length > 0)
-					if(observations[i].code.coding[0].code == '72166-2 ') {
+					if(observations[i].code.coding[0].code == '72166-2') {
 						return observations[i];
 					}	
 			}
@@ -17,7 +20,7 @@
 	}
 	
 
-	var findTobaccoHistory = function(observations){
+	this.findTobaccoHistory = function(observations){
 		if(typeof observations !== 'undefined'){
 			for (var i = 0, len = observations.length; i < len; i++) {
 				if(observations[i].code.coding.length > 0)
@@ -33,7 +36,7 @@
 	 * Compute the age from the birthday
 	 *  -----------------------------------------------------------------------
 	 */
-	var calculateAge = function(birthday) {
+	this.calculateAge = function(birthday) {
 		var ageDifMs = Date.now() - new Date(birthday);
 		var ageDate = new Date(ageDifMs);
 		return Math.abs(ageDate.getUTCFullYear() - 1970);
@@ -42,7 +45,7 @@
 	 * Compute the duration in years, month and days between two dates.
 	 *  -----------------------------------------------------------------------
 	 */
-	var computeDuration = function(dateStart, dateEnd) {
+	this.computeDuration = function(dateStart, dateEnd) {
 		var ageDifMs = new Date(dateEnd) - new Date(dateStart);
 		var ageDate = new Date(ageDifMs);
 		var years = Math.abs(ageDate.getUTCFullYear() - 1970);
@@ -57,12 +60,12 @@
 	 * to when the diagnostic is issued.
 	 *  -----------------------------------------------------------------------
 	 */
-	var computeSymptomsDuration = function(diagnostic, condition){
-		if(typeof diagnostic !== 'undefined'){
+	this.computeSymptomsDuration = function(diagnostic, condition){
+		if(diagnostic != null && typeof diagnostic !== 'undefined'){
 			var end = diagnostic.issued;
-			if(typeof condition !== 'undefined'){
+			if(condition != null && typeof condition !== 'undefined'){
 				var start = condition.onsetDateTime;
-				return computeDuration(start, end);
+				return this.computeDuration(start, end);
 			}
 		}
 	}
@@ -71,7 +74,7 @@
 	 * Search for the conditions "type 1 diabetes"
 	 * -----------------------------------------------------------------------
 	 */
-	var findDiabete = function(conditions) {
+	this.findDiabete = function(conditions) {
 		for (var i = 0, len = conditions.length; i < len; i++) {
 			var condition = conditions[i];
 			for (var k = 0, klen = condition.code.coding.length; k < klen; k++) {
@@ -92,7 +95,7 @@
 	 * Search for a diabete diagnostic
 	 *  -----------------------------------------------------------------------
 	 */
-	var findDiagDiabete = function(diagnostics) {
+	this.findDiagDiabete = function(diagnostics) {
 		for (var i = 0, len = diagnostics.length; i < len; i++) {
 			var diag = diagnostics[i];
 			for (var k = 0, klen = diag.codedDiagnosis.length; k < klen; k++) {
@@ -120,8 +123,8 @@
 	 *  -----------------------------------------------------------------------
 	 */
 	
-	 var hospitalizedForDiabete = function(diabDiagEncounter){
-		if(typeof diabDiagEncounter !== 'undefined'){
+	this.hospitalizedForDiabete = function(diabDiagEncounter){
+		if(diabDiagEncounter != null && typeof diabDiagEncounter !== 'undefined'){
 			if('hospitalization' in diabDiagEncounter)
 				if(diabDiagEncounter.hospitalization.admittingDiagnosis.length > 0) {
 					return "Oui";
@@ -134,9 +137,9 @@
 	 * Search all the symptoms of the diabete.
 	 *  -----------------------------------------------------------------------
 	 */
-	var findDiabeteSymptoms = function(diabete, diagDiabete) {
+	this.findDiabeteSymptoms = function(diabete, diagDiabete) {
 		var symptoms = [];
-		if(typeof diabete !== 'undefined') {
+		if(diabete != null && typeof diabete !== 'undefined') {
 			if('evidence' in diabete) {
 				for (var i = 0, len = diabete.evidence.length; i < len; i++) {
 					if('code' in diabete.evidence[i]){						
@@ -160,7 +163,7 @@
 				}
 			}		
 		}
-		if(typeof diagDiabete !== 'undefined'){
+		if(diagDiabete != null && typeof diagDiabete !== 'undefined'){
 			if('result' in diagDiabete){
 				for (var i = 0, len = diagDiabete.result.length; i < len; i++) {
 					symptoms.push('<a href="../rest/' + diagDiabete.result[i] +
@@ -170,3 +173,6 @@
 		}
 		return symptoms;
 	}
+	
+	
+});
