@@ -17,8 +17,8 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $cookies, util
 	// Get the patient list
 	$http.get("/rest/patient").then(function(response) {
 			$scope.patients = response.data;
+			
 			// Select a patient
-
 			var path = $location.path().split("/");
 			if(path.length > 2)
 				$scope.patientId = path[path.length-2]+ "/" +path[path.length-1];
