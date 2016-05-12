@@ -15,7 +15,10 @@ var UserSchema = new mongoose.Schema({
     //language: { type: String, required: true },
     //created: { type: Date },
     reference : [{type: String, required : false}], 	// refer to a patient or practitioner resource
-    access : [{id : String, start : Date, end : Date}]	// list of patients the user has access to, for a determined period
+    access : [{id : String, start : Date, end : Date}],	// list of patients the user has access to, for a determined period
+	token : {type: String},
+	email : {type: String},
+	password: {type: String}
     
 });
 

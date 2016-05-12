@@ -27,3 +27,4 @@ exports.patients = function(req, res) {
 		title : 'Patiens'
 	});
 };
+
