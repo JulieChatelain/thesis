@@ -13,7 +13,7 @@
 	 "async": "0.2.9",
 	 "underscore": "1.8.x",
 	 "fs": "0.0.x",
-     "jsonwebtoken": "0.4.0",
+     "jsonwebtoken": "0.4.x",
      "morgan": "latest"
   }
 }

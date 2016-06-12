@@ -22,5 +22,21 @@ app.controller('registerCtrl',function($log, $location,$scope, $http, $cookies) 
 	$scope.speciality = '';
 	$scope.workLocation = '';
 	
+	$scope.register = function register() {
+		
+		var user = {};
+		
+		$http.post("/signin", data, config)
+		   .then(
+		       function(response){
+		         // success callback
+		       }, 
+		       function(response){
+		         // failure callback
+		       }
+		    );
+		
+	}
+	
 	
 });

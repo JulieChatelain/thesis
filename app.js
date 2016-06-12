@@ -53,7 +53,7 @@ app.get('/patients', routes.patients);
 app.get('/register', user.register);
 app.get('/users', user.list);
 app.post('/login', user.login);
-app.post('/signin',user.login);
+app.post('/signin',user.signin);
 
 //Data provider
 app.get('/ehrmenu', function(req, res) {
