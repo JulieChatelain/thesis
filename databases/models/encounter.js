@@ -121,7 +121,7 @@ var EncounterSchema = new mongoose.Schema({
             display: String
         }]
     }],
-    indication: [{
+    indication: [{			// Reason the encounter takes place (resource: condition, procedure)
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     }],

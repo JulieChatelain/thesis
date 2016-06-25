@@ -214,7 +214,7 @@ a { text-decoration: none; }
 /* ---------------------------- Table -------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-table { width:100%;margin: auto; }
+table { width:100%; margin: auto; }
 
 caption { 
 	background-color: #80D8FF; /* blue */ 
@@ -231,6 +231,14 @@ th {
 	font-style: italic; 
 	font-size: 0.9em; 
 	background-color:#80D8FF; /* blue */ 
+}
+
+.display table {width : auto; margin : 0px;}
+
+.display table td {
+	background-color:transparent;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
 }
 
 /* ------------------------------------------------------------------------- */

@@ -29,50 +29,18 @@ var _ = require('underscore');
 var fs = require('fs');
 var async = require('async');
 var ResourceHistory = mongoose.model('ResourceHistory');
+var utils = require('./utils');
 // var ResponseFormatHelper = require(__dirname +
 // '/../../lib/response_format_helper');
 
-/**
- * Generate a small summary text of the resource
- */
-var generateText = function(resource) {
-	var humanReadable = "<p>" + "<strong>" + resource.resourceType
-			+ "</strong><br>" + "<strong>url : </strong>" + resource.id
-			+ "<br>";
-	if ('name' in resource && typeof resource.name.given[0] !== 'undefined'
-			&& typeof resource.name.family[0] !== 'undefined') {
-		humanReadable = humanReadable + "<strong>Name : </strong> "
-				+ resource.name.given[0] + " " + resource.name.family[0]
-				+ "<br>"
-	}
-	if ('code' in resource && typeof resource.code.coding[0] !== 'undefined') {
-		humanReadable = humanReadable + "<strong>"
-				+ resource.code.coding[0].display + "</strong><br>"
-	}
-	if ('patient' in resource
-			&& typeof resource.patient.display !== 'undefined') {
-		humanReadable = humanReadable + "<strong>Concerns : </strong>"
-				+ resource.patient.display + "<br>";
-	}
-	if ('subject' in resource
-			&& typeof resource.subject.display !== 'undefined') {
-		humanReadable = humanReadable + "<strong>Concerns : </strong>"
-				+ resource.subject.display + "<br>";
-	}
-	if ('conclusion' in resource && typeof resource.conclusion !== 'undefined') {
-		humanReadable = humanReadable + "<strong>Conclusion : </strong>"
-				+ resource.conclusion + "<br>";
-	}
-	humanReadable = humanReadable + "</p>";
-	return humanReadable;
-}
+
 
 /**
  * Put the resource in jason format and send it.
  */
 exports.show = function(req, res) {
 	var resource = req.resource;
-	var humanReadable = generateText(resource);
+	var humanReadable = utils.generateText(resource, res, req.headers.host);
 	resource.text = {
 		status : "generated",
 		div : humanReadable
@@ -164,17 +132,17 @@ exports.history = function(req, res, id, next) {
 					resource.resourceType = resourceHistory.resourceType;
 					resource.id = resourceHistory.resourceType + "/" + id
 							+ "/_history/" + i;
-					var humanReadable = generateText(resource);
-					resource.text = {
-						status : "generated",
-						div : humanReadable
-					};
 					resource.meta = {
 						versionId : i,
 						created : resourceHistory._id.getTimestamp(),
 						lastUpdated : hist.resourceId.getTimestamp(),
 						createdBy : resourceHistory.createdBy,
 						updatedBy : hist.updatedBy
+					};
+					var humanReadable = utils.generateText(resource,res,request.headers.host);
+					resource.text = {
+						status : "generated",
+						div : humanReadable
 					};
 					history.push(resource);
 					i++;
@@ -206,7 +174,11 @@ exports.create = function(req, res) {
 	var resource = new model(req.body);
 
 	delete resource._id;
-
+	
+	if(isEmpty(resource)){
+		res.status(500).send();
+	}
+	else{
 	resource.save(function(err, savedresource) {
 		if (err) {
 			var response = {
@@ -247,6 +219,7 @@ exports.create = function(req, res) {
 			});
 		}
 	});
+	}
 };
 
 /**
@@ -330,43 +303,6 @@ exports.remove = function(req, res) {
 	});
 };
 
-/**
- * Check if two objects are similar
- */
-var compareObjects = function(a, b) {
-	if(a == null && b != null) return false;
-	if(b == null && a!= null) return false;
-	for ( var propA in a) {
-		propB = propA.trim();
-		if (!propB in b) {
-			return false;
-		}
-		var propValue = a[propA];
-		if (a[propA].charAt(0) == '{') {
-			propValue = JSON.parse(a[propA]);
-			if (typeof propValue === 'object') {
-				return compareObjects(propValue, b[propB]);
-			} else {
-				return (propValue == b[propB]);
-			}
-		}
-		else if(a[propA].charAt(0) == '['){
-			propValue = JSON.parse(a[propA]);
-			propBValue = b[propB];
-			for (var i = 0, len = propValue.length; i < len; i++) {
-				var elemFound = false;			
-				for (var k = 0, klen = propBValue.length; k < klen; k++) 
-					if(compareObjects(propValue[i],propBValue[k]))
-						elemFound = true;
-				if(!elemFound)
-					return false;
-			}
-		}else {
-			return (propValue == b[propB]);
-		}
-	}
-	return true;
-};
 
 /**
  * List all resources of one type that respect the conditions.<br>
@@ -401,7 +337,7 @@ exports.list = function(req, res) {
 
 			history.findLatest(function(err, resource) {
 
-				var add = compareObjects(conditions, resource);
+				var add = utils.compareObjects(conditions, resource);
 
 				if (add) {
 
@@ -410,11 +346,6 @@ exports.list = function(req, res) {
 					resource = JSON.parse(JSON.stringify(resource));
 					resource['resourceType'] = req.params.model;
 					resource['id'] = req.params.model + "/" + history._id;
-					var humanReadable = generateText(resource);
-					resource['text'] = {
-						status : "generated",
-						div : humanReadable
-					};
 					resource['meta'] = {
 						versionId : vid,
 						created : history._id.getTimestamp(),
@@ -422,6 +353,11 @@ exports.list = function(req, res) {
 						createdBy : history.createdBy,
 						published : new Date(Date.now()),
 						updatedBy : history.history[vid - 1].updatedBy
+					};
+					var humanReadable = utils.generateText(resource, res, req.headers.host);
+					resource['text'] = {
+						status : "generated",
+						div : humanReadable
 					};
 					result.push(resource);
 				}

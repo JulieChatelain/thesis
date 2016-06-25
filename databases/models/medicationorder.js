@@ -25,9 +25,15 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
-
+/**
+ * An order for both supply of the medication and the instructions 
+ * for administration of the medication to a patient. The resource 
+ * is called "MedicationOrder" rather than "MedicationPrescription" 
+ * to generalize the use across inpatient and outpatient settings 
+ * as well as for care plans, etc. 
+ */
 var MedicationOrderSchema = new mongoose.Schema({
-    identifier: [{
+    identifier: [{			// External identifier
 		use : {
 			type : String,
 			enum : [ 'usual', 'official', 'temp', 'secondary' ],
@@ -40,10 +46,10 @@ var MedicationOrderSchema = new mongoose.Schema({
 			required : true
 		}
     }],
-    dateWritten: Date,
-    status: String,
-    dateEnded: Date,
-    reasonEnded: {
+    dateWritten: Date,		// When prescription was authorized
+    status: String,			// active | on-hold | completed | entered-in-error | stopped | draft
+    dateEnded: Date,		// When prescription was stopped
+    reasonEnded: {			// Why the prescription was stopped
         coding: [{
             system: String,
             code: String,
@@ -58,11 +64,11 @@ var MedicationOrderSchema = new mongoose.Schema({
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
-    encounter: {
+    encounter: {			// Created during encounter/admission/stay
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
-    reasonCodeableConcept: {
+    reasonCodeableConcept: {	// 	Reason or indication for writing the prescription
         coding: [{
             system: String,
             code: String,
@@ -73,113 +79,97 @@ var MedicationOrderSchema = new mongoose.Schema({
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
-    note: String,
-    medicationCodeableConcept: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    medicationReference: {
+    note: String,			// Information about the prescription
+    medicationReference: {	// Medication to be taken
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
-    dosageInstruction: [{
-        text: String,
-        additionalInstructions: {
+    dosageInstruction: [{		//How medication should be taken
+        text: String,				// Dosage instructions expressed as text
+        additionalInstructions: {	// Supplemental instructions - e.g. "with meals"
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        timing: {
+        timing: {					// When medication should be administered
+        	duration : Number, 		// How long when it happens
+            durationMax : Number, 	// How long when it happens (Max)
+            durationUnits : {
+    			type : String,
+    			enum : [ 's', 'min', 'h', 'd', 'wk', 'mo', 'a' ]
+    		},
+            frequency : Number, 	// Event occurs frequency times per period
+            frequencyMax : Number, 	// Event occurs up to frequencyMax times per period
+            period : Number, 		// Event occurs frequency times per period
+            periodMax : Number, 	// Upper limit of period (3-4 hours)
+            periodUnits : {
+    			type : String,
+    			enum : [ 's', 'min', 'h', 'd', 'wk', 'mo', 'a' ]
+    		}, 
+            when : String 			// Regular life events the event is tied to
         },
         asNeededBoolean: Boolean,
-        asNeededCodeableConcept: {
+        siteCodeableConcept: {	// Body site to administer to
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        siteCodeableConcept: {
+        route: {				// How drug should enter body
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        siteReference: {
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        },
-        route: {
+        method: {				// Technique for administering medication
             coding: [{
                 system: String,
                 code: String,
                 display: String
             }]
         },
-        method: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
+        doseRange: {			// Ex: between x ml and x ml
+        	low: {
+            	value: Number,
+            	unit: String
+            },
+        	high: {
+            	value: Number,
+            	unit: String
+            },
         },
-        doseRange: {
-        },
-        doseSimpleQuantity: {
-        },
-        rateRatio: {
-        },
-        rateRange: {
-        },
-        maxDosePerPeriod: {
+        maxDosePerPeriod: {			// Max 40 ml per  3 day
+        	numerator: {
+	        	value : Number, 		// Numerical value (with implicit precision)
+	        	comparator : {			//  how to understand the value
+	    			type : String,
+	    			enum : [ '<', '<=', '>=', '>' ]
+	    		}, 	
+	        	unit : String, 			// Unit representation
+	        	system : String, 		// C? System that defines coded unit form
+	        	code : String 			// Coded form of the unit
+        	},
+        	denominator:  {
+	        	value : Number, 		// Numerical value (with implicit precision)
+	        	comparator : {			//  how to understand the value
+	    			type : String,
+	    			enum : [ '<', '<=', '>=', '>' ]
+	    		}, 	
+	        	unit : String, 			// Unit representation
+	        	system : String, 		// C? System that defines coded unit form
+	        	code : String 			// Coded form of the unit
+        	}
         }
-    }],
-    dispenseRequest: {
-        medicationCodeableConcept: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        medicationReference: {
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        },
-        validityPeriod: {
-        },
-        numberOfRepeatsAllowed: {
-        },
-        quantity: {
-        },
-        expectedSupplyDuration: {
-        }
-    },
-    substitution: {
-        fhirType: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        reason: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        }
-    },
-    priorPrescription: {
-    }
+    }]
 });
+/*
+MedicationOrderSchema.methods = {
+		
+}*/
 
 var medicationOrder = mongoose.model('MedicationOrder', MedicationOrderSchema);
 exports.MedicationOrder = medicationOrder;

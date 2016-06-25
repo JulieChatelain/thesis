@@ -3,6 +3,7 @@
  * Module dependencies.
  */
 var db = require('./databases/mongoose.js');
+var i18n = require('./config/i18n');
 
 var mongoose   = require('mongoose');
 var morgan     = require("morgan");
@@ -18,14 +19,24 @@ var express = require('express')
 
 var app = express();
 
+
+
+
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/public/views');
+
+//you will need to use cookieParser to expose cookies to req.cookies
+app.use(express.cookieParser());
+app.use(i18n);
+
 app.use(express.favicon());
 app.use(express.logger('dev'));
+
 //app.use(express.methodOverride());
+
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 

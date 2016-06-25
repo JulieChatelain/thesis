@@ -6,25 +6,25 @@
 
 exports.index = function(req, res) {
 	res.render('index', {
-		title : 'Serveur de stockage de dossiers médicaux'
+		title : res.__('EhrServer')
 	});
 };
 
 exports.ehr = function(req, res) {
 	res.render('ehr', {
-		title : 'Dossier Médical'
+		title : res.__('MedicalRecord')
 	});
 };
 
 exports.register = function(req, res) {
 	res.render('register', {
-		title : 'Créer un compte'
+		title : res.__('Register')
 	});
 };
 
 exports.patients = function(req, res) {
 	res.render('patients', {
-		title : 'Patiens'
+		title : res.__('Patients')
 	});
 };
 

@@ -3,5 +3,6 @@
 <strong>{{prescription.dosageInstruction[0].text}} de {{prescription.medicationCodeableConcept.coding[0].display}}</strong><br>
 Prescrit le {{prescription.dateWritten | date:'dd-MM-yyyy'}} par {{prescription.prescriber.display}}<br>
 Raison :  {{prescription.reasonCodeableConcept.coding[0].display}}<br>
+Display: <div class="display" ng-bind-html="display(prescription)"></div><br>
 </li>
 </ul>

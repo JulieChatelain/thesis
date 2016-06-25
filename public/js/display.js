@@ -1,5 +1,9 @@
 app.service('display', function() {
-	
+
+	/** -----------------------------------------------------------------------
+	 * Check if a resource is empty
+	 *  -----------------------------------------------------------------------
+	 */
 	this.isEmpty = function (resource) { 
 		
 		if(resource == null || resource == 'undefined' || resource == ''){
@@ -28,12 +32,21 @@ app.service('display', function() {
 		}		
 		return false;
 	};
-	
+
+	/** -----------------------------------------------------------------------
+	 * Display a resource in a table
+	 *  -----------------------------------------------------------------------
+	 */
 	this.displayResource = function(resource) {
 		
 		if(this.isEmpty(resource) == true){
 			return "";
 		}
+		
+		delete resource._id;
+		delete resource.$$hashkey;
+		delete resource.id;
+		delete resource.resourceType;
 		
 		var display = "<table>";
 		
@@ -42,7 +55,7 @@ app.service('display', function() {
 			if(resource[property] != null && resource[property] != 'undefined' 
 				&& resource[property] != ''){
 				
-				display = display + "<tr><td>" + property + "</td>";
+				display = display + "<tr><td><strong>" + property + "</strong></td>";
 				
 				if(typeof resource[property] === 'string' || typeof resource[property] === 'number'){
 					display = display + "<td>" + resource[property] + "</td>";
@@ -75,9 +88,12 @@ app.service('display', function() {
 				}
 				 
 			}
+			display = display + "</tr>";
 		}
 		
 		display = display + "</table>";
+		
+		return display;
 		
 	};
 

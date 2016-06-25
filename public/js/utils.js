@@ -1,5 +1,5 @@
 
-app.service('utils', function() {
+app.service('utils', function($sce) {
 	
 
 	/** -----------------------------------------------------------------------
@@ -41,6 +41,21 @@ app.service('utils', function() {
 		var ageDate = new Date(ageDifMs);
 		return Math.abs(ageDate.getUTCFullYear() - 1970);
 	}
+
+	/** -----------------------------------------------------------------------
+	 * Convert a date to a string in format dd-mm-yyyy.
+	 *  -----------------------------------------------------------------------
+	 */
+	this.dateToString = function(d) {
+		var date = new Date(d);
+		var d = date.getDate();
+		if(Number(d) < 10) d = "0"+d;
+		var m = date.getMonth() + 1;
+		if(Number(m) < 10) m = "0"+m;
+		var yyyy = date.getFullYear() 
+		return d+"/"+m+"/"+yyyy;
+	}
+	
 	/** -----------------------------------------------------------------------
 	 * Compute the duration in years, month and days between two dates.
 	 *  -----------------------------------------------------------------------
@@ -174,5 +189,138 @@ app.service('utils', function() {
 		return symptoms;
 	}
 	
+
+	/** -----------------------------------------------------------------------
+	 * Check if a resource is empty
+	 *  -----------------------------------------------------------------------
+	 */
+	this.isEmpty = function (resource) { 
+		
+		if(resource == null || resource == 'undefined' || resource == ''){
+			return true;
+		}
+		if(typeof resource === 'string' || typeof resource === 'number'){
+			return false;
+		}
+		
+		var stringResource = JSON.stringify(resource);
+		
+		if(stringResource.charAt(0) == "["){
+			var len = resource.length;
+			for (var i = 0; i < len; i++) {
+				if(this.isEmpty(resource[i]) == false){
+					return false;
+				}
+			}
+			return true;
+		}		
+		else if(stringResource.charAt(0) == "{"){
+			
+		    for ( var property in resource ) {		    	  
+		    	  if(this.isEmpty(resource[property]) == false)
+		    			  return false;		    	  
+		    }
+	        return true; 
+		}		
+		return false;
+	};
+	
+	/** -----------------------------------------------------------------------
+	 * Display a resource in a table
+	 *  -----------------------------------------------------------------------
+	 */
+	this.displayResource = function(resource, start) {
+		
+		if(this.isEmpty(resource) == true){
+			return "";
+		}
+
+		delete resource._id;
+		delete resource.$$hashKey;
+		delete resource.id;
+		
+		if(start)
+			var display = "<table>";
+		else
+			var display = "";
+		
+		for ( var property in resource) {
+			
+			if(resource[property] != null && resource[property] != 'undefined' 
+				&& resource[property] != '' && !this.isEmpty(resource[property])){
+				
+				if(start) display += "<tr>";
+				
+				if(property != 'reference' && property != 'display' && property != 'coding' 
+					&& property != 'meta'&& property != 'system' && property != 'div'){
+					if(start) display += "<td>";
+					display += "<strong>'" + property.replace("CodeableConcept","") + "</strong>";
+					if(start) display += "</td>";
+					else display += " : ";
+					
+				}
+				if (property == 'meta' && start){
+					display += "<td></td>";
+				}
+				
+				if(typeof resource[property] === 'string' || typeof resource[property] === 'number'){
+					
+					if(property == 'reference' || property == 'url' || property.indexOf('By') > -1){
+						if(start) display += "<td>";
+						display += "<a href='#/"+resource[property]+"'>" + resource[property] + "</a>";	
+						if(start) display += "</td>";
+						else display += " <br> ";
+					}
+					else if((property.indexOf('date') > -1 || property.indexOf('Date') > -1
+							|| property == 'published' || property == 'created') 
+							&& property.indexOf('By') == -1){
+
+						if(start) display += "<td>";
+						display += this.dateToString(resource[property]);
+						if(start) display += "</td>";
+						else display += " <br> ";
+					}
+					else{
+						if(start) display += "<td>";
+						display += resource[property];
+						if(start) display += "</td>";
+						else display += " <br> ";
+					}
+				}
+				else if (typeof resource[property] === 'object') {
+					var stringProperty = JSON.stringify(resource[property]);
+					
+					if(stringProperty.charAt(0) == "{"){
+						
+						if(start) display += "<td>";
+						display += this.displayResource(resource[property],false);
+						if(start) display += "</td>";
+						
+					}else if(stringProperty.charAt(0) == "[") {
+						var len = resource[property].length;
+						if(start) display += "<td>";
+						
+						for (var i = 0; i < len; i++) {
+														
+							if(typeof resource[property][i] === 'string' || typeof resource[property][i] === 'number'){
+								display += resource[property][i] + " ; ";
+							}
+							else {
+								display += this.displayResource(resource[property][i],false) + "<br> ";
+							}
+						}
+						if(start) display += "</td>";
+					}
+				}
+				 
+			}
+			if(start) display = display + "</tr>";
+		}
+		
+		if(start) display = display + "</table>";
+		
+		return display;
+		
+	};
 	
 });

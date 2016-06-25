@@ -1,9 +1,10 @@
-var app = angular.module("ehr", [ 'ngCookies' ]);
+var app = angular.module("ehr", [ 'ngSanitize' ]);
 
-app.controller('EHRCtrl',function($log, $location, $scope, $http, $cookies, utils) {
+app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 	$scope.$log = $log;
 	$scope.isPatientDiabetic = false;
 	$scope.nameFilter = '';
+	$scope.host = $location.host();
 	
 	// Get the ehr options
 	$http.get("/ehrmenu").then(function(response) {
@@ -139,5 +140,13 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $cookies, util
 		var ageDifMs = Date.now() - new Date(birthday);
 		var ageDate = new Date(ageDifMs);
 		return Math.abs(ageDate.getUTCFullYear() - 1970);
+	}
+	
+	$scope.display = function(resource) {
+		return $sce.trustAsHtml(utils.displayResource(resource, true));
+	}
+	
+	$scope.dateToString = function(d) {
+		return utils.dateToString(d)
 	}
 });
