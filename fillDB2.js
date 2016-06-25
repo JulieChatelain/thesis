@@ -57,7 +57,7 @@ db.medicationorders.insert([
     note: "...",
     reasonCodeableConcept: {
         coding: [{
-            display: "Prescription pour le diabète"
+            display: "diabète"
         }]
     },
     medicationCodeableConcept: {
@@ -84,7 +84,7 @@ db.medicationorders.insert([
     note: "...",
     reasonCodeableConcept: {
         coding: [{
-            display: "Prescription pour le diabète"
+            display: "diabète"
         }]
     },
     medicationCodeableConcept: {
@@ -112,7 +112,7 @@ db.medicationorders.insert([
     note: "...",
     reasonCodeableConcept: {
         coding: [{
-            display: "Prescription pour le diabète"
+            display: "diabète"
         }]
     },
     medicationCodeableConcept: {
@@ -127,19 +127,19 @@ db.medicationorders.insert([
 ]);
 //********************************************************************
 db.ehroptions.insert([ {
-	name : "Histoire du diabète",
+	name : "diabHistory",
 	url : "views/ehrOptions/diabHistory.html"
 }, {
-	name : "Traitements en cours",
+	name : "currentTreatments",
 	url : "views/ehrOptions/currentTreatments.html"
 }, {
-	name : "Historique des traitements",
+	name : "treatmentHistory",
 	url : "views/ehrOptions/treatmentsHistory.html"
 },  {
-	name : "Antécédents personnels",
+	name : "personalHistory",
 	url : "views/ehrOptions/personalHistory.html"
 }, {
-	name : "Maladies actuelles",
+	name : "conditions",
 	url : "views/ehrOptions/conditions.html"
 }, ]);
 

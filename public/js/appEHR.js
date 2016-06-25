@@ -5,6 +5,9 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 	$scope.isPatientDiabetic = false;
 	$scope.nameFilter = '';
 	$scope.host = $location.host();
+
+	$scope.calculateAge = utils.calculateAge;
+	$scope.dateToString = utils.dateToString;
 	
 	// Get the ehr options
 	$http.get("/ehrmenu").then(function(response) {
@@ -132,21 +135,12 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 	}
 	
 	/** -----------------------------------------------------------------------
-	 * Compute the age from the birthday
+	 * Display the html formatted text of a resource
 	 *  -----------------------------------------------------------------------
 	 */
-	
-	$scope.calculateAge = function(birthday) {
-		var ageDifMs = Date.now() - new Date(birthday);
-		var ageDate = new Date(ageDifMs);
-		return Math.abs(ageDate.getUTCFullYear() - 1970);
-	}
-	
 	$scope.display = function(resource) {
-		return $sce.trustAsHtml(utils.displayResource(resource, true));
+		return $sce.trustAsHtml(resource.text.div);
 	}
+
 	
-	$scope.dateToString = function(d) {
-		return utils.dateToString(d)
-	}
 });

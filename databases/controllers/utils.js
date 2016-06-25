@@ -36,10 +36,13 @@ var isEmpty = function (resource) {
 };
 
 /** -----------------------------------------------------------------------
- * Extract the first display text from a codeable concept.<br>
+ * Convert a codeable concept resource to text.
  *  -----------------------------------------------------------------------
  */
-var getDisplay = function(cc) {
+var getCodeableConcept = function(cc) {
+	if("text" in cc && cc.text != ""){
+		return code.text;
+	}
 	var codes = cc.coding;
 	var len = codes.length;
 	for (var i = 0; i < len; i++) {
@@ -172,6 +175,20 @@ var getRatio = function(ratio, res) {
 };
 
 /** -----------------------------------------------------------------------
+ * Convert period resource to text.
+ *  -----------------------------------------------------------------------
+ */
+var getPeriod = function(period, res){
+	var periodString = "";
+	if("start" in period && ! isEmpty(period.start)
+			&& "end" in period && ! isEmpty(period.end)){
+		periodString += res.__('between')+ " " + res.__('the') + dateToString(period.start);
+		periodString += res.__('and')+ " " + res.__('the') + dateToString(period.end);
+	}
+	return periodString;
+}
+
+/** -----------------------------------------------------------------------
  * Convert a date to a string in format dd/mm/yyyy.
  *  -----------------------------------------------------------------------
  */
@@ -191,6 +208,7 @@ var dateToString = function(d) {
  */
 /**
  *  -----------------------------------------------------------------------
+ * MEDICATION ORDER<br>
  * Format example for a medication order:
  * "<p>
  * <strong>Prescription:</strong>:<br>
@@ -207,7 +225,7 @@ var dateToString = function(d) {
  *  -----------------------------------------------------------------------
  */
 var medicationOrderToString = function(mo, res, host) {
-	if(isEmpty(resource) == true){
+	if(isEmpty(mo) == true){
 		return "";
 	}
 	var moString = "";	
@@ -218,16 +236,17 @@ var medicationOrderToString = function(mo, res, host) {
 		var len = dosages.length;
 		for (var i = 0; i < len; i++) {
 			var dosage = dosages[i];
+			moString += "<strong>";
 			if("text" in dosage && dosage.text != ''){
 				moString += dosage.text;
 			}else{
 				// Technique for administering medication
 				if("method" in dosage && "coding" in dosage.method){
-					moString += res.__(getDisplay(dosage.method)) + "";
+					moString += res.__(getCodeableConcept(dosage.method)) + "";
 				}
 				// How drug should enter body
 				if("route" in dosage && "coding" in dosage.route){
-					moString += " (" + res.__(getDisplay(dosage.route)) + ")";
+					moString += " (" + res.__(getCodeableConcept(dosage.route)) + ")";
 				}
 				// Amount of medication per dose
 				if("doseRange" in dosage && !isEmpty(dosage.doseRange)){				
@@ -251,11 +270,22 @@ var medicationOrderToString = function(mo, res, host) {
 					moString += " " + getRatio(mo.maxDosePerPeriod, res) + ".";
 				}
 			}
-			moString += "<br>";
+			moString += "</strong><br>";
 		}
 	}
+	// Why it was prescribed
+	moString += "<strong>" + res.__('prescriptionReason') + ":</strong> " + res.__('patientSufferFrom');
+	if("reasonCodeableConcept" in mo && !isEmpty(mo.reasonCodeableConcept)){
+		moString += " " + res.__(getCodeableConcept(mo.reasonCodeableConcept)) + "."; 
+	}
+	else if("reasonReference" in mo && !isEmpty(mo.reasonReference)){
+		moString += " " + getReference(mo.reasonReference, null ,res, host) + ".";
+	}
+	moString += "<br>";
+	
+	// Information about the prescription
 	if("note" in mo && !isEmpty(mo.note)){
-		moString += res.__('note') + ": " + res.__(mo.note) + "<br>";
+		moString += "<i>" + res.__('Note') + ": " + mo.note + "</i><br>";
 	}
 	// When it was prescribed and by who
 	moString += res.__('Prescribed');
@@ -270,16 +300,6 @@ var medicationOrderToString = function(mo, res, host) {
 	}
 	moString += "<br>";
 	
-	// Why it was prescribed
-	moString += res.__('prescriptionReason') + ": " + res.__('patientSufferFrom');
-	if("reasonCodeableConcept" in mo && !isEmpty(mo.reasonCodeableConcept)){
-		moString += " " + res.__(getDisplay(mo.reasonCodeableConcept)) + "."; 
-	}
-	else if("reasonReference" in mo && !isEmpty(mo.reasonReference)){
-		moString += " " + getReference(mo.reasonReference, null ,res, host) + ".";
-	}
-	moString += "<br>";
-	
 	// Last modified the dd/mm/yyyy by ...
 	moString += res.__('LastModified');
 	if("meta" in mo && !isEmpty(mo.meta)){
@@ -287,34 +307,70 @@ var medicationOrderToString = function(mo, res, host) {
 			moString += " " + res.__('the') + " " + dateToString(mo.meta.lastUpdated); 
 		}
 		if("updatedBy" in mo.meta && !isEmpty(mo.meta.updatedBy)){
-			moString += " " + res.__('by') + " " + getReference(mo.meta.updatedBy, null ,res, host);
+			moString += " " + res.__('by') + " <a href='"+host+"/ehr/" 
+			+ mo.meta.updatedBy+"'>" + mo.meta.updatedBy+"</a>";
 		}		
 	}	
 	moString += ".<br>";
 	
 	// When prescription was stopped and why
-	moString += res.__('Stopped');
+	var stopped = false;
+	if(mo.status != 'active'){
+		moString += res.__(mo.status);
+	}
 	
 	if("dateEnded" in mo && !isEmpty(mo.dateEnded)){
 		moString += " " + res.__('the') + " " + dateToString(mo.dateEnded); 
 	}
 	if("reasonEnded" in mo && !isEmpty(mo.reasonEnded)){
-		moString += " " + res.__('reason') + ": " + res.__('getDisplay(mo.reasonEnded)');
-	}		
-		
-	moString += ".<br>";
+		moString += " " + res.__('reason') + ": " + res.__(getCodeableConcept(mo.reasonEnded));
+	}
+	if(mo.status != 'active'){
+		moString += ".<br>";
+	}			
 	
 	return moString;
 	
 };
 
+/**
+ *  -----------------------------------------------------------------------
+ * CONDITION<br>
+ * Format example for a condition:
+ * "<p>
+ * Maladie: maladieX<br>
+ * Etat de la maladie : en rémission<br>
+ * Etat de confirmation de la maladie: provisoire <br>
+ * Gravité: provisoire <br>
+ * Stade : metastase stage terminal <br>
+ * Manifestation : entre le 1/10/10 et le 15/10/10<br>
+ * Symptômes : symptome1, symptome2,... <br>
+ * Rémission : entre le 1/10/12 et le 15/10/12<br>
+ * Personne qui a déclaré la maladie: Jean DUPONT<br>
+ * (<a href="localhost:3000/ehr/encounter/324578478786">lien vers la rencontre où la declaration a eu lieu</a>)<br>
+ * Enregistrer le 10/10/10 
+ * Avaler (voie orale) 1 ml à 2 ml de medicamentX 3 à 4 fois par 
+ * 1 à 2 heures avec un verre d'eau pendant 2 à 3 ans<br>
+ * Maximum 10 ml par jour. <br>
+ * <strong>Note:</strong> ...<br>
+ * Prescrit le 10/10/10 par <a href="localhost:3000/ehr/practitioner/3786786">Dr. Gregory HOUSE</a>. 
+ * (<a href="localhost:3000/ehr/encounter/324578478786">lien vers la rencontre où la prescription a eu lieu</a>)<br>
+ * Raison de la prescription: patient souffre de <a href="localhost:3000/ehr/condition/3786786">maladieX</a>. <br>
+ * Modifié en dernier le 10/12/10 par <a href="localhost:3000/ehr/practitioner/3786786">Dr. Jean DUPUIS</a>.<br>
+ * Stoppé le 02/02/12, raison : fin du traitement.<br>
+ * </p>
+ *  -----------------------------------------------------------------------
+ */
+var conditionToString = function(c, res, host){
+	
+};
 /** -----------------------------------------------------------------------
  * Generate a text version (html format) of the resource
  *  -----------------------------------------------------------------------
  */
 var generateText = function(resource,res,host) {
 	switch (resource.resourceType) {
-	case 'Medicationorder':
+	case 'MedicationOrder':
 		return medicationOrderToString(resource,res,host);
 	default:
 		break;

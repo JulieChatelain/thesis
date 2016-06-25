@@ -2,25 +2,22 @@
 /**
  * Module dependencies.
  */
-var db = require('./databases/mongoose.js');
-var i18n = require('./config/i18n');
+var db 			= require('./databases/mongoose.js');
+var i18n 		= require('./config/i18n');
+var routes 		= require('./routes');
+var rest		= require('./routes/REST');
+var user 		= require('./routes/user');
+var provider	= require('./routes/provider');
 
-var mongoose   = require('mongoose');
-var morgan     = require("morgan");
-var bodyParser = require("body-parser");
-var jwt        = require("jsonwebtoken");
-
-var express = require('express')
-  , routes = require('./routes')
-  , rest = require('./routes/REST')
-  , user = require('./routes/user')
-  , http = require('http')
-  , path = require('path');
+var express 	= require('express')
+  , http 		= require('http')
+  , path 		= require('path')
+  , mongoose   	= require('mongoose')
+  , bodyParser 	= require('body-parser')
+  , morgan     	= require("morgan")
+  , jwt			= require('jsonwebtoken');
 
 var app = express();
-
-
-
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -28,15 +25,10 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/public/views');
 
-//you will need to use cookieParser to expose cookies to req.cookies
 app.use(express.cookieParser());
 app.use(i18n);
-
 app.use(express.favicon());
 app.use(express.logger('dev'));
-
-//app.use(express.methodOverride());
-
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -67,20 +59,7 @@ app.post('/login', user.login);
 app.post('/signin',user.signin);
 
 //Data provider
-app.get('/ehrmenu', function(req, res) {
-	var EHROption = mongoose.model('EHROption');
-	
-	EHROption.find({}, function(err, options) {
-		if (err) {
-			console.log("Got an error: " + err);
-			res.send(500);
-		} else {
-			console.log(options);
-			var json = JSON.stringify(options);
-			res.send(json);
-		}
-	});
-});
+app.get('/ehrmenu', provider.ehrmenu);
 
 //REST api
 /* 

@@ -47,14 +47,19 @@ var MedicationOrderSchema = new mongoose.Schema({
 		}
     }],
     dateWritten: Date,		// When prescription was authorized
-    status: String,			// active | on-hold | completed | entered-in-error | stopped | draft
+    status: {
+		type : String,
+		enum : [ 'active', 'on-hold', 'completed', 'entered-in-error', 'stopped', 'draft' ],
+		required : true
+	},	
     dateEnded: Date,		// When prescription was stopped
     reasonEnded: {			// Why the prescription was stopped
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+		text : String			// Plain text representation of the concept
     },
     patient: {
 		reference : String, // Relative, internal or absolute URL reference
@@ -73,7 +78,8 @@ var MedicationOrderSchema = new mongoose.Schema({
             system: String,
             code: String,
             display: String
-        }]
+        }],
+		text : String			// Plain text representation of the concept
     },
     reasonReference: {
 		reference : String, // Relative, internal or absolute URL reference
@@ -91,7 +97,8 @@ var MedicationOrderSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         timing: {					// When medication should be administered
         	duration : Number, 		// How long when it happens
@@ -116,21 +123,24 @@ var MedicationOrderSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         route: {				// How drug should enter body
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         method: {				// Technique for administering medication
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         doseRange: {			// Ex: between x ml and x ml
         	low: {

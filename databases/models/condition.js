@@ -101,6 +101,7 @@ var ConditionSchema = new mongoose.Schema({
 		} ],
 		text : String			// Plain text representation of the concept
 	},
+	// Estimated or actual date, date-time, or age
 	onsetDateTime : Date,
 	onsetQuantity : {
 		value : String,
@@ -112,11 +113,8 @@ var ConditionSchema = new mongoose.Schema({
 		start : Date,
 		end : Date
 	},
-	onsetRange : {
-		low : String, 
-		high : String
-		},
 	onsetString : String,
+	// If/when in resolution/remission
 	abatementDateTime : Date,
 	abatementQuantity : {
 		value : String,

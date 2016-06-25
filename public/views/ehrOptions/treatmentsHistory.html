@@ -1,7 +1,5 @@
 <ul class="cardContent" ng-show="elem.unfold">
 <li ng-repeat="prescription in prescriptions | orderBy:'dateWritten'">
-<strong>{{prescription.dosageInstruction[0].text}} de {{prescription.medicationCodeableConcept.coding[0].display}}</strong><br>
-Prescrit le {{prescription.dateWritten | date:'dd-MM-yyyy'}} par {{prescription.prescriber.display}}<br>
-Raison :  {{prescription.reasonCodeableConcept.coding[0].display}}<br>
+<div class="display" ng-bind-html="display(prescription)"></div>
 </li>
 </ul>
