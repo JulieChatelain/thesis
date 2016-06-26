@@ -1,4 +1,4 @@
-//var i18n = require('./config/i18n');
+
 
 /** -----------------------------------------------------------------------
  * Check if a resource is empty
@@ -186,8 +186,23 @@ var getPeriod = function(period, res){
 		periodString += res.__('and')+ " " + res.__('the') + dateToString(period.end);
 	}
 	return periodString;
-}
+};
 
+/** -----------------------------------------------------------------------
+ * Convert quantity (age) resource to text.
+ *  -----------------------------------------------------------------------
+ */
+var getAge = function(age, res){
+	var ageString = "";
+	if("value" in age){
+		ageString += age.value;
+	}
+	if("units" in age && age.units != ""){
+		ageString += " " + res.__(age.units);
+	}
+	
+	return ageString;
+};
 /** -----------------------------------------------------------------------
  * Convert a date to a string in format dd/mm/yyyy.
  *  -----------------------------------------------------------------------
@@ -242,11 +257,11 @@ var medicationOrderToString = function(mo, res, host) {
 			}else{
 				// Technique for administering medication
 				if("method" in dosage && "coding" in dosage.method){
-					moString += res.__(getCodeableConcept(dosage.method)) + "";
+					moString += getCodeableConcept(dosage.method) + "";
 				}
 				// How drug should enter body
 				if("route" in dosage && "coding" in dosage.route){
-					moString += " (" + res.__(getCodeableConcept(dosage.route)) + ")";
+					moString += " (" + getCodeableConcept(dosage.route) + ")";
 				}
 				// Amount of medication per dose
 				if("doseRange" in dosage && !isEmpty(dosage.doseRange)){				
@@ -276,7 +291,7 @@ var medicationOrderToString = function(mo, res, host) {
 	// Why it was prescribed
 	moString += "<strong>" + res.__('prescriptionReason') + ":</strong> " + res.__('patientSufferFrom');
 	if("reasonCodeableConcept" in mo && !isEmpty(mo.reasonCodeableConcept)){
-		moString += " " + res.__(getCodeableConcept(mo.reasonCodeableConcept)) + "."; 
+		moString += " " + getCodeableConcept(mo.reasonCodeableConcept) + "."; 
 	}
 	else if("reasonReference" in mo && !isEmpty(mo.reasonReference)){
 		moString += " " + getReference(mo.reasonReference, null ,res, host) + ".";
@@ -323,7 +338,7 @@ var medicationOrderToString = function(mo, res, host) {
 		moString += " " + res.__('the') + " " + dateToString(mo.dateEnded); 
 	}
 	if("reasonEnded" in mo && !isEmpty(mo.reasonEnded)){
-		moString += " " + res.__('reason') + ": " + res.__(getCodeableConcept(mo.reasonEnded));
+		moString += " " + res.__('reason') + ": " + getCodeableConcept(mo.reasonEnded);
 	}
 	if(mo.status != 'active'){
 		moString += ".<br>";
@@ -339,31 +354,154 @@ var medicationOrderToString = function(mo, res, host) {
  * Format example for a condition:
  * "<p>
  * Maladie: maladieX<br>
- * Etat de la maladie : en rémission<br>
- * Etat de confirmation de la maladie: provisoire <br>
+ * Status de la maladie : en rémission<br>
+ * Status de confirmation de la maladie: provisoire <br>
  * Gravité: provisoire <br>
  * Stade : metastase stage terminal <br>
  * Manifestation : entre le 1/10/10 et le 15/10/10<br>
  * Symptômes : symptome1, symptome2,... <br>
  * Rémission : entre le 1/10/12 et le 15/10/12<br>
  * Personne qui a déclaré la maladie: Jean DUPONT<br>
- * (<a href="localhost:3000/ehr/encounter/324578478786">lien vers la rencontre où la declaration a eu lieu</a>)<br>
+ * (lien vers la rencontre où la declaration a eu lieu)<br>
  * Enregistrer le 10/10/10 
- * Avaler (voie orale) 1 ml à 2 ml de medicamentX 3 à 4 fois par 
- * 1 à 2 heures avec un verre d'eau pendant 2 à 3 ans<br>
- * Maximum 10 ml par jour. <br>
  * <strong>Note:</strong> ...<br>
- * Prescrit le 10/10/10 par <a href="localhost:3000/ehr/practitioner/3786786">Dr. Gregory HOUSE</a>. 
- * (<a href="localhost:3000/ehr/encounter/324578478786">lien vers la rencontre où la prescription a eu lieu</a>)<br>
- * Raison de la prescription: patient souffre de <a href="localhost:3000/ehr/condition/3786786">maladieX</a>. <br>
- * Modifié en dernier le 10/12/10 par <a href="localhost:3000/ehr/practitioner/3786786">Dr. Jean DUPUIS</a>.<br>
- * Stoppé le 02/02/12, raison : fin du traitement.<br>
+ * Modifié en dernier le 10/12/10 par Dr.Jean DUPUIS.<br>
  * </p>
  *  -----------------------------------------------------------------------
  */
-var conditionToString = function(c, res, host){
+var conditionToString = function(resource, res, host){
+	if(isEmpty(resource) == true){
+		return "";
+	}
+	var rString = "";	
+	// Category
+	if("category" in resource && !isEmpty(resource.category)){
+		rString += "" + getCodeableConcept(resource.category) + ": ";
+	}
+	// Identification of the condition, problem or diagnosis
+	if("code" in resource && !isEmpty(resource.code)){
+		rString += "<strong>" + getCodeableConcept(resource.code) + "</strong><br>";
+	}
+	// 	Anatomical location, if relevant
+	if("bodySite" in resource && !isEmpty(resource.bodySite)){
+		rString += res.__('BodyLocation') + ": ";
+		var site = resource.bodySite;
+		var len = site.length;
+		for (var i = 0; i < len; i++) {
+			rString += getCodeableConcept(site[i]) + ";"
+		}
+		rString += ".<br>";
+	}
+	if("clinicalStatus" in resource && !isEmpty(resource.clinicalStatus)){
+		rString += res.__('clinicalStatus') + ": " + res.__(resource.clinicalStatus) + "<br>";
+	}
+	if("verificationStatus" in resource && !isEmpty(resource.verificationStatus)){
+		rString += res.__('verificationStatus') + ": " + res.__(resource.verificationStatus) + "<br>";
+	}
+	// Subjective severity of condition
+	if("severity" in resource && !isEmpty(resource.severity)){
+		rString += res.__('severity') + ": " + getCodeableConcept(resource.severity) + "<br>";
+	}
+	// Stage/grade, usually assessed formally
+	if("stage" in resource && !isEmpty(resource.stage)){
+		var stage = resource.stage;
+		if("summary" in stage && !isEmpty(stage.summary)){
+			rString += res.__('stage') + ": " + getCodeableConcept(stage.summmary);			
+		}
+		if("assessment" in stage && !isEmpty(stage.assessment)){
+			rString += "(";
+			var assessment = stage.assessment;
+			var len = assessment.length;
+			for (var i = 0; i < len; i++) {
+				rString += getRerence(assessment[i], null ,res, host) + ";";
+			}
+			rString += ")";
+		}
+		rString += ".<br>";
+	}
 	
+	// Estimated or actual date, date-time, or age
+	rString += res.__('onset') + ": ";
+	if("onsetDateTime" in resource && !isEmpty(resource.onsetDateTime)){
+		rString += dateToString(resource.onsetDateTime);
+	}else if("onsetQuantity" in resource && !isEmpty(resource.onsetQuantity)){
+		rString += getAge(resource.onsetQuantity, res);
+	}else if("onsetPeriod" in resource && !isEmpty(resource.onsetPeriod)){
+		rString += getPeriod(resource.onsetPeriod, res);
+	}else if("onsetString" in resource && !isEmpty(resource.onsetString)){
+		rString += resource.onsetString;
+	}
+	rString += ".<br>";
+	
+	// Supporting evidence (Manifestation/symptom)
+	if("evidence" in resource && !isEmpty(resource.evidence)){
+		rString += res.__('symptoms') + ": ";
+		var len = resource.evidence.length;
+		for (var i = 0; i < len; i++) {
+			var evidence = resource.evidence[i];
+			if("code" in evidence && !isEmpty(evidence.code)){
+				rString += getCodeableConcept(evidence.code) + "; ";
+			}
+			if("detail" in evidence && !isEmpty(evidence.detail)){
+				var lenDetail = evidence.detail.length;
+				rString += "(";
+				for (var k = 0; k < lenDetail; k++) {
+					rString += getReference(evidence.detail[k], null ,res, host) + "; ";
+				}
+				rString += ")";
+			}
+		}
+		rString += ".<br>";
+	}
+	// If/when in resolution/remission
+	rString += res.__('abatement') + ": ";
+	if("abatementDateTime" in resource && !isEmpty(resource.abatementDateTime)){
+		rString += dateToString(resource.abatementDateTime);
+	}else if("abatementQuantity" in resource && !isEmpty(resource.abatementQuantity)){
+		rString += getAge(resource.abatementQuantity, res);
+	}else if("abatementPeriod" in resource && !isEmpty(resource.abatementPeriod)){
+		rString += getPeriod(resource.abatementPeriod, res);
+	}else if("abatementString" in resource && !isEmpty(resource.abatementString)){
+		rString += resource.abatementString;
+	}
+	rString += ".<br>";
+	
+	// Person who asserts this condition
+	if("asserter" in resource && !isEmpty(resource.asserter)){
+		rString += res.__('asserter') + ": " + getReference(resource.asserter, null ,res, host) + ".<br>";
+	}
+	
+	// Encounter when condition first asserted
+	if("encounter" in resource && !isEmpty(resource.encounter)){
+		rString += " (" + getReference(resource.encounter, res.__('conditionEncounterLink'), res, host) + ")<br>";
+	}
+	
+	// When first entered
+	if("dateRecorded" in resource && !isEmpty(resource.dateRecorded)){
+		rString += res.__('dateRecorded') + " " + dateToString(resource.dateRecorded) + "<br>"; 
+	}
+
+	// Information about the prescription
+	if("notes" in resource && !isEmpty(resource.notes)){
+		rString += "<i>" + res.__('Note') + ": " + resource.notes + "</i><br>";
+	}
+	
+	// Last modified the dd/mm/yyyy by ...
+	rString += res.__('LastModified');
+	if("meta" in resource && !isEmpty(resource.meta)){
+		if("lastUpdated" in resource.meta && !isEmpty(resource.meta.lastUpdated)){
+			rString += " " + res.__('the') + " " + dateToString(resource.meta.lastUpdated); 
+		}
+		if("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)){
+			rString += " " + res.__('by') + " <a href='"+host+"/ehr/" 
+			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a>";
+		}		
+	}	
+	rString += ".<br>";
+	
+	return rString;
 };
+
 /** -----------------------------------------------------------------------
  * Generate a text version (html format) of the resource
  *  -----------------------------------------------------------------------
@@ -372,6 +510,8 @@ var generateText = function(resource,res,host) {
 	switch (resource.resourceType) {
 	case 'MedicationOrder':
 		return medicationOrderToString(resource,res,host);
+	case 'Condition':
+		return conditionToString(resource,res,host);
 	default:
 		break;
 	}
