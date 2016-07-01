@@ -1,7 +1,6 @@
 
 var db 			= require('../databases/mongoose.js');
 var mongoose   	= require('mongoose');
-var i18n 		= require('../config/i18n');
 var async 		= require('async');
 
 //-----------------------------------------------------------------------------

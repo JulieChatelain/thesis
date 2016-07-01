@@ -127,34 +127,34 @@ db.medicationorders.insert([
 ]);
 //********************************************************************
 db.ehroptions.insert([ {
-	name : "Histoire du diabète",
+	name : "diabHistory",
 	url : "views/ehrOptions/diabHistory.html"
 }, {
-	name : "Traitements en cours",
+	name : "currentTreatments",
 	url : "views/ehrOptions/currentTreatments.html"
 }, {
-	name : "Historique des traitements",
+	name : "treatmentsHistory",
 	url : "views/ehrOptions/treatmentsHistory.html"
 }, {
-	name : "Antécédents principaux",
+	name : "mainHistory",
 	url : "views/ehrOptions/mainHistory.html"
 }, {
-	name : "Antécédents personnels",
+	name : "personalHistory",
 	url : "views/ehrOptions/personalHistory.html"
 }, {
-	name : "Antécédents familiaux",
+	name : "familyHistory",
 	url : "views/ehrOptions/familyHistory.html"
 }, {
-	name : "Prises de sang",
+	name : "bloodTests",
 	url : "views/ehrOptions/bloodTests.html"
 }, {
-	name : "Complications",
+	name : "complications",
 	url : "views/ehrOptions/complications.html"
 }, {
-	name : "Facteurs de risque",
+	name : "riskFactors",
 	url : "views/ehrOptions/riskFactors.html"
 }, {
-	name : "Maladies actuelles",
+	name : "conditions",
 	url : "views/ehrOptions/conditions.html"
 }, ]);
 
