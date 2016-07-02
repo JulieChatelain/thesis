@@ -516,7 +516,17 @@ var conditionToString = function(resource, res, host){
 };
 
 /**
- * OBSERVATION
+ * OBSERVATION<br>
+ * Example:<br>
+ * Facteur de risque : consommation de tabac<br>
+ * (lien vers la rencontre où la declaration a eu lieu)<br>
+ * Validité: 10/10/10<br>
+ * Responsable de l'observation: Jean Dupont <br>
+ * ------------------------------------------------
+ * Contenu de l'observation
+ * ------------------------------------------------
+ * Commentaires: ...<br>
+ * Enregistrer le 10/10/10; Modifié en dernier le 10/12/10 par Dr.Jean DUPUIS.<br>
  */
 var observationToString = function(resource, res, host){
 	if(isEmpty(resource) == true){
@@ -530,6 +540,10 @@ var observationToString = function(resource, res, host){
 	// Identification of the condition, problem or diagnosis
 	if("code" in resource && !isEmpty(resource.code)){
 		rString += "<strong>" + getCodeableConcept(resource.code) + "</strong>";
+	}
+	// Encounter when condition first asserted
+	if("encounter" in resource && !isEmpty(resource.encounter)){
+		rString += " <em>(" + getReference(resource.encounter, res.__('conditionEncounterLink'), res, host) + ")</em><br>";
 	}
 };
 

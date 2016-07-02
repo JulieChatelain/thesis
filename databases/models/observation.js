@@ -69,8 +69,8 @@ var ObservationSchema = new mongoose.Schema({
 		start : Date,
 		end : Date
     },
-    issued: Date,
-    performer: [{
+    issued: Date,			// Date/Time this was made available
+    performer: [{			// Who is responsible for the observation
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     }],
