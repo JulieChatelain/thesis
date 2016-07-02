@@ -40,15 +40,16 @@ var ObservationSchema = new mongoose.Schema({
 			required : true
 		}
     }],
-    status: String,
-    category: {
+    status: String,			// registered | preliminary | final | amended +
+    category: {				// Classification of type of observation: 
+    						// social-history, vital-signs, imaging, laboratory, procedure, survey, exam, therapy
         coding: [{
             system: String,
             code: String,
             display: String
         }]
     },
-    code: {
+    code: {					// Type of observation (code / type)
         coding: [{
             system: String,
             code: String,
@@ -73,6 +74,7 @@ var ObservationSchema = new mongoose.Schema({
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     }],
+    // Actual result
     valueQuantity: {
         value: String,
         units: String,
@@ -144,7 +146,7 @@ var ObservationSchema = new mongoose.Schema({
             display: String
         }]
     },
-    comments: String,
+    comments: String,		// Comments about result
     bodySite: {
         coding: [{
             system: String,
@@ -152,7 +154,7 @@ var ObservationSchema = new mongoose.Schema({
             display: String
         }]
     },
-    method: {
+    method: {				// How it was done
         coding: [{
             system: String,
             code: String,

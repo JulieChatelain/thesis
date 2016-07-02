@@ -379,33 +379,35 @@ var conditionToString = function(resource, res, host){
 	}
 	// Identification of the condition, problem or diagnosis
 	if("code" in resource && !isEmpty(resource.code)){
-		rString += "<strong>" + getCodeableConcept(resource.code) + "</strong><br>";
+		rString += "<strong>" + getCodeableConcept(resource.code) + "</strong>";
 	}
+	rString += "<em>";
 	// 	Anatomical location, if relevant
 	if("bodySite" in resource && !isEmpty(resource.bodySite)){
-		rString += res.__('BodyLocation') + ": ";
+		rString += " (";
 		var site = resource.bodySite;
 		var len = site.length;
 		for (var i = 0; i < len; i++) {
 			rString += getCodeableConcept(site[i]) + ";"
-		}
-		rString += ".<br>";
+		}	
+		rString += ")";
 	}
 	if("clinicalStatus" in resource && !isEmpty(resource.clinicalStatus)){
-		rString += res.__('clinicalStatus') + ": " + res.__(resource.clinicalStatus) + "<br>";
+		rString += " (" + res.__('clinicalStatus')+ ": " + res.__(resource.clinicalStatus) + ")";
 	}
 	if("verificationStatus" in resource && !isEmpty(resource.verificationStatus)){
-		rString += res.__('verificationStatus') + ": " + res.__(resource.verificationStatus) + "<br>";
+		rString += " (" + res.__(resource.verificationStatus) + ")";
 	}
+	rString += ".</em><br>";
 	// Subjective severity of condition
 	if("severity" in resource && !isEmpty(resource.severity)){
-		rString += res.__('severity') + ": " + getCodeableConcept(resource.severity) + "<br>";
+		rString += res.__('severity') + ": <em>" + getCodeableConcept(resource.severity) + "</em><br>";
 	}
 	// Stage/grade, usually assessed formally
 	if("stage" in resource && !isEmpty(resource.stage)){
 		var stage = resource.stage;
 		if("summary" in stage && !isEmpty(stage.summary)){
-			rString += res.__('stage') + ": " + getCodeableConcept(stage.summmary);			
+			rString += res.__('stage') + ":<em> " + getCodeableConcept(stage.summmary);			
 		}
 		if("assessment" in stage && !isEmpty(stage.assessment)){
 			rString += "(";
@@ -416,25 +418,31 @@ var conditionToString = function(resource, res, host){
 			}
 			rString += ")";
 		}
-		rString += ".<br>";
+		rString += ".</em><br>";
 	}
 	
 	// Estimated or actual date, date-time, or age
-	rString += res.__('onset') + ": ";
 	if("onsetDateTime" in resource && !isEmpty(resource.onsetDateTime)){
+		rString += res.__('onset') + ":<em> ";
 		rString += dateToString(resource.onsetDateTime);
+		rString += ".</em><br>";
 	}else if("onsetQuantity" in resource && !isEmpty(resource.onsetQuantity)){
+		rString += res.__('onset') + ":<em> ";
 		rString += getAge(resource.onsetQuantity, res);
+		rString += ".</em><br>";
 	}else if("onsetPeriod" in resource && !isEmpty(resource.onsetPeriod)){
+		rString += res.__('onset') + ":<em> ";
 		rString += getPeriod(resource.onsetPeriod, res);
+		rString += ".</em><br>";
 	}else if("onsetString" in resource && !isEmpty(resource.onsetString)){
+		rString += res.__('onset') + ":<em> ";
 		rString += resource.onsetString;
+		rString += ".</em><br>";
 	}
-	rString += ".<br>";
 	
 	// Supporting evidence (Manifestation/symptom)
 	if("evidence" in resource && !isEmpty(resource.evidence)){
-		rString += res.__('symptoms') + ": ";
+		rString += res.__('symptoms') + ":<em> ";
 		var len = resource.evidence.length;
 		for (var i = 0; i < len; i++) {
 			var evidence = resource.evidence[i];
@@ -450,34 +458,40 @@ var conditionToString = function(resource, res, host){
 				rString += ")";
 			}
 		}
-		rString += ".<br>";
+		rString += ".</em><br>";
 	}
 	// If/when in resolution/remission
-	rString += res.__('abatement') + ": ";
 	if("abatementDateTime" in resource && !isEmpty(resource.abatementDateTime)){
+		rString += res.__('abatement') + ":<em> ";
 		rString += dateToString(resource.abatementDateTime);
+		rString += ".</em><br>";
 	}else if("abatementQuantity" in resource && !isEmpty(resource.abatementQuantity)){
+		rString += res.__('abatement') + ":<em> ";
 		rString += getAge(resource.abatementQuantity, res);
+		rString += ".</em><br>";
 	}else if("abatementPeriod" in resource && !isEmpty(resource.abatementPeriod)){
+		rString += res.__('abatement') + ":<em> ";
 		rString += getPeriod(resource.abatementPeriod, res);
+		rString += ".</em><br>";
 	}else if("abatementString" in resource && !isEmpty(resource.abatementString)){
+		rString += res.__('abatement') + ":<em> ";
 		rString += resource.abatementString;
+		rString += ".</em><br>";
 	}
-	rString += ".<br>";
 	
 	// Person who asserts this condition
 	if("asserter" in resource && !isEmpty(resource.asserter)){
-		rString += res.__('asserter') + ": " + getReference(resource.asserter, null ,res, host) + ".<br>";
+		rString += res.__('asserter') + ":<em> " + getReference(resource.asserter, null ,res, host) + ".</em><br>";
 	}
 	
 	// Encounter when condition first asserted
 	if("encounter" in resource && !isEmpty(resource.encounter)){
-		rString += " (" + getReference(resource.encounter, res.__('conditionEncounterLink'), res, host) + ")<br>";
+		rString += " <em>(" + getReference(resource.encounter, res.__('conditionEncounterLink'), res, host) + ")</em><br>";
 	}
 	
 	// When first entered
 	if("dateRecorded" in resource && !isEmpty(resource.dateRecorded)){
-		rString += res.__('dateRecorded') + " " + dateToString(resource.dateRecorded) + "<br>"; 
+		rString += res.__('dateRecorded') + " <em>" + dateToString(resource.dateRecorded) + "</em><br>"; 
 	}
 
 	// Information about the prescription
@@ -489,16 +503,34 @@ var conditionToString = function(resource, res, host){
 	rString += res.__('LastModified');
 	if("meta" in resource && !isEmpty(resource.meta)){
 		if("lastUpdated" in resource.meta && !isEmpty(resource.meta.lastUpdated)){
-			rString += " " + res.__('the') + " " + dateToString(resource.meta.lastUpdated); 
+			rString += " " + res.__('the') + " <em>" + dateToString(resource.meta.lastUpdated) + "</em>"; 
 		}
 		if("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)){
-			rString += " " + res.__('by') + " <a href='"+host+"/ehr/" 
-			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a>";
+			rString += " " + res.__('by') + " <em><a href='"+host+"/ehr/" 
+			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a></em>";
 		}		
 	}	
 	rString += ".<br>";
 	
 	return rString;
+};
+
+/**
+ * OBSERVATION
+ */
+var observationToString = function(resource, res, host){
+	if(isEmpty(resource) == true){
+		return "";
+	}
+	var rString = "";	
+	// Category
+	if("category" in resource && !isEmpty(resource.category)){
+		rString += "<strong>" + getCodeableConcept(resource.category) + ": </strong>";
+	}
+	// Identification of the condition, problem or diagnosis
+	if("code" in resource && !isEmpty(resource.code)){
+		rString += "<strong>" + getCodeableConcept(resource.code) + "</strong>";
+	}
 };
 
 /** -----------------------------------------------------------------------
