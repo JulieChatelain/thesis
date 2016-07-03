@@ -188,20 +188,31 @@ var getPeriod = function(period, res){
 };
 
 /** -----------------------------------------------------------------------
- * Convert quantity (age) resource to text.
+ * Convert quantity resource to text.
  *  -----------------------------------------------------------------------
  */
-var getAge = function(age, res){
-	var ageString = "";
-	if("value" in age){
-		ageString += age.value;
+var getQuantity = function(qty, res){
+	var qtyString = "";
+	if("value" in qty){
+		qtyString += qty.value;
 	}
-	if("units" in age && age.units != ""){
-		ageString += " " + res.__(age.units);
+	if("units" in age && qty.units != ""){
+		qtyString += " " + res.__(qty.units);
 	}
 	
-	return ageString;
+	return qtyString;
 };
+
+/** -----------------------------------------------------------------------
+ * Convert sampled data resource to text.
+ *  -----------------------------------------------------------------------
+ */
+var getSampledData = function(data, res) {
+	var dataString = "";
+	//TODO
+	return dataString;
+};
+
 /** -----------------------------------------------------------------------
  * Convert a date to a string in format dd/mm/yyyy.
  *  -----------------------------------------------------------------------
@@ -215,6 +226,28 @@ var dateToString = function(d) {
 	var yyyy = date.getFullYear() 
 	return d+"/"+m+"/"+yyyy;
 };
+
+/** -----------------------------------------------------------------------
+ * Convert attachment resource to text.
+ *  -----------------------------------------------------------------------
+ */
+var getAttachment = function(att, res) {
+	var str = "";
+	if("url" in att && att.url != ""){
+		if("title" in att && att.title != "")
+			str += "<a href='" + att.url + "'>" + att.title + "</a>";
+		else
+			str += "<a href='" + att.url + "'>" + att.url + "</a>";
+	}else{
+		if("title" in att && att.title != "")
+			str += att.title;
+	}
+	if("creation" in att && !isEmpty(att.creation)){
+		str += " (" + dateToString(att.creation) + ")";
+	}
+	return str;
+};
+
 
 /** -----------------------------------------------------------------------
  * Transforms a jason resource into human readable text (format html).
@@ -304,7 +337,7 @@ var medicationOrderToString = function(mo, res, host) {
 	// When it was prescribed and by who
 	moString += res.__('Prescribed');
 	if("dateWritten" in mo && !isEmpty(mo.dateWritten)){
-		moString += " " + res.__('the') + " " + dateToString(mo.dateWritten); 
+		moString += " <strong>" + res.__('the') + " " + dateToString(mo.dateWritten) + "</strong>"; 
 	}
 	if("prescriber" in mo && !isEmpty(mo.prescriber)){
 		moString += " " + res.__('by') + " " + getReference(mo.prescriber, null ,res, host);
@@ -312,10 +345,26 @@ var medicationOrderToString = function(mo, res, host) {
 	if("encounter" in mo && !isEmpty(mo.encounter)){
 		moString += " (" + getReference(mo.encounter, res.__('prescriptionEncounter'), res, host) + ")";
 	}
+	
+
+	// When prescription was stopped and why
+	var stopped = false;
+	if(mo.status != 'active'){
+		moString += " " + res.__(mo.status);
+	}
+	
+	if("dateEnded" in mo && !isEmpty(mo.dateEnded)){
+		moString += " <strong>" + res.__('the') + " " + dateToString(mo.dateEnded) + "</strong>"; 
+	}
+	if("reasonEnded" in mo && !isEmpty(mo.reasonEnded)){
+		moString += " " + res.__('reason') + ": " + getCodeableConcept(mo.reasonEnded);
+	}	
+	
 	moString += "<br>";
 	
 	// Last modified the dd/mm/yyyy by ...
-	moString += res.__('LastModified');
+	
+	moString += "<hr>" + res.__('LastModified');
 	if("meta" in mo && !isEmpty(mo.meta)){
 		if("lastUpdated" in mo.meta && !isEmpty(mo.meta.lastUpdated)){
 			moString += " " + res.__('the') + " " + dateToString(mo.meta.lastUpdated); 
@@ -327,21 +376,6 @@ var medicationOrderToString = function(mo, res, host) {
 	}	
 	moString += ".<br>";
 	
-	// When prescription was stopped and why
-	var stopped = false;
-	if(mo.status != 'active'){
-		moString += res.__(mo.status);
-	}
-	
-	if("dateEnded" in mo && !isEmpty(mo.dateEnded)){
-		moString += " " + res.__('the') + " " + dateToString(mo.dateEnded); 
-	}
-	if("reasonEnded" in mo && !isEmpty(mo.reasonEnded)){
-		moString += " " + res.__('reason') + ": " + getCodeableConcept(mo.reasonEnded);
-	}
-	if(mo.status != 'active'){
-		moString += ".<br>";
-	}			
 	
 	return moString;
 	
@@ -423,21 +457,21 @@ var conditionToString = function(resource, res, host){
 	
 	// Estimated or actual date, date-time, or age
 	if("onsetDateTime" in resource && !isEmpty(resource.onsetDateTime)){
-		rString += res.__('onset') + ":<em> ";
+		rString += res.__('onset') + ":<strong> ";
 		rString += dateToString(resource.onsetDateTime);
-		rString += ".</em><br>";
+		rString += ".</strong><br>";
 	}else if("onsetQuantity" in resource && !isEmpty(resource.onsetQuantity)){
-		rString += res.__('onset') + ":<em> ";
-		rString += getAge(resource.onsetQuantity, res);
-		rString += ".</em><br>";
+		rString += res.__('onset') + ":<strong> ";
+		rString += getQuantity(resource.onsetQuantity, res);
+		rString += ".</strong><br>";
 	}else if("onsetPeriod" in resource && !isEmpty(resource.onsetPeriod)){
-		rString += res.__('onset') + ":<em> ";
+		rString += res.__('onset') + ":<strong> ";
 		rString += getPeriod(resource.onsetPeriod, res);
-		rString += ".</em><br>";
+		rString += ".</strong><br>";
 	}else if("onsetString" in resource && !isEmpty(resource.onsetString)){
-		rString += res.__('onset') + ":<em> ";
+		rString += res.__('onset') + ":<strong> ";
 		rString += resource.onsetString;
-		rString += ".</em><br>";
+		rString += ".</strong><br>";
 	}
 	
 	// Supporting evidence (Manifestation/symptom)
@@ -467,7 +501,7 @@ var conditionToString = function(resource, res, host){
 		rString += ".</em><br>";
 	}else if("abatementQuantity" in resource && !isEmpty(resource.abatementQuantity)){
 		rString += res.__('abatement') + ":<em> ";
-		rString += getAge(resource.abatementQuantity, res);
+		rString += getQuantity(resource.abatementQuantity, res);
 		rString += ".</em><br>";
 	}else if("abatementPeriod" in resource && !isEmpty(resource.abatementPeriod)){
 		rString += res.__('abatement') + ":<em> ";
@@ -477,11 +511,16 @@ var conditionToString = function(resource, res, host){
 		rString += res.__('abatement') + ":<em> ";
 		rString += resource.abatementString;
 		rString += ".</em><br>";
+	}	
+
+	// Additional information about the Condition
+	if("notes" in resource && !isEmpty(resource.notes)){
+		rString += "<i>" + res.__('Note') + ": " + resource.notes + "</i><br>";
 	}
 	
 	// Person who asserts this condition
 	if("asserter" in resource && !isEmpty(resource.asserter)){
-		rString += res.__('asserter') + ":<em> " + getReference(resource.asserter, null ,res, host) + ".</em><br>";
+		rString += res.__('asserter') + ": " + getReference(resource.asserter, null ,res, host) + ".<br>";
 	}
 	
 	// Encounter when condition first asserted
@@ -491,23 +530,18 @@ var conditionToString = function(resource, res, host){
 	
 	// When first entered
 	if("dateRecorded" in resource && !isEmpty(resource.dateRecorded)){
-		rString += res.__('dateRecorded') + " <em>" + dateToString(resource.dateRecorded) + "</em><br>"; 
-	}
-
-	// Information about the prescription
-	if("notes" in resource && !isEmpty(resource.notes)){
-		rString += "<i>" + res.__('Note') + ": " + resource.notes + "</i><br>";
+		rString += "<hr>" + res.__('dateRecorded') + " " + dateToString(resource.dateRecorded) + "<br>"; 
 	}
 	
 	// Last modified the dd/mm/yyyy by ...
-	rString += res.__('LastModified');
+	rString += "" + res.__('LastModified');
 	if("meta" in resource && !isEmpty(resource.meta)){
 		if("lastUpdated" in resource.meta && !isEmpty(resource.meta.lastUpdated)){
-			rString += " " + res.__('the') + " <em>" + dateToString(resource.meta.lastUpdated) + "</em>"; 
+			rString += " " + res.__('the') + " " + dateToString(resource.meta.lastUpdated) + ""; 
 		}
 		if("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)){
-			rString += " " + res.__('by') + " <em><a href='"+host+"/ehr/" 
-			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a></em>";
+			rString += " " + res.__('by') + " <a href='"+host+"/ehr/" 
+			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a>";
 		}		
 	}	
 	rString += ".<br>";
@@ -523,28 +557,163 @@ var conditionToString = function(resource, res, host){
  * Validité: 10/10/10<br>
  * Responsable de l'observation: Jean Dupont <br>
  * ------------------------------------------------
- * Contenu de l'observation
+ * **raison d'un eventuel manque de données**
+ * 3 paquets de cigarettes par jour (bodysite)
+ * <em>Interprétation : Valeur très élevée</em>
+ * Méthode: ...
+ * Valeurs de référence: ...
  * ------------------------------------------------
  * Commentaires: ...<br>
  * Enregistrer le 10/10/10; Modifié en dernier le 10/12/10 par Dr.Jean DUPUIS.<br>
  */
 var observationToString = function(resource, res, host){
+	
 	if(isEmpty(resource) == true){
 		return "";
 	}
 	var rString = "";	
+	
 	// Category
 	if("category" in resource && !isEmpty(resource.category)){
 		rString += "<strong>" + getCodeableConcept(resource.category) + ": </strong>";
 	}
-	// Identification of the condition, problem or diagnosis
+	// Type of observation (code / type)
 	if("code" in resource && !isEmpty(resource.code)){
 		rString += "<strong>" + getCodeableConcept(resource.code) + "</strong>";
 	}
-	// Encounter when condition first asserted
+	// 	Anatomical location, if relevant
+	if("bodySite" in resource && !isEmpty(resource.bodySite)){
+		rString += " (";
+		var site = resource.bodySite;
+		var len = site.length;
+		for (var i = 0; i < len; i++) {
+			rString += getCodeableConcept(site[i]) + ";"
+		}	
+		rString += ")";
+	}
+	
+	rString += "<br>";	
+	
+	// Encounter when observation first asserted
 	if("encounter" in resource && !isEmpty(resource.encounter)){
 		rString += " <em>(" + getReference(resource.encounter, res.__('conditionEncounterLink'), res, host) + ")</em><br>";
 	}
+
+	// Clinically relevant time/time-period for observation
+	if("effectiveDateTime" in resource && !isEmpty(resource.effectiveDateTime)){
+		rString += res.__('Validity') + ":<em> ";
+		rString += dateToString(resource.effectiveDateTime);
+		rString += ".</em><br>";
+	}else if("effectivePeriod" in resource && !isEmpty(resource.effectivePeriod)){
+		rString += res.__('Validity') + ":<em> ";
+		rString += getPeriod(resource.effectivePeriod, res);
+		rString += ".</em><br>";
+	}
+	// Person(s) who asserts this condition
+	if("performer" in resource && !isEmpty(resource.performer)){
+		rString += res.__('Performer') + ":<em> ";
+		var len = resource.performer.length;
+		for (var i = 0; i < len; i++) {
+		
+			rString += getReference(resource.performer[i], null ,res, host) + "; ";
+		}
+		rString += "</em><br> ";
+	}
+
+	rString += "<hr>";	
+
+	// If and Why the result is missing
+	if("dataAbsentReason" in resource && !isEmpty(resource.dataAbsentReason)){
+		rString += res.__('MissingData') + ": <em>" + getCodeableConcept(resource.dataAbsentReason) + "</em><br>";
+	}else{
+
+		if("valueString" in resource && !isEmpty(resource.valueString)){
+			rString += resource.valueString;
+			rString += "<br>";
+		}else if("valueQuantity" in resource && !isEmpty(resource.valueQuantity)){
+			rString += getQuantity(resource.valueQuantity, res);
+			rString += "<br>";
+		}else if("valueRange" in resource && !isEmpty(resource.valueRange)){
+			rString += getRange(resource.valueRange, res);
+			rString += "<br>";
+		}else if("valueRatio" in resource && !isEmpty(resource.valueRatio)){
+			rString += getRatio(resource.valueRatio);
+			rString += "<br>";
+		}else if("valueSampledData" in resource && !isEmpty(resource.valueSampledData)){
+			rString += getSampledData(resource.valueSampledData);
+			rString += "<br>";
+		}else if("valueTime" in resource && !isEmpty(resource.valueTime)){
+			rString += resource.valueTime;
+			rString += "<br>";
+		}else if("valueDateTime" in resource && !isEmpty(resource.valueDateTime)){
+			rString += dateToString(resource.valueDateTime);
+			rString += "<br>";
+		}else if("valuePeriod" in resource && !isEmpty(resource.valuePeriod)){
+			rString += getPeriod(resource.valuePeriod, res);
+			rString += "<br>";
+		}else if("valueAttachment" in resource && !isEmpty(resource.valueAttachment)){
+			rString += getAttachment(resource.valueAttachment, res);
+			rString += "<br>";
+		}
+
+		// Interpretation: High, low, normal, etc.
+		if("interpretation" in resource && !isEmpty(resource.interpretation)){
+			rString += res.__('Interpretation') + ":<em> " + getCodeableConcept(resource.interpretation) + "</em><br>";
+		}
+		
+		// How it was done
+		if("method" in resource && !isEmpty(resource.method)){
+			rString += res.__('Method') + ":<em> " + getCodeableConcept(resource.method) + "</em><br>";
+		}
+		
+		// Reference range : Provides guide for interpretation
+		if("referenceRange" in resource && !isEmpty(resource.referenceRange)){
+			rString += res.__('ReferenceRange') + ": ";
+			var ref = resource.referenceRange;
+			if("text" in ref && ref.text != "")
+				rString += "<em> " + resource.referenceRange + "</em><br>";
+			if("low" in ref && ref.low != "" && "high" in ref && ref.high != ""){
+				rString += "<em>" + res.__('Between') + " " + ref.low + " " + res.__('and') + " " + ref.high + "</em> ";
+			}
+			else if("low" in ref && ref.low != "") {
+				rString += "<em>" + ref.low + "</em> ";
+			}
+			if("age" in ref && !isEmpty(ref.age)){
+				rString += res.__('Age') + ": <em>" + getRange(ref.age,res) + "</em> ";
+			}
+			if("meaning" in ref && !isEmpty(ref.meaning)){
+				rString += "<em> " + getCodeableConcept(ref.meaning) + "</em>";
+			}
+			rString += "<br>";			
+		}
+	}
+
+		
+	// Comments about result
+	if("comments" in resource && !isEmpty(resource.comments)){
+		rString += "<hr><i>" + res.__('Comments') + ": " + resource.comments + "</i><br>";
+	}
+	
+	rString += "<hr>";	
+	
+	// Date/Time this was made available
+	if("issued" in resource && !isEmpty(resource.issued)){
+		rString += "" + res.__('dateRecorded') + " " + dateToString(resource.issued) + " ; "; 
+	}
+
+	// Last modified the dd/mm/yyyy by ...
+	rString += res.__('LastModified');
+	if("meta" in resource && !isEmpty(resource.meta)){
+		if("lastUpdated" in resource.meta && !isEmpty(resource.meta.lastUpdated)){
+			rString += " " + res.__('the') + " " + dateToString(resource.meta.lastUpdated) + ""; 
+		}
+		if("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)){
+			rString += " " + res.__('by') + " <a href='"+host+"/ehr/" 
+			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a>";
+		}	
+		rString += "<br>";		
+	}	
+	return rString;
 };
 
 /** -----------------------------------------------------------------------
@@ -557,6 +726,8 @@ var generateText = function(resource,res,host) {
 		return medicationOrderToString(resource,res,host);
 	case 'Condition':
 		return conditionToString(resource,res,host);
+	case 'Observation':
+		return observationToString(resource,res,host);
 	default:
 		break;
 	}

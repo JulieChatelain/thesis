@@ -1,2 +1,5 @@
 <ul class="cardContent" ng-show="elem.unfold">
+<li  class="display" ng-repeat="risk in riskFactors | orderBy:'issued'">
+<span ng-bind-html="display(risk)"></span>
+</li>
 </ul>

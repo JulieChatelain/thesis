@@ -53,5 +53,13 @@
 	"dateRecorded": "Enregistré le",
 	"confirmed": "confirmé",
 	"symptoms": "Symptômes",
-	"resolved": "resolu"
+	"resolved": "resolu",
+	"Validity": "Validité",
+	"Performer": "Responsable(s) de l'observation",
+	"MissingData": "Valeurs manquantes",
+	"Interpretation": "Interprétation",
+	"Method": "Méthode",
+	"ReferenceRange": "Valeurs du référence",
+	"Between": "Entre",
+	"Comments": "Commentaires"
 }

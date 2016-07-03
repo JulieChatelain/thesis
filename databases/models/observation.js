@@ -47,14 +47,16 @@ var ObservationSchema = new mongoose.Schema({
             system: String,
             code: String,
             display: String
-        }]
+        }],
+        text: String
     },
     code: {					// Type of observation (code / type)
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+        text: String
     },
     subject: {
 		reference : String, // Relative, internal or absolute URL reference
@@ -86,7 +88,8 @@ var ObservationSchema = new mongoose.Schema({
             system: String,
             code: String,
             display: String
-        }]
+        }],
+        text: String
     },
     valueString: String,
     valueRange: {
@@ -126,25 +129,28 @@ var ObservationSchema = new mongoose.Schema({
 		title : String, 		// Label to display in place of the data
 		creation : Date			// Date attachment was first created	
     },
-    valueTime: String,
+    valueTime: String,			// A time during the day, with no date specified
+    							// Regex: ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?
     valueDateTime: Date,
     valuePeriod: {
 		start : Date,
 		end : Date
     },
-    dataAbsentReason: {
+    dataAbsentReason: {			// Why the result is missing
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+        text: String
     },
-    interpretation: {
+    interpretation: {			// High, low, normal, etc.
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+        text: String
     },
     comments: String,		// Comments about result
     bodySite: {
@@ -152,14 +158,16 @@ var ObservationSchema = new mongoose.Schema({
             system: String,
             code: String,
             display: String
-        }]
+        }],
+        text: String
     },
     method: {				// How it was done
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+        text: String
     },
     specimen: {
 		reference : String, // Relative, internal or absolute URL reference
@@ -178,7 +186,8 @@ var ObservationSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+            text: String
         },
         age: {				// Applicable age range, if relevant
             low: String,
@@ -199,7 +208,8 @@ var ObservationSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+            text: String
         },
         valueQuantity: {
             value: String,
@@ -212,7 +222,8 @@ var ObservationSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+            text: String
         },
         valueString: String,
         valueRange: {
@@ -258,12 +269,13 @@ var ObservationSchema = new mongoose.Schema({
     		start : Date,
     		end : Date
         },
-        dataAbsentReason: {
+        dataAbsentReason: {			// Why the result is missing
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+            text: String
         },
         referenceRange: [{	// Provides guide for interpretation
 			// Must have at least a low or a high or text
@@ -274,7 +286,8 @@ var ObservationSchema = new mongoose.Schema({
                     system: String,
                     code: String,
                     display: String
-                }]
+                }],
+                text: String
             },
             age: {				// Applicable age range, if relevant
                 low: String,

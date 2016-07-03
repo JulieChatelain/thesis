@@ -1,5 +1,5 @@
 <ul class="cardContent" ng-show="elem.unfold">
-<li ng-repeat="prescription in prescriptions | filter : {status:'active'} | orderBy:'dateWritten'">
-<div class="display" ng-bind-html="display(prescription)"></div>
+<li class="display" ng-repeat="prescription in prescriptions | filter : {status:'active'} | orderBy:'dateWritten'">
+<span ng-bind-html="display(prescription)"></span>
 </li>
 </ul>

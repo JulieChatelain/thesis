@@ -1,5 +1,5 @@
 <ul class="cardContent" ng-show="elem.unfold">
-<li ng-repeat="condition in conditions | filter : {clinicalStatus:'active'} | orderBy:'dateRecorded'">
-<div class="display" ng-bind-html="display(condition)"></div>
+<li  class="display" ng-repeat="condition in conditions | filter : {clinicalStatus:'active'} | orderBy:'dateRecorded'">
+<span ng-bind-html="display(condition)"></span>
 </li>
 </ul>

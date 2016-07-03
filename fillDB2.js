@@ -141,7 +141,10 @@ db.ehroptions.insert([ {
 }, {
 	name : "conditions",
 	url : "views/ehrOptions/conditions.html"
-}, ]);
+},{
+	name : "riskFactors",
+	url : "views/ehrOptions/riskFactors.html"
+} ]);
 
 //********************************************************************
 db.locations
@@ -487,8 +490,8 @@ status: "final",
 category: {
     coding: [{
         system: "http://hl7.org/fhir/ValueSet/observation-category",
-        code: "social-history",
-        display: "Histoire sociale"
+        code: "risk-factor",
+        display: "Facteur de risque"
     }]
 },
 code: {
@@ -518,8 +521,8 @@ status: "final",
 category: {
     coding: [{
         system: "http://hl7.org/fhir/ValueSet/observation-category",
-        code: "social-history",
-        display: "Histoire sociale"
+        code: "risk-factor",
+        display: "Facteur de risque"
     }]
 },
 code: {

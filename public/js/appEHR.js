@@ -95,6 +95,8 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 			$scope.tobaccoHistory = utils.findTobaccoHistory($scope.observations);
 			// search for the current tobacco use
 			$scope.tobaccoUse = utils.findTobaccoUse($scope.observations);
+			// search for the risk factors
+			$scope.riskFactors = utils.findRiskFactors($scope.observations);
 		});
 		
 		// Get all prescriptions for this patient

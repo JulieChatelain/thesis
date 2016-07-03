@@ -5,8 +5,27 @@ app.service('utils', function($sce) {
 	/** -----------------------------------------------------------------------
 	 * Find the observation corresponding to the history of tobacco use
 	 *  -----------------------------------------------------------------------
-	 */
+	 */	
+	this.findRiskFactors = function(observations){
+		var riskFactors = [];
+		if(typeof observations !== 'undefined'){
+			for (var i = 0, len = observations.length; i < len; i++) {
+				if(observations[i].category.coding.length > 0){
+					var coding = observations[i].category.coding;
+					for (var k = 0, l = coding.length; k < l; k++) {
+						if(coding[k].code == 'risk-factor')
+							riskFactors.push(observations[i]);
+					}
+				}
+			}
+		}
+		return riskFactors;
+	}
 	
+	/** -----------------------------------------------------------------------
+	 * Find the observation corresponding to the history of tobacco use
+	 *  -----------------------------------------------------------------------
+	 */	
 	this.findTobaccoUse = function(observations){
 		if(typeof observations !== 'undefined'){
 			for (var i = 0, len = observations.length; i < len; i++) {
