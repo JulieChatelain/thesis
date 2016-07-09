@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html ng-app="register" ng-controller="registerCtrl">
+
+
   <head>
-    <title><%= title %></title>
+    <title><%= __('Register') %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   
@@ -11,75 +13,107 @@
     
   <div id="horizontal">  
   <nav>
-  <h3 class="menuTitle">Downloads</h3>		
+  <h3 class="menuTitle"><%= __('Downloads') %></h3>		
 	<ul>
-		<li class="menuElem"><a href="#">Downloads schémas</a></li> 
+		<li class="menuElem"><a href="#"><%= __('DownloadSchemas') %></a></li> 
 	</ul>
   </nav>
   
   <section id="contents">
 	<div id="title"> 
-		<span>Créer un compte</span>
+		<span><%= __('CreateAccount') %></span>
 	</div>
     <p>
-    
-		<form>
-		<fieldset>
-		  	<label>Adresse e-mail:</label>  <input type="email" ><br>
-		  	<label>Mot de passe:</label> <input type="password" ><br>
-		  	<label>Confirmer le mot de passe:</label> <input type="password" ><br>
-		  	<label>Je suis:</label> 
-		  	<input type="radio" ng-model="userKind" value="patient" checked> Un patient
-  		  	<input type="radio" ng-model="userKind" value="practitioner"> Un médecin
-  		  	<input type="radio" ng-model="userKind" value="both"> Les deux<br>
+    	
+		<form action="/register" name="registerForm" method="post">		
+    	<% if(locals.message){ %>
+    		<span class="error"><%= __('message') %></span>  <br>
+    	<% } %>  
+		<fieldset ng-init="touched=false">
+		  	<label><%= __('Email') %>:</label>  
+		  	<input type="email" name="email" ng-model="email" required><span class="required">*</span><br>
+    		<span class="error" ng-show="registerForm.email.$touched && registerForm.email.$invalid">
+    		<%= __('EmailInvalid') %><br></span>
+    	
+		  	<label><%= __('Password') %>:</label> 
+		  	<input type="password" id="password" name="password" 
+		  	ng-model="password" ng-keyup="checkPasswordMatch(confirmPass,password)" required valid-password>
+		  	<span class="required">*</span><br>
+    		<span class="error" ng-show="registerForm.password.$touched && registerForm.password.$invalid">
+    		<%= __('PasswordInvalid') %><br></span>
+    		
+		  	<label><%= __('ConfirmPassword') %>:</label> 
+		  	<input type="password" name="confirmPass" ng-model="confirmPass" 
+		  	ng-style="bgCol" ng-keyup="checkPasswordMatch(confirmPass,password)" ng-blur="touched=true">
+		  	<span class="required">*</span><br>
+    		<span class="error" ng-hide="!touched || matchingPasswords"><%= __('ConfirmPassInvalid') %><br></span>
+		  	
+		  	<label><%= __('Iam') %>:</label> 
+		  	<input type="radio" name="userKind" ng-model="userKind" value="patient" checked> <%= __('APatient') %>
+  		  	<input type="radio" name="userKind" ng-model="userKind" value="practitioner"> <%= __('ADoctor') %>
+  		  	<input type="radio" name="userKind" ng-model="userKind" value="both"> <%= __('Both') %><br>
 		</fieldset>
 		  
 		<fieldset>
-		<legend>Informations générales</legend>
-		  	<label>Nom:</label>  <input type="text" ng-model="nameFamily"><br>
-		  	<label>Prénom:</label> <input type="text" ng-model="nameGiven"><br>
-		  	<label>Genre:</label> 
-		  	<input type="radio" ng-model="gender" value="male" checked> Homme
-  		  	<input type="radio" ng-model="gender" value="female"> Femme<br>
-		  	<label>Date de naissance:</label> <input type="date" ng-model="birthDate"><br>
-		  	<label>Profession:</label>  <input type="text" ng-model="job"><br>
+		<legend><%= __('GeneralInfo') %></legend>
+		
+		  	<label><%= __('Name') %>:</label>  <input type="text" name="nameFamily" ng-model="nameFamily" required><span class="required">*</span><br>
+    		<span class="error" ng-show="registerForm.nameFamily.$touched && registerForm.nameFamily.$invalid"><%= __('NameInvalid') %><br></span>
+		  	
+		  	<label><%= __('Surname') %>:</label> <input type="text" name="nameGiven" ng-model="nameGiven" required><span class="required">*</span><br>
+    		<span class="error" ng-show="registerForm.nameGiven.$touched && registerForm.nameGiven.$invalid"><%= __('SurnameInvalid') %><br></span>
+		  	
+		  	<label><%= __('Gender') %>:</label> 
+		  	<input type="radio" name="gender" ng-model="gender" value="male" checked> <%= __('Man') %>
+  		  	<input type="radio" name="gender" ng-model="gender" value="female"> <%= __('Woman') %><br>
+		  	
+		  	<label><%= __('Birthdate') %>:</label> <input type="date" name="birthDate" ng-model="birthDate" required><span class="required">*</span><br>
+    		<span class="error" ng-show="registerForm.birthDate.$touched && registerForm.birthDate.$invalid"><%= __('BirthdateInvalid') %><br></span>
+		  	
+		  	<label><%= __('Job') %>:</label>  <input type="text" name="job" ng-model="job"><br>
 		  	<p class="align">
-		  	<label>Adresse:</label>
-		  	<textarea rows="2" placeholder="Rue ..." ng-model="address"></textarea>
+		  	
+		  	<label><%= __('Address') %>:</label>
+		  	<textarea rows="2" placeholder="Rue ..." name="address" ng-model="address"></textarea>
 		  	</p>
-		  	<label>Contact:</label><br>
-		  	<label>Tel:</label> <input type="tel" ng-model="contactTel"><br>
-		  	<label>E-mail:</label> <input type="email" ng-model="contactEMail"><br>	
-		  	<label>Langages parlés:</label>				  	
-			<input type="checkbox" ng-model="speakFrench"> Français
-			<input type="checkbox" ng-model="speakEnglish"> English 
-			<input type="checkbox" ng-model="speakDutch"> Nederlands 
-			<input type="checkbox" ng-model="speakGerman"> Deutsch <br>
-		  	<label>Langage principal:</label>				  	
-			<input type="radio" ng-model="mainLanguage" value="fr"> Français
-			<input type="radio" ng-model="mainLanguage" value="en"> English 
-			<input type="radio" ng-model="mainLanguage" value="nl"> Nederlands 
-			<input type="radio" ng-model="mainLanguage" value="de"> Deutsch 
+		  	<label><%= __('Contact') %>:</label><br>
+		  	<label><%= __('Tel') %>:</label> <input type="tel" name="contactTel" ng-model="contactTel"><br>
+		  	<label><%= __('Email') %>:</label> <input type="email" name="contactEmail" ng-model="contactEMail"><br>	
+		  	
+		  	<label><%= __('SpokenLang') %>:</label>				  	
+			<input type="checkbox" name="speakFrench" ng-model="speakFrench"> <%= __('French') %>
+			<input type="checkbox" name="speakEnglish" ng-model="speakEnglish"> <%= __('English') %> 
+			<input type="checkbox" name="speakDutch" ng-model="speakDutch"> <%= __('Dutch') %> 
+			<input type="checkbox" name="speakGerman" ng-model="speakGerman"> <%= __('German') %> <br>
+			
+		  	<label><%= __('MainLang') %>:</label>				  	
+			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="fr"> <%= __('French') %>
+			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="en"> <%= __('English') %>
+			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="nl"> <%= __('Dutch') %>
+			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="de"> <%= __('German') %>
 		</fieldset>
 		
 		<fieldset ng-hide="(userKind == 'patient')">
-			<legend>Pour les médecins</legend>
-		  	<label>Specialité:</label> <input type="text" ng-model="speciality"><br>
+			<legend><%= __('ForDoctor') %></legend>
+		  	<label><%= __('Specialty') %>:</label> <input type="text" name="specialty" ng-model="speciality"><br>
 		  	<p class="align">
-		  	<label>Lieu de travail:</label>
-		  	<textarea rows="2" placeholder="Hopital St-Machin, Rue ..." ng-model="workLocation"></textarea>
+		  	<label><%= __('JobTel') %>:</label> <input type="tel" name="workTel" ng-model="workTel"><br>
+		  	<label><%= __('JobPlace') %>:</label>
+		  	<textarea rows="2" placeholder="Hopital St-Machin, Rue ..." name="workLocation" ng-model="workLocation"></textarea>
 		  	</p>
 		</fieldset>				
 		  
-		  <input type="submit" value="Enregistrer"><br>
-		</form ng-click="register()">
+		  <input type="submit" value="<%= __('Register') %>" 
+		  ng-disabled="registerForm.nameFamily.$invalid || registerForm.email.$invalid 
+		  || registerForm.nameGiven.$invalid || registerForm.birthDate.$invalid 
+		  || registerForm.password.$invalid || !matchingPasswords"><br>
+		</form>
 		
     </p>
     </section>
     </div>
     
-<script src="/js/lib/angular/angular.js"></script>
-<script src="/js/lib/angular/angular-cookies.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
 <script src="/js/appRegister.js"></script>
     
   </body>

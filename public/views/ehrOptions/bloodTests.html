@@ -1,2 +1,8 @@
 <ul class="cardContent" ng-show="elem.unfold">
+<strong>HbA1C : </strong><br>
+<li  class="display" ng-repeat="val in hba1c | limitTo : 15 | orderBy:'effectiveDateTime'">
+{{val.effectiveDateTime | date:'dd/MM/yyyy'}} : 
+{{val.valueQuantity.value}} {{val.valueQuantity.units}} 
+<i class="small">( {{displayCC(val.interpretation)}} )</i>
+</li>
 </ul>

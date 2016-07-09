@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html ng-app="">
+  <head>
+    <title><%= __('Login') %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  
+  <body>
+  <header><% include header.html %></header>
+    
+  <div id="horizontal">  
+  <nav>
+  <h3 class="menuTitle"><%= __('Downloads') %></h3>		
+	<ul>
+		<li class="menuElem"><a href="#"><%= __('DownloadSchemas') %></a></li> 
+	</ul>
+  </nav>
+  
+  <section id="contents">
+    <p>
+    	<% if(!locals.loggedIn || !loggedIn){ %>
+			<form action="/login"  method="post">
+				<% if(locals.message){ %>
+    				<span class="error"><%= __('message') %></span>  <br>
+    			<% } %>  
+				<%=__('Connection') %> : <br>
+			  <label><%=__('Login') %>:</label>  <input type="text" name="email"><br>
+			  <label><%=__('Password') %>:</label> <input type="password" name="password"><br>
+			  <input type="submit" value="<%=__('Signin') %>"><br>
+			</form>
+		 <% } else { %>  
+		 	<p>__('yourConnected')</p>
+		 <% } %>  
+		
+    </p>
+    </section>
+    </div>
+    
+<script src="/js/lib/angular/angular.js"></script>
+<script src="/js/lib/angular/angular-cookies.js"></script>
+    
+  </body>
+</html>

@@ -276,14 +276,20 @@ textarea {
 	vertical-align: middle;
 }
 
-
+input.ng-invalid {
+    background-color: #f3e5f5; /* light purple */
+}
+input.ng-valid {
+    background-color: #E1F5FE; /* light blue */
+}
 
 /* ------------------------------------------------------------------------- */
 /* -------------------------- Easy tweak ----------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-.alignLeft { text-align: left }
+.alignLeft { text-align: left; }
 .small { font-size:0.8em; }
+.error, .required {color: red;}
 
 
 

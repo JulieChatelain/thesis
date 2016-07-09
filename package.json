@@ -1,0 +1,22 @@
+{
+  "name": "thesis",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "async": "0.2.9",
+    "body-parser": "1.14.1",
+    "consolidate": "0.9.1",
+    "express": "4.x",
+    "fs": "0.0.x",
+    "i18n": "^0.8.3",
+    "jsonwebtoken": "0.4.x",
+    "mongoose": "4.2.x",
+    "morgan": "latest",
+    "underscore": "1.8.x",
+    "html-entities": "1.2.x",
+    "angular-sanitize": "1.5.x"
+  }
+}

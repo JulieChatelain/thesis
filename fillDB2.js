@@ -36,117 +36,116 @@ var id23 = ObjectId();
 var id24 = ObjectId();
 var id258 = ObjectId();
 var id259 = ObjectId();
+var id333 = ObjectId();
 var id777 = ObjectId();
 var id666 = ObjectId();
 
-
-//********************************************************************
-db.medicationorders.insert([
-{
-	_id: id22,
-    dateWritten: new Date(2000, 03, 15),
-    status: "active",
-    patient: {
-		reference : "Patient/" + id5.str, 
-		display : "Jean DUPONT"	
-    },
-    prescriber: {
-		reference : "Practitioner/" + id4.str, 
-		display : "Dr. Gregory HOUSE"	
-    },
-    note: "...",
-    reasonCodeableConcept: {
-        coding: [{
-            display: "diabète"
-        }]
-    },
-    medicationCodeableConcept: {
-        coding: [{
-            display: "Medicament XX"
-        }]
-    },
-    dosageInstruction: [{
-        text: "1 injection de X ml, trois fois par jour"
-    }]	
-}, 
-{
-	_id: id23,
-    dateWritten: new Date(2000, 03, 15),
-    status: "active",
-    patient: {
-		reference : "Patient/" + id6.str, 
-		display : "Marie DUPUIS"	
-    },
-    prescriber: {
-		reference : "Practitioner/" + id4.str, 
-		display : "Dr. Gregory HOUSE"	
-    },
-    note: "...",
-    reasonCodeableConcept: {
-        coding: [{
-            display: "diabète"
-        }]
-    },
-    medicationCodeableConcept: {
-        coding: [{
-            display: "Medicament XX"
-        }]
-    },
-    dosageInstruction: [{
-        text: "1 injection de X ml, trois fois par jour"
-    }]	
-},
-{
-	_id: id24,
-    dateWritten: new Date(1995, 03, 15),
-    status: "completed",
-    dateEnded: new Date(2000, 03, 15),
-    patient: {
-		reference : "Patient/" + id5.str, 
-		display : "Jean DUPONT"	
-    },
-    prescriber: {
-		reference : "Practitioner/" + id4.str, 
-		display : "Dr. Gregory HOUSE"	
-    },
-    note: "...",
-    reasonCodeableConcept: {
-        coding: [{
-            display: "diabète"
-        }]
-    },
-    medicationCodeableConcept: {
-        coding: [{
-            display: "Medicament YY"
-        }]
-    },
-    dosageInstruction: [{
-        text: "1 injection de X ml, quatre fois par jour"
-    }]	
-}
-]);
-//********************************************************************
+// ********************************************************************
+db.medicationorders.insert([ {
+	_id : id22,
+	dateWritten : new Date(2000, 03, 15),
+	status : "active",
+	patient : {
+		reference : "Patient/" + id5.str,
+		display : "Jean DUPONT"
+	},
+	prescriber : {
+		reference : "Practitioner/" + id4.str,
+		display : "Dr. Gregory HOUSE"
+	},
+	note : "...",
+	reasonCodeableConcept : {
+		coding : [ {
+			display : "diabète"
+		} ]
+	},
+	medicationCodeableConcept : {
+		coding : [ {
+			display : "Medicament XX"
+		} ]
+	},
+	dosageInstruction : [ {
+		text : "1 injection de X ml, trois fois par jour"
+	} ]
+}, {
+	_id : id23,
+	dateWritten : new Date(2000, 03, 15),
+	status : "active",
+	patient : {
+		reference : "Patient/" + id6.str,
+		display : "Marie DUPUIS"
+	},
+	prescriber : {
+		reference : "Practitioner/" + id4.str,
+		display : "Dr. Gregory HOUSE"
+	},
+	note : "...",
+	reasonCodeableConcept : {
+		coding : [ {
+			display : "diabète"
+		} ]
+	},
+	medicationCodeableConcept : {
+		coding : [ {
+			display : "Medicament XX"
+		} ]
+	},
+	dosageInstruction : [ {
+		text : "1 injection de X ml, trois fois par jour"
+	} ]
+}, {
+	_id : id24,
+	dateWritten : new Date(1995, 03, 15),
+	status : "completed",
+	dateEnded : new Date(2000, 03, 15),
+	patient : {
+		reference : "Patient/" + id5.str,
+		display : "Jean DUPONT"
+	},
+	prescriber : {
+		reference : "Practitioner/" + id4.str,
+		display : "Dr. Gregory HOUSE"
+	},
+	note : "...",
+	reasonCodeableConcept : {
+		coding : [ {
+			display : "diabète"
+		} ]
+	},
+	medicationCodeableConcept : {
+		coding : [ {
+			display : "Medicament YY"
+		} ]
+	},
+	dosageInstruction : [ {
+		text : "1 injection de X ml, quatre fois par jour"
+	} ]
+} ]);
+// ********************************************************************
 db.ehroptions.insert([ {
 	name : "diabHistory",
 	url : "views/ehrOptions/diabHistory.html"
+}, {
+	name : "bloodTests",
+	url : "views/ehrOptions/bloodTests.html"
 }, {
 	name : "currentTreatments",
 	url : "views/ehrOptions/currentTreatments.html"
 }, {
 	name : "treatmentHistory",
 	url : "views/ehrOptions/treatmentsHistory.html"
-},  {
+}, {
 	name : "personalHistory",
 	url : "views/ehrOptions/personalHistory.html"
 }, {
 	name : "conditions",
 	url : "views/ehrOptions/conditions.html"
-},{
+}, {
 	name : "riskFactors",
 	url : "views/ehrOptions/riskFactors.html"
 } ]);
 
-//********************************************************************
+// ********************************************************************
 db.locations
 		.insert({
 			_id : id20,
@@ -174,7 +173,7 @@ db.locations
 			mode : "instance",
 		});
 
-//********************************************************************
+// ********************************************************************
 db.practitioners.insert({
 	_id : id3,
 	identifier : [ {
@@ -212,8 +211,7 @@ db.practitioners.insert({
 
 });
 
-
-//********************************************************************
+// ********************************************************************
 db.patients.insert([ {
 	_id : idi,
 	identifier : [ {
@@ -291,7 +289,7 @@ db.patients.insert([ {
 	} ]
 } ]);
 
-//********************************************************************
+// ********************************************************************
 
 db.users.insert({
 	reference : [ "Practitioner/" + id4.str ],
@@ -302,7 +300,7 @@ db.users.insert({
 	} ]
 });
 
-//********************************************************************
+// ********************************************************************
 
 db.conditions.insert([ {
 	_id : id15,
@@ -469,7 +467,7 @@ db.conditions.insert([ {
 				display : "Fatigue"
 			} ]
 		}
-	
+
 	} ],
 	bodySite : [ {
 		coding : [ {
@@ -480,73 +478,104 @@ db.conditions.insert([ {
 	} ]
 } ]);
 
+// ********************************************************************
 
-//********************************************************************
-
-db.observations.insert([
-{
+db.observations.insert([ {
 	_id : id258,
-status: "final",
-category: {
-    coding: [{
-        system: "http://hl7.org/fhir/ValueSet/observation-category",
-        code: "risk-factor",
-        display: "Facteur de risque"
-    }]
-},
-code: {
-    coding: [{
-        system: "http://loinc.org",
-        code: "11367-0",
-        display: "Historique de consommation de tabac"
-    }]
-},
-subject: {
-	reference : "Patient/"+id5.str,
-	display : "Jean Dupont"	
-},
-issued: new Date(2015,11,12),
-valueCodeableConcept: {
-    coding: [{
-        system: "http://loinc.org",
-        code: "LA18981-3",
-        display: "Gros fumeur"
-    }]
-},
-valueString: "2 à 3 paquets par jour"
-},
-{
+	status : "final",
+	category : {
+		coding : [ {
+			system : "http://hl7.org/fhir/ValueSet/observation-category",
+			code : "social-history",
+			display : "Histoire sociale"
+		} ]
+	},
+	code : {
+		coding : [ {
+			system : "http://loinc.org",
+			code : "11367-0",
+			display : "Historique de consommation de tabac"
+		} ]
+	},
+	subject : {
+		reference : "Patient/" + id5.str,
+		display : "Jean Dupont"
+	},
+	issued : new Date(2015, 11, 12),
+	valueCodeableConcept : {
+		coding : [ {
+			system : "http://loinc.org",
+			code : "LA18981-3",
+			display : "Gros fumeur"
+		} ]
+	},
+	valueString : "2 à 3 paquets par jour"
+}, {
 	_id : id259,
-status: "final",
-category: {
-    coding: [{
-        system: "http://hl7.org/fhir/ValueSet/observation-category",
-        code: "risk-factor",
-        display: "Facteur de risque"
-    }]
-},
-code: {
-    coding: [{
-        system: "http://loinc.org",
-        code: "72166-2",
-        display: "Status de la consommation de tabac"
-    }]
-},
-subject: {
-	reference : "Patient/"+id5.str,
-	display : "Jean Dupont"	
-},
-issued: new Date(2015,11,12),
-valueCodeableConcept: {
-    coding: [{
-        system: "http://loinc.org",
-        code: "LA18981-3",
-        display: "Gros fumeur"
-    }]
-},
-valueString: "2 à 3 paquets par jour"
-}]);
-//********************************************************************
+	status : "final",
+	category : {
+		coding : [ {
+			system : "http://hl7.org/fhir/ValueSet/observation-category",
+			code : "risk-factor",
+			display : "Facteur de risque"
+		} ]
+	},
+	code : {
+		coding : [ {
+			system : "http://loinc.org",
+			code : "72166-2",
+			display : "Status de la consommation de tabac"
+		} ]
+	},
+	subject : {
+		reference : "Patient/" + id5.str,
+		display : "Jean Dupont"
+	},
+	issued : new Date(2015, 11, 12),
+	valueCodeableConcept : {
+		coding : [ {
+			system : "http://loinc.org",
+			code : "LA18981-3",
+			display : "Gros fumeur"
+		} ]
+	},
+	valueString : "2 à 3 paquets par jour"
+}, {
+	_id : id333,
+	status : "final",
+	category : {
+		coding : [ {
+			system : "http://hl7.org/fhir/ValueSet/observation-category",
+			code : "laboratory",
+			display : "Résultat de laboratoire"
+		} ]
+	},
+	code : {
+		coding : [ {
+			system : "http://snomed.info/sct",
+			code : "43396009",
+			display : "Hemoglobin A1c measurement (procedure)"
+		} ]
+	},
+	subject : {
+		reference : "Patient/" + id5.str,
+		display : "Jean Dupont"
+	},
+	issued : new Date(2015, 11, 12),
+    effectiveDateTime: new Date(2016, 01, 01),
+	valueQuantity : {
+        value: '9',
+        units: '%'
+	},
+    interpretation: {			// High, low, normal, etc.
+        coding: [{
+            system: "http://snomed.info/sct",
+            code: "165680008",
+            display: "Hemoglobin A1c between 7%-10% indicating borderline diabetic control (finding)"
+        }]
+    }
+} ]);
+// ********************************************************************
 
 db.encounters.insert([ {
 	_id : id7,
@@ -606,24 +635,24 @@ db.encounters.insert([ {
 // ********************************************************************
 
 db.diagnosticreports.insert([ {
-	_id: id777,
+	_id : id777,
 	status : "final",
 	subject : {
 		reference : "Patient/" + id5.str,
 		display : "Jean Dupont"
 	},
-	encounter : { 
+	encounter : {
 		reference : "Encounter/" + id8.str,
 		display : "Consultation du 15-05-1995"
 	},
 	effectiveDateTime : new Date(1998, 03, 15),
-	issued : new Date(1998, 07, 15), 
+	issued : new Date(1998, 07, 15),
 	performer : {
 		reference : "Practitioner/" + id4.str,
 		display : "Dutronc Jean-Marie"
 	},
-	conclusion : "Le patient souffre de diabète de typ 1", 
-	codedDiagnosis : [ { 
+	conclusion : "Le patient souffre de diabète de typ 1",
+	codedDiagnosis : [ {
 		coding : [ {
 			system : "http://snomed.info/sct",
 			code : "444073006",
@@ -631,24 +660,24 @@ db.diagnosticreports.insert([ {
 		} ]
 	} ]
 }, {
-	_id: id666,
+	_id : id666,
 	status : "final",
 	subject : {
 		reference : "Patient/" + id6.str,
 		display : "Jean Dupont"
 	},
-	encounter : { 
+	encounter : {
 		reference : "Encounter/" + id10.str,
 		display : "Hopital Saint-Luc, le 15-05-1995"
 	},
 	effectiveDateTime : new Date(1995, 05, 15),
-	issued : new Date(1995, 05, 15), 
+	issued : new Date(1995, 05, 15),
 	performer : {
 		reference : "Practitioner/" + id4.str,
 		display : "Dutronc Jean-Marie"
 	},
-	conclusion : "Le patient souffre de diabète de typ 1", 
-	codedDiagnosis : [ { 
+	conclusion : "Le patient souffre de diabète de typ 1",
+	codedDiagnosis : [ {
 		coding : [ {
 			system : "http://snomed.info/sct",
 			code : "444073006",
@@ -762,6 +791,13 @@ db.resourcehistorys.insert([ {
 	createdBy : "Practitioner/" + id4.str,
 	history : [ {
 		resourceId : id259,
+		updatedBy : "Practitioner/" + id4.str
+	} ]
+}, {
+	resourceType : "Observation",
+	createdBy : "Practitioner/" + id4.str,
+	history : [ {
+		resourceId : id333,
 		updatedBy : "Practitioner/" + id4.str
 	} ]
 }, {

@@ -1,7 +1,10 @@
 
   <a href="/"> <%=__('Home') %> | </a>
-  <a href="/patients"> <%=__('Patients') %> | </a>
-  <a href="/"> <%=__('Profile') %> | </a>
-  <a href="/"> <%=__('Parameters') %> | </a>
-  <a href="/"> <%=__('Signin') %> | </a>
-  <a href="/register"> <%=__('Register') %> </a>
+  <% if(locals.loggedIn && loggedIn){ %>
+	  <a href="/patients"> <%=__('Patients') %> | </a>
+	  <a href="/"> <%=__('Profile') %> | </a>
+	  <a href="/"> <%=__('Parameters') %> | </a>
+   <% } else { %>  
+	  <a href="/login"> <%=__('Signin') %> | </a>
+	  <a href="/register"> <%=__('Register') %> </a>
+  <% } %>  

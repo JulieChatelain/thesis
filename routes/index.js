@@ -5,26 +5,18 @@
 
 
 exports.index = function(req, res) {
-	res.render('index', {
-		title : res.__('EhrServer')
-	});
+	res.render('index');
 };
 
 exports.ehr = function(req, res) {
-	res.render('ehr', {
-		title : res.__('MedicalRecord')
-	});
+	res.render('ehr');
 };
 
 exports.register = function(req, res) {
-	res.render('register', {
-		title : res.__('Register')
-	});
+	res.render('register');
 };
 
 exports.patients = function(req, res) {
-	res.render('patients', {
-		title : res.__('Patients')
-	});
+	res.render('patients');
 };
 

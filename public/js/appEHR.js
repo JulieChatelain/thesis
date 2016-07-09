@@ -63,7 +63,7 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 				$scope.symptomsDuration = utils.computeSymptomsDuration($scope.diagDiabete, $scope.diabete);
 			}
 		});
-		// Get all the diagnostic reports of the first patient
+		// Get all the diagnostic reports of the patient
 		var req3 = '/rest/diagnosticreport?subject={"reference":"'
 				+ encodeURIComponent($scope.patientId) + '"}';
 		$http.get(req3).then(function(res) {
@@ -91,12 +91,13 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 				+ encodeURIComponent($scope.patientId) + '"}';
 		$http.get(req4).then(function(response) {
 			$scope.observations = response.data;
-			// search for the history of tobacco use
-			$scope.tobaccoHistory = utils.findTobaccoHistory($scope.observations);
-			// search for the current tobacco use
-			$scope.tobaccoUse = utils.findTobaccoUse($scope.observations);
-			// search for the risk factors
-			$scope.riskFactors = utils.findRiskFactors($scope.observations);
+			// classify the observations	
+			var result = utils.classifyObservations($scope.observations);
+			
+			$scope.tobaccoHistory = result.tobaccoHistory;
+			$scope.tobaccoUse = result.tobaccoUse;
+			$scope.riskFactors = result.riskFactors;
+			$scope.hba1c = result.hba1c;
 		});
 		
 		// Get all prescriptions for this patient
@@ -107,13 +108,12 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 			$scope.prescriptions = response.data;
 		});
 		
-		
-		// Retrieving a cookie
-		// var optionsCookie = $cookies.get('ehrOptionsPatient'
-		// +
-		// $scope.patients[id]._id.str);
+		/*
+		//Retrieving a cookie
+		var optionsCookie = $cookies.get('ehrOptionsPatient'+$scope.patients[id]._id.str);
 		// Setting a cookie
-		// $cookies.put('myFavorite', 'oatmeal');
+		$cookies.put('myFavorite', 'oatmeal');
+		*/
 	};
 
 
@@ -144,5 +144,9 @@ app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 		return $sce.trustAsHtml(resource.text.div);
 	}
 
-	
+	/** -----------------------------------------------------------------------
+	 * Display the first "display" of the code of a codeable concept
+	 *  -----------------------------------------------------------------------
+	 */
+	$scope.displayCC = utils.displayCodeableConcept;
 });

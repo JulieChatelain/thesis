@@ -196,7 +196,7 @@ var getQuantity = function(qty, res){
 	if("value" in qty){
 		qtyString += qty.value;
 	}
-	if("units" in age && qty.units != ""){
+	if("units" in qty && qty.units != ""){
 		qtyString += " " + res.__(qty.units);
 	}
 	
@@ -364,7 +364,7 @@ var medicationOrderToString = function(mo, res, host) {
 	
 	// Last modified the dd/mm/yyyy by ...
 	
-	moString += "<hr>" + res.__('LastModified');
+	moString += "<hr><span class='small'>" + res.__('LastModified');
 	if("meta" in mo && !isEmpty(mo.meta)){
 		if("lastUpdated" in mo.meta && !isEmpty(mo.meta.lastUpdated)){
 			moString += " " + res.__('the') + " " + dateToString(mo.meta.lastUpdated); 
@@ -374,7 +374,7 @@ var medicationOrderToString = function(mo, res, host) {
 			+ mo.meta.updatedBy+"'>" + mo.meta.updatedBy+"</a>";
 		}		
 	}	
-	moString += ".<br>";
+	moString += "</span>.<br>";
 	
 	
 	return moString;
@@ -527,10 +527,10 @@ var conditionToString = function(resource, res, host){
 	if("encounter" in resource && !isEmpty(resource.encounter)){
 		rString += " <em>(" + getReference(resource.encounter, res.__('conditionEncounterLink'), res, host) + ")</em><br>";
 	}
-	
+	rString += "<hr><span class='small'>";
 	// When first entered
 	if("dateRecorded" in resource && !isEmpty(resource.dateRecorded)){
-		rString += "<hr>" + res.__('dateRecorded') + " " + dateToString(resource.dateRecorded) + "<br>"; 
+		rString += "" + res.__('dateRecorded') + " " + dateToString(resource.dateRecorded) + " ; "; 
 	}
 	
 	// Last modified the dd/mm/yyyy by ...
@@ -544,7 +544,7 @@ var conditionToString = function(resource, res, host){
 			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a>";
 		}		
 	}	
-	rString += ".<br>";
+	rString += "</small>.<br>";
 	
 	return rString;
 };
@@ -694,7 +694,7 @@ var observationToString = function(resource, res, host){
 		rString += "<hr><i>" + res.__('Comments') + ": " + resource.comments + "</i><br>";
 	}
 	
-	rString += "<hr>";	
+	rString += "<hr><span class='small'>";	
 	
 	// Date/Time this was made available
 	if("issued" in resource && !isEmpty(resource.issued)){
@@ -710,9 +710,11 @@ var observationToString = function(resource, res, host){
 		if("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)){
 			rString += " " + res.__('by') + " <a href='"+host+"/ehr/" 
 			+ resource.meta.updatedBy+"'>" + resource.meta.updatedBy+"</a>";
-		}	
-		rString += "<br>";		
+		}		
 	}	
+	
+	rString += "</span><br>";	
+	
 	return rString;
 };
 

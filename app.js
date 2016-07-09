@@ -18,6 +18,7 @@ var express 	= require('express')
   , jwt			= require('jsonwebtoken');
 
 var app = express();
+var router = express.Router(); 
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -25,11 +26,10 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/public/views');
 
-app.use(express.cookieParser());
+// translation
 app.use(i18n);
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(app.router);
+
+// main folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Token authentication
@@ -43,48 +43,42 @@ app.use(function(req, res, next) {
     next();
 });
 
-// development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
-
 // routes
-app.get('/', routes.index);
-app.get('/ehr/', routes.ehr);
-app.get('/ehr/#/Patient/:id', routes.ehr);
-app.get('/patients', routes.patients);
-app.get('/register', user.register);
-app.get('/users', user.list);
-app.post('/login', user.login);
-app.post('/signin',user.signin);
+// non-protected routes:
+router.get('/', routes.index);
+router.get('/login', user.loginForm);
+router.post('/login', user.login);
+router.get('/register', user.registerForm);
+router.post('/register',user.register);
 
-//Data provider
-app.get('/ehrmenu', provider.ehrmenu);
+// protected routes:
+router.use(user.ensureAuthorized);
+
+router.get('/ehr/', routes.ehr);
+router.get('/ehr/#/Patient/:id', routes.ehr);
+router.get('/patients', routes.patients);
+
+//Menu provider
+router.get('/ehrmenu', provider.ehrmenu);
 
 //REST api
-/* 
- Create = POST https://example.com/path/{resourceType}
- Read = GET https://example.com/path/{resourceType}/{id}
- Update = PUT https://example.com/path/{resourceType}/{id}
- Delete = DELETE https://example.com/path/{resourceType}/{id}
- Search = GET https://example.com/path/{resourceType}?search parameters...
- History = GET https://example.com/path/{resourceType}/{id}/_history
- Todo:
- Transaction = POST https://example.com/path/ (POST a transaction bundle to the system)
- Operation = GET https://example.com/path/{resourceType}/{id}/${opname}
-*/
+router.post('/rest/:model', rest.create);
+router.get('/rest/:model/:id', rest.read);
+router.get('/rest/:model', rest.search);
+router.get('/rest/:model/:id/_history/:vid', rest.vread);
+router.get('/rest/:model/:id/_history', rest.history);
+router.put('/rest/:model/:id', rest.update);
+router.delete('/rest/:model/:id', rest.del);
 
 
-app.post('/rest/:model', rest.create);
-app.get('/rest/:model/:id', rest.read);
-app.get('/rest/:model', rest.search);
-app.get('/rest/:model/:id/_history/:vid', rest.vread);
-app.get('/rest/:model/:id/_history', rest.history);
-app.put('/rest/:model/:id', rest.update);
-app.delete('/rest/:model/:id', rest.del);
+app.use('/', router);
 
+process.on('uncaughtException', function(err) {
+    console.log(err);
+});
 
 // launch server
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+

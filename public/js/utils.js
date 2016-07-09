@@ -1,56 +1,73 @@
 
 app.service('utils', function($sce) {
-	
 
 	/** -----------------------------------------------------------------------
-	 * Find the observation corresponding to the history of tobacco use
+	 * Display the first "display" of the code of a codeable concept
+	 *  -----------------------------------------------------------------------
+	 */
+	this.displayCodeableConcept = function(cc) {
+		if("text" in cc && cc.text != ""){
+			return code.text;
+		}
+		var codes = cc.coding;
+		var len = codes.length;
+		for (var i = 0; i < len; i++) {
+			var code = codes[i];
+			if("display" in code && code.display != ""){
+				return code.display;
+			}
+		}
+		return "";
+	};
+	
+	/** -----------------------------------------------------------------------
+	 * Classify Observations
 	 *  -----------------------------------------------------------------------
 	 */	
-	this.findRiskFactors = function(observations){
-		var riskFactors = [];
+	this.classifyObservations = function(observations){
+		var result = {
+			riskFactors:[],
+			hba1c : [],
+			tobaccoUse: {valueString: 'X'},
+			tobaccoHistory : {valueString: 'X'}
+			
+		};
+		console.log("------------test----------");
 		if(typeof observations !== 'undefined'){
+			console.log("ob length: "+ observations.length);
 			for (var i = 0, len = observations.length; i < len; i++) {
 				if(observations[i].category.coding.length > 0){
 					var coding = observations[i].category.coding;
 					for (var k = 0, l = coding.length; k < l; k++) {
 						if(coding[k].code == 'risk-factor')
-							riskFactors.push(observations[i]);
+							result.riskFactors.push(observations[i]);
+					}
+				}
+				if(observations[i].code.coding.length > 0){
+					var coding = observations[i].code.coding;
+					for (var k = 0, l = coding.length; k < l; k++) {
+						// SNOMED code HbA1C
+						if(coding[k].code == '43396009')
+							result.hba1c.push(observations[i]);
+						// LOINC code tobacco use:
+						if(coding[k].code == '72166-2') 
+							result.tobaccoUse = observations[i];						
+						// SNOMED code tobacco use:
+						if(coding[k].code == '266918002') 
+							result.tobaccoUse = observations[i];
+						// LOINC code tobacco history:
+						if(coding[k].code == '11367-0') 
+							result.tobaccoHistory = observations[i];						
+						// SNOMED code tobacco history:
+						if(coding[k].code == '1221000119103') 
+							result.tobaccoHistory = observations[i];					
 					}
 				}
 			}
 		}
-		return riskFactors;
+		return result;				
 	}
 	
-	/** -----------------------------------------------------------------------
-	 * Find the observation corresponding to the history of tobacco use
-	 *  -----------------------------------------------------------------------
-	 */	
-	this.findTobaccoUse = function(observations){
-		if(typeof observations !== 'undefined'){
-			for (var i = 0, len = observations.length; i < len; i++) {
-				if(observations[i].code.coding.length > 0)
-					if(observations[i].code.coding[0].code == '72166-2') {
-						return observations[i];
-					}	
-			}
-		}
-		return {valueString: 'unknown'};		
-	}
-	
-
-	this.findTobaccoHistory = function(observations){
-		if(typeof observations !== 'undefined'){
-			for (var i = 0, len = observations.length; i < len; i++) {
-				if(observations[i].code.coding.length > 0)
-					if(observations[i].code.coding[0].code == '11367-0') {
-						return observations[i];
-					}	
-			}
-		}
-		return {valueString: 'unknown'};		
-	}
-
 	/** -----------------------------------------------------------------------
 	 * Compute the age from the birthday
 	 *  -----------------------------------------------------------------------
