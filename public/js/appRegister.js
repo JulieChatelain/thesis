@@ -13,7 +13,9 @@ app.controller('registerCtrl',function($log, $location,$scope, $http) {
 	$scope.job = '';
 	$scope.address = '';
 	$scope.contactTel = '';
-	$scope.contactEMail = '';
+	$scope.telType = 'home';
+	$scope.contactEmail = '';
+	$scope.emailType = 'home';
 	$scope.speakFrench = true;
 	$scope.speakEnglish = false;
 	$scope.speakDutch = false;

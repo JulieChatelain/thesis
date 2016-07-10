@@ -25,7 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
-
+/**
+ * A person who is directly or indirectly involved in the provisioning of healthcare. 
+ */
 var PractitionerSchema = new mongoose.Schema({
     identifier: [{
 		use : {
@@ -40,7 +42,7 @@ var PractitionerSchema = new mongoose.Schema({
 			required : true
 		}
     }],
-    active: Boolean,
+    active: Boolean,		// Whether this practitioner's record is in active use
     name: {
         use: String,
         text: String,
@@ -50,62 +52,118 @@ var PractitionerSchema = new mongoose.Schema({
         suffix: [String]
     },
     telecom: [{
-    }],
-    address: [{
+	  system : {				// C? phone | fax | email | pager | other
+			type : String,
+			enum : [ 'phone', 'fax', 'email', 'pager', 'other' ],
+			required : true
+			}, 		
+    	  value : String, 			// The actual contact point details
+    	  use : { 					// home | work | temp | old | mobile - purpose of this contact point
+    		type : String,
+  			enum : [ 'home', 'work', 'temp', 'old', 'mobile' ],
+  			required : true
+  			}, 	
+    	  rank : Number, 			// Specify preferred order of use (1 = highest)
+    	  period : { 				// Time period when the contact point was/is in use
+    		  start: Date, 
+    		  end : Date 
+    		  } 		
+      }],
+    address: [{					// 	Where practitioner can be found/visited
+          use : String, 		// home | work | temp | old - purpose of this address
+    	  type : String, 		// postal | physical | both
+    	  text : String, 		// Text representation of the address
+    	  line : [String], 		// Street name, number, direction & P.O. Box etc.
+    	  city : String, 		// Name of city, town etc.
+    	  district : String, 	// District name (aka county)
+    	  state : String, 		// Sub-unit of country (abbreviations ok)
+    	  postalCode : String, 	// Postal code for area
+    	  country : String, 	// Country (can be ISO 3166 3 letter code)
+    	  period : { 			// Time period when address was/is in use
+    		  	start: Date, 
+    		  	end: Date 
+    	  } 
     }],
     gender: String,
     birthDate: Date,
-    photo: [{
+    photo: [{					// Attached images
+		contentType : String, 	// Mime type of the content, with charset etc.
+		language : String, 		// Human language of the content (BCP-47)
+		data : Buffer, 			// Data inline, base64ed
+		url : String, 			// Uri where the data can be found
+		size : Number, 			// Number of bytes of content (if url provided)
+		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
+		title : String, 		// Label to display in place of the data
+		creation : Date			// Date attachment was first created	
     }],
-    practitionerRole: [{
+    practitionerRole: [{		// Roles/organizations the practitioner is associated with
         managingOrganization: {
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         },
-        role: {
+        role: {					// Roles which this practitioner may perform
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
-        specialty: [{
+        specialty: [{			// Specific specialty of the practitioner
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         }],
-        period: {
-        },
-        location: [{
+        period: {				// The period during which the practitioner is authorized to perform in these role(s)
+    		start : Date,
+    		end : Date
+        },					
+        location: [{			// The location(s) at which this practitioner provides care
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }],
         healthcareService: [{
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }]
     }],
-    qualification: [{
-        identifier: [{
+    qualification: [{			// 	Qualifications obtained by training and certification
+        identifier: [{			// An identifier for this qualification for the practitioner
             use: String,
             label: String,
             system: String,
             value: String
         }],
-        code: {
+        code: {					// Coded representation of the qualification
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
-        period: {
+        period: {				// Period during which the qualification is valid
+    		start : Date,
+    		end : Date
         },
-        issuer: {
+        issuer: {				// 	Organization that regulates and issues the qualification
+    		reference : String, // Relative, internal or absolute URL reference
+    		display : String	// Text alternative for the resource
         }
     }],
-    communication: [{
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
+    communication: [{			// A language the practitioner is able to use in patient communication
+    	language: {				
+            coding: [{
+                system: String,
+                code: String,
+                display: String
+            }],
+    		text : String			// Plain text representation of the concept
+        },
+        preferred: Boolean		// Language preference indicator
     }]
 });
 

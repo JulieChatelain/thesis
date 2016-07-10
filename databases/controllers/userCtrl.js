@@ -2,12 +2,10 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var jwt	= require('jsonwebtoken');
-var Entities = require('html-entities').XmlEntities;
 
 exports.findUser = function(req,res) {
-	var entities = new Entities();
 	// Search the user
-	User.findOne({email: entities.encode(req.body.email), password: entities.encode(req.body.password)}, function(err, user) {
+	User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
         if (err) {
         	console.log(err);
             res.render('error',{
@@ -31,109 +29,142 @@ exports.findUser = function(req,res) {
     });	
 };
 
-exports.createUser = function(req, res){
-	// html entities
-	var entities = new Entities();
-
-	req.body.userKind = entities.encode(req.body.userKind);
-	req.body.gender = entities.encode(req.body.gender);
-	req.body.email = entities.encode(req.body.email);
-	req.body.password = entities.encode(req.body.password);
-	req.body.confirmPass = entities.encode(req.body.confirmPass);
-	req.body.nameFamily = entities.encode(req.body.nameFamily);
-	req.body.nameGiven = entities.encode(req.body.nameGiven);
-	req.body.job = entities.encode(req.body.job);
-	req.body.address = entities.encode(req.body.address);
-	req.body.contactTel = entities.encode(req.body.contactTel);
-	req.body.contactEmail = entities.encode(req.body.contactEmail);
-	req.body.mainLanguage = entities.encode(req.body.mainLanguage);
-	req.body.speciality = entities.encode(req.body.speciality);
-	req.body.workLocation = entities.encode(req.body.workLocation);
-	req.body.workTel = entities.encode(req.body.workTel);
-	
-	// check data
+exports.createUser = function(req, res){	
+    req.user = null;
+    req.patient = null;
+    req.practitioner = null;	    
+    
+	// check if data is valid
 	if(req.body.password < 7 || req.body.password != req.body.confirmPass){
-        res.render('register',{
-        	loggedIn: false,
-        	message: "PasswordInvalid"
-        });		
+        req.message = "PasswordInvalid";	
 	}
 	else if(req.body.nameFamily == ""){
-        res.render('register',{
-        	loggedIn: false,
-        	message: "NameInvalid"
-        });				
+        req.message = "NameInvalid";	
 	}
 	else if(req.body.nameGiven == ""){
-        res.render('register',{
-        	loggedIn: false,
-        	message: "SurnameInvalid"
-        });				
+        req.message = "SurnameInvalid";	
 	}
-	else if(req.body.birthDate == ""){
-        res.render('register',{
-        	loggedIn: false,
-        	message: "BirthDateInvalid"
-        });	
+	else if(req.body.birthDate == null || req.body.birthDate == ""){
+        req.message = "BirthdateInvalid";	
 	}
 	else if(req.body.email == ""){
-        res.render('register',{
-        	loggedIn: false,
-        	message: "EmailInvalid"
-        });			
-	}else{
-		
+        req.message = "EmailInvalid";	
+	}else{		
 		// Check if user already exists
 		User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
 	        if (err) {
-	            res.render('error',{
-	            	loggedIn: false,
-	            	message: "InternalError."
-	            });
+	        	req.message = "InternalError";
 	        } else {
 	            if (user) {
-	                res.render('error',{
-	                	loggedIn: false,
-	                	message: "UserAlreadyExists"
-	                });
+	            	req.message = "UserAlreadyExists";
 	            } else {
-
-	            	req.body.userKind = 'patient';
-	            	req.body.gender = 'male';
-	            	req.body.email = '';
-	            	req.body.password = '';
-	            	req.body.confirmPass = '';
-	            	req.body.nameFamily = '';
-	            	req.body.nameGiven = '';
-	            	req.body.birthDate = '';
-	            	req.body.job = '';
-	            	req.body.address = '';
-	            	req.body.contactTel = '';
-	            	req.body.contactEmail = '';
-	            	req.body.speakFrench = true;
-	            	req.body.speakEnglish = false;
-	            	req.body.speakDutch = false;
-	            	req.body.speakGerman = false;
-	            	req.body.mainLanguage = 'fr';
-	            	req.body.speciality = '';
-	            	req.body.workLocation = '';
-	            	req.body.workTel = '';
 	            	// Create new user
 	                var userModel = new User();
 	                userModel.email = req.body.email;
 	                userModel.password = req.body.password;
-	                userModel.save(function(err, user) {
-	                    user.token = jwt.sign(user, process.env.JWT_SECRET);
-	                    user.save(function(err, user1) {
-	                        res.json({
-	                        	loggedIn: true,
-	                            data: user1,
-	                            token: user1.token
-	                        });
-	                    });
-	                })
+	                userModel.created = new Date();
+	                userModel.language = req.body.mainLanguage;
+	                
+                	var Practitioner = mongoose.model('Practitioner');
+                	var Patient = mongoose.model('Patient');
+                	var practitionerModel = null;
+                	var patientModel = null;
+                	
+	                if( req.body.userKind == 'patient' || req.body.userKind == 'both'){
+	                	var patientModel = new Patient();
+	                	patientModel.gender = req.body.gender;
+	                	patientModel.name.given.push(req.body.nameGiven);
+	                	patientModel.name.given.push(req.body.nameFamily);
+	                	patientModel.birthDate = new Date(req.body.birthDate);
+	                	patientModel.profession.push(req.body.job);
+	                	patientModel.address.push({text: req.body.address});
+	                	patientModel.telecom.push({system: 'email', value: req.body.contactEmail, use: req.body.emailType});
+	                	patientModel.telecom.push({system: 'phone', value: req.body.contactTel, use: req.body.telType});
+	                	if(req.body.speakFrench == true)
+	                		if(req.body.mainLanguage == 'fr')
+	                			patientModel.communication.push({language:{coding:[{code: "fr"}]}, preferred:true});
+	                		else
+	                			patientModel.communication.push({language:{coding:[{code: "fr"}]}, preferred:false});
+	                	if(req.body.speakEnglish == true)
+	                		if(req.body.mainLanguage == 'en')
+	                			patientModel.communication.push({language:{coding:[{code: "en"}]}, preferred:true});
+	                		else
+	                			patientModel.communication.push({language:{coding:[{code: "en"}]}, preferred:false});
+	                	if(req.body.speakDutch == true)
+	                		if(req.body.mainLanguage == 'nl')
+	                			patientModel.communication.push({language:{coding:[{code: "nl"}]}, preferred:true});
+	                		else
+	                			patientModel.communication.push({language:{coding:[{code: "nl"}]}, preferred:false});
+	                	if(req.body.speakGerman == true)
+	                		if(req.body.mainLanguage == 'de')
+	                			patientModel.communication.push({language:{coding:[{code: "de"}]}, preferred:true});
+	                		else
+	                			patientModel.communication.push({language:{coding:[{code: "de"}]}, preferred:false});	                	
+	                }
+	                
+	                if(req.body.userKind == 'practitioner' || req.body.userKind == 'both'){
+	                	var practitionerModel = new Practitioner();
+	                	practitionerModel.gender = req.body.gender;
+	                	practitionerModel.name.given.push(req.body.nameGiven);
+	                	practitionerModel.name.given.push(req.body.nameFamily);
+	                	practitionerModel.birthDate = new Date(req.body.birthDate);
+	                	practitionerModel.profession.push(req.body.job);
+	                	practitionerModel.address.push({text: req.body.address});
+	                	practitionerModel.telecom.push({system: 'email', value: req.body.contactEmail, use: req.body.emailType});
+	                	practitionerModel.telecom.push({system: 'phone', value: req.body.contactTel, use: req.body.telType});
+	                	if(req.body.speakFrench == true)
+	                		if(req.body.mainLanguage == 'fr')
+	                			practitionerModel.communication.push({language:{coding:[{code: "fr"}]}, preferred:true});
+	                		else
+	                			practitionerModel.communication.push({language:{coding:[{code: "fr"}]}, preferred:false});
+	                	if(req.body.speakEnglish == true)
+	                		if(req.body.mainLanguage == 'en')
+	                			practitionerModel.communication.push({language:{coding:[{code: "en"}]}, preferred:true});
+	                		else
+	                			practitionerModel.communication.push({language:{coding:[{code: "en"}]}, preferred:false});
+	                	if(req.body.speakDutch == true)
+	                		if(req.body.mainLanguage == 'nl')
+	                			practitionerModel.communication.push({language:{coding:[{code: "nl"}]}, preferred:true});
+	                		else
+	                			practitionerModel.communication.push({language:{coding:[{code: "nl"}]}, preferred:false});
+	                	if(req.body.speakGerman == true)
+	                		if(req.body.mainLanguage == 'de')
+	                			practitionerModel.communication.push({language:{coding:[{code: "de"}]}, preferred:true});
+	                		else
+	                			practitionerModel.communication.push({language:{coding:[{code: "de"}]}, preferred:false}); 
+	                	
+	                	practitionerModel.practitionerRole.push({specialty: req.body.speciality, location:[{display: req.body.workLocation}]});
+	                	practitionerModel.telecom.push({system: 'phone', value: req.body.workTel, use:'work'});	                	
+	                
+	                }
+	                
+	                req.message= "";
+	                req.user = userModel;
+	                req.patient = JSON.stringify(patientModel);
+	                req.practitioner = JSON.stringify(practitionerModel);	                
 	            }
 	        }
 	    });
 	}
+};
+
+exports.saveUser = function(req, res){	
+    // Save
+    req.user.save(function(err, user) {
+        user.token = jwt.sign(user, process.env.JWT_SECRET);
+        user.save(function(err, user1) {
+        	if(err){
+		        res.status(500).render('error',{
+		            loggedIn: false,
+		            message: err
+		        });        		
+        	}else{
+	            res.status(201).render('index', {
+	            	loggedIn: true,
+	                data: user1,
+	                token: user1.token
+	            });
+        	}
+        });
+    });
 };

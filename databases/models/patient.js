@@ -25,7 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
-
+/**
+ * Demographics and other administrative information about an individualreceiving care or other health-related services. 
+ */
 var PatientSchema = new mongoose.Schema({
     identifier: [{
 		use : {
@@ -40,7 +42,7 @@ var PatientSchema = new mongoose.Schema({
 			required : true
 		}
     }],
-    active: Boolean,
+    active: Boolean,		// Whether this patient's record is in active use
     name: {
         use: String,
         text: String,
@@ -69,10 +71,11 @@ var PatientSchema = new mongoose.Schema({
     }],
     gender: String,
     birthDate: Date,
+    //	Indicates if the individual is deceased or not
     deceasedBoolean: Boolean,
     deceasedDateTime: Date,
     address: [{
-        use : String, 		// home | work | temp | old - purpose of this address
+          use : String, 		// home | work | temp | old - purpose of this address
     	  type : String, 		// postal | physical | both
     	  text : String, 		// Text representation of the address
     	  line : [String], 		// Street name, number, direction & P.O. Box etc.
@@ -87,13 +90,15 @@ var PatientSchema = new mongoose.Schema({
     	  } 
     }],
     profession:[String],
-    maritalStatus: {
+    maritalStatus: {			// Marital (civil) status of a patient
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+		text : String			// Plain text representation of the concept
     },
+    // Whether patient is part of a multiple birth
     multipleBirthBoolean: Boolean,
     multipleBirthInteger: Number,
     photo: [{					// Attached images
@@ -106,13 +111,14 @@ var PatientSchema = new mongoose.Schema({
 		title : String, 		// Label to display in place of the data
 		creation : Date			// Date attachment was first created	
     }],
-    contact: [{
-        relationship: [{
+    contact: [{					// 	A contact party (e.g. guardian, partner, friend) for the patient
+        relationship: [{		// The kind of relationship
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         }],
         name: {
             use: String,
@@ -140,7 +146,7 @@ var PatientSchema = new mongoose.Schema({
       		  end : Date 
       		  } 		
         }],
-        address: {
+        address: {				// Address for the contact person
           use : String, 		// home | work | temp | old - purpose of this address
       	  type : String, 		// postal | physical | both
       	  text : String, 		// Text representation of the address
@@ -156,34 +162,35 @@ var PatientSchema = new mongoose.Schema({
       	  } 
         },
         gender: String,
-        organization: {
+        organization: {			// Organization that is associated with the contact
     		reference : String, // Relative, internal or absolute URL reference
     		display : String	// Text alternative for the resource
         },
-        period: {
+        period: {				// The period during which this contact person or organization is valid to be contacted relating to this patient
     		start : Date,
     		end : Date
         }
     }],
-    communication: [{
+    communication: [{		//	A list of Languages which may be used to communicate with the patient about his or her health
         language: {			// The language which can be used to communicate with the patient about his or her health
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         preferred: Boolean	// Language preference indicator
     }],
-    careProvider: [{
+    careProvider: [{		// Patient's nominated primary care provider
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     }],
-    managingOrganization: {
+    managingOrganization: {	// Organization that is the custodian of the patient record
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
-    link: [{
+    link: [{					// Link to another patient resource that concerns the same actual person
         other: {				// The other patient resource that the link refers to
     		reference : String, // Relative, internal or absolute URL reference
     		display : String	// Text alternative for the resource

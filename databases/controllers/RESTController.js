@@ -176,19 +176,12 @@ exports.create = function(req, res) {
 	delete resource._id;
 	
 	if(isEmpty(resource)){
-		res.status(500).send();
+		next('');
 	}
 	else{
 	resource.save(function(err, savedresource) {
 		if (err) {
-			var response = {
-				resourceType : "OperationOutcome",
-				text : {
-					status : "generated",
-					div : "<div>Error : " + err + "</div>"
-				},
-			};
-			res.status(500).send(response);
+			next(err);
 		} else {
 			var resourceHistory = new ResourceHistory({
 				resourceType : modelName
@@ -196,25 +189,9 @@ exports.create = function(req, res) {
 			resourceHistory.addVersion(savedresource.id, "");
 			resourceHistory.save(function(rhErr, savedResourceHistory) {
 				if (rhErr) {
-					var response = {
-						resourceType : "OperationOutcome",
-						text : {
-							status : "generated",
-							div : "<div>Error : " + rhErr + "</div>"
-						},
-					};
-					res.status(500).send();
+					next(rhErr);
 				} else {
-					var response = {
-						resourceType : "OperationOutcome",
-						text : {
-							status : "generated",
-							div : "<div>The operation was successful.</div>"
-						}
-					};
-					res.contentType('application/fhir+json');
-					res.location(model + "/" + savedResourceHistory.id);
-					res.status(201).send(JSON.stringify(response));
+					next(model + "/" + savedResourceHistory.id);
 				}
 			});
 		}

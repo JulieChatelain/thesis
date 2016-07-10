@@ -15,7 +15,7 @@ mongoose.connect(mongodbURL, mongodbOptions, function (err, res) {
 
 var fs = require('fs');
 var models_path = __dirname + '\\models';
-console.log(models_path);
+//console.log(models_path);
 var models = fs.readdirSync(models_path);
 
 models.forEach(function (file) {

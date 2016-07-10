@@ -95,7 +95,7 @@
 	"German": "Deutsch",
 	"MainLang": "Langue principale",
 	"ForDoctor": "Pour les médecins",
-	"Specialty": "Spécialisation",
+	"Speciality": "Spécialisation",
 	"JobTel": "Téléphone professionel",
 	"JobPlace": "Lieu de travail",
 	"EmailInvalid": "Adresse email incorrecte",
@@ -103,5 +103,9 @@
 	"ConfirmPassInvalid": "Mot de passe différent de l'original",
 	"NameInvalid": "Nom obligatoire",
 	"SurnameInvalid": "Prénom obligatoire",
-	"BirthdateInvalid": "Date de naissance obligatoire"
+	"BirthdateInvalid": "Date de naissance obligatoire",
+	"UnknownUserKind": "Type d'utilisateur inconnu",
+	"Personal": "Personnel",
+	"Professional": "Professionel",
+	"Mobile": "Mobile"
 }

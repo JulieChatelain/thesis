@@ -1,25 +1,45 @@
-
 var mongoose = require('mongoose');
 
 /**
  * 
  */
-
 var UserSchema = new mongoose.Schema({
 
-    //email: { type: String, required: true, unique: true },
-    //activationToken: { type: String, required: true },
-    //password: { type: String, required: true },
-    //resetPasswordToken: { type: String, required: false },
-    //resetPasswordExpires: { type: Date, required: false },
-    //language: { type: String, required: true },
-    //created: { type: Date },
-    reference : [{type: String, required : false}], 	// refer to a patient or practitioner resource
-    access : [{id : String, start : Date, end : Date}],	// list of patients the user has access to, for a determined period
-	token : {type: String},
-	email : {type: String},
-	password: {type: String}
-    
+	// activationToken: { type: String, required: true },
+	// password: { type: String, required: true },
+	// resetPasswordToken: { type: String, required: false },
+	// resetPasswordExpires: { type: Date, required: false },
+	// language: { type: String, required: true },
+	created : {
+		type : Date
+	},
+	reference : [ {			// refer to a perso and patient and/or practitioner resource
+		type : String,
+		required : false
+	} ], 
+	access : [ {			// list of patients the user has access to, for a determined period
+		id : String,
+		start : Date,
+		end : Date
+	} ], 
+	token : {
+		type : String,
+		required : true
+	},
+	email : {
+		type : String,
+		required : true,
+		unique : true
+	},
+	password : {
+		type : String,
+		required : true
+	},
+	language: { 
+		type: String, 
+		required: true 
+	}
+
 });
 
 var user = mongoose.model('User', UserSchema);

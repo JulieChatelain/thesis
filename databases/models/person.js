@@ -49,10 +49,39 @@ var PersonSchema = new mongoose.Schema({
         suffix: [String]
     },
     telecom: [{
+	  	  system : {				// C? phone | fax | email | pager | other
+				type : String,
+				enum : [ 'phone', 'fax', 'email', 'pager', 'other' ],
+				required : true
+				}, 		
+	  	  value : String, 			// The actual contact point details
+	  	  use : { 					// home | work | temp | old | mobile - purpose of this contact point
+	  		type : String,
+				enum : [ 'home', 'work', 'temp', 'old', 'mobile' ],
+				required : true
+				}, 	
+	  	  rank : Number, 			// Specify preferred order of use (1 = highest)
+	  	  period : { 				// Time period when the contact point was/is in use
+	  		  start: Date, 
+	  		  end : Date 
+	  		  } 	
     }],
     gender: String,
     birthDate: Date,
     address: [{
+	      use : String, 		// home | work | temp | old - purpose of this address
+	  	  type : String, 		// postal | physical | both
+	  	  text : String, 		// Text representation of the address
+	  	  line : [String], 		// Street name, number, direction & P.O. Box etc.
+	  	  city : String, 		// Name of city, town etc.
+	  	  district : String, 	// District name (aka county)
+	  	  state : String, 		// Sub-unit of country (abbreviations ok)
+	  	  postalCode : String, 	// Postal code for area
+	  	  country : String, 	// Country (can be ISO 3166 3 letter code)
+	  	  period : { 			// Time period when address was/is in use
+	  		  	start: Date, 
+	  		  	end: Date 
+	  	  } 
     }],
     photo: {
     },

@@ -40,7 +40,30 @@ function findModel(name) {
 
 exports.create = function(req, res) {
 	req.params.model = findModel(req.params.model);
-	controller.create(req, res);
+	controller.create(req, res, function(obj) {
+		if (obj.constructor.name == "Error") {
+			console.log("Got an error: " + obj);
+			var response = {
+					resourceType : "OperationOutcome",
+					text : {
+						status : "generated",
+						div : "<div>Error : " + obj + "</div>"
+					},
+				};
+			res.status(500).send(response);
+		} else {
+			var response = {
+					resourceType : "OperationOutcome",
+					text : {
+						status : "generated",
+						div : "<div>The operation was successful.</div>"
+					}
+				};
+			res.contentType('application/fhir+json');
+			res.location(obj);
+			res.status(201).send(JSON.stringify(response));
+		}
+	});
 };
 
 exports.search = function(req, res) {
@@ -57,7 +80,6 @@ exports.read = function(req, res) {
 		} else {
 			controller.show(req, res);
 		}
-
 	});
 };
 
@@ -70,7 +92,6 @@ exports.vread = function(req, res) {
 		} else {
 			controller.show(req, res);
 		}
-
 	});
 };
 
@@ -88,7 +109,6 @@ exports.update = function(req, res) {
 		} else {
 			controller.update(req, res);
 		}
-
 	});
 };
 
@@ -101,6 +121,5 @@ exports.del = function(req, res) {
 		} else {
 			controller.remove(req, res);
 		}
-
 	});
 };
