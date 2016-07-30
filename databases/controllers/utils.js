@@ -33,6 +33,7 @@ var isEmpty = function (resource) {
 	}		
 	return false;
 };
+exports.isEmpty = isEmpty;
 
 /** -----------------------------------------------------------------------
  * Convert a codeable concept resource to text.

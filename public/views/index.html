@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="">
+<html ng-app="EHRServer" ng-controller="IndexCtrl">
   <head>
     <title><%= __('EhrServer') %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
@@ -35,8 +35,12 @@ Phasellus ante lacus, feugiat vitae pharetra ut, facilisis a augue. Phasellus ul
     </section>
     </div>
     
-<script src="/js/lib/angular/angular.js"></script>
-<script src="/js/lib/angular/angular-cookies.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-sanitize.js"></script>
+<script src="/js/lib/ngstorage/ngStorage.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/IndexCtrl.js"></script>
     
   </body>
 </html>

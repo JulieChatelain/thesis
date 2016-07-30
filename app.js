@@ -43,6 +43,8 @@ app.use(function(req, res, next) {
     next();
 });
 
+process.env.JWT_SECRET = "64DXqaYyC6zFpsUFPBgPCELFRF8ka9gZHE6f2kp79xMp3ASK";
+
 // routes
 // non-protected routes:
 router.get('/', routes.index);
@@ -72,10 +74,11 @@ router.delete('/rest/:model/:id', rest.del);
 
 
 app.use('/', router);
-
+/*
 process.on('uncaughtException', function(err) {
-    console.log(err);
+    console.log("uncaughtException : " + err);
 });
+*/
 
 // launch server
 http.createServer(app).listen(app.get('port'), function(){

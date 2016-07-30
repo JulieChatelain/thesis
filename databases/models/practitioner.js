@@ -71,7 +71,7 @@ var PractitionerSchema = new mongoose.Schema({
       }],
     address: [{					// 	Where practitioner can be found/visited
           use : String, 		// home | work | temp | old - purpose of this address
-    	  type : String, 		// postal | physical | both
+    	  addressType : String, 		// postal | physical | both
     	  text : String, 		// Text representation of the address
     	  line : [String], 		// Street name, number, direction & P.O. Box etc.
     	  city : String, 		// Name of city, town etc.

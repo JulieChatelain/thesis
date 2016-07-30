@@ -1,10 +1,15 @@
 
-  <a href="/"> <%=__('Home') %> | </a>
+  <a ng-href="/"> <%=__('Home') %> | </a>
   <% if(locals.loggedIn && loggedIn){ %>
-	  <a href="/patients"> <%=__('Patients') %> | </a>
-	  <a href="/"> <%=__('Profile') %> | </a>
-	  <a href="/"> <%=__('Parameters') %> | </a>
+  	  <% if(locals.userData && userData.isPractitioner){ %>
+	  	<a ng-href="/patients"> <%=__('Patients') %> | </a>
+	  <% } %>  
+  	  <% if(locals.userData && userData.isPatient){ %>
+	  	<a ng-href="/myehr"> <%=__('MyEHR') %> | </a>
+	  <% } %>  
+	  <a ng-href="/"> <%=__('Profile') %> | </a>
+	  <a ng-href="/"> <%=__('Parameters') %> | </a>
    <% } else { %>  
-	  <a href="/login"> <%=__('Signin') %> | </a>
-	  <a href="/register"> <%=__('Register') %> </a>
+	  <a ng-href="/login"> <%=__('Signin') %> | </a>
+	  <a ng-href="/register"> <%=__('Register') %> </a>
   <% } %>  

@@ -9,7 +9,9 @@ exports.index = function(req, res) {
 };
 
 exports.ehr = function(req, res) {
-	res.render('ehr');
+	res.render('ehr',{
+		loggedIn: true
+	});
 };
 
 exports.register = function(req, res) {
@@ -17,6 +19,8 @@ exports.register = function(req, res) {
 };
 
 exports.patients = function(req, res) {
-	res.render('patients');
+	res.render('patients',{
+		loggedIn: true
+	});
 };
 

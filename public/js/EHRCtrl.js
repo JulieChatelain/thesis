@@ -1,5 +1,3 @@
-var app = angular.module("ehr", [ 'ngSanitize' ]);
-
 app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
 	$scope.$log = $log;
 	$scope.isPatientDiabetic = false;

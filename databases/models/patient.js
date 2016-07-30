@@ -76,7 +76,7 @@ var PatientSchema = new mongoose.Schema({
     deceasedDateTime: Date,
     address: [{
           use : String, 		// home | work | temp | old - purpose of this address
-    	  type : String, 		// postal | physical | both
+    	  addressType : String,	// postal | physical | both
     	  text : String, 		// Text representation of the address
     	  line : [String], 		// Street name, number, direction & P.O. Box etc.
     	  city : String, 		// Name of city, town etc.
@@ -146,9 +146,9 @@ var PatientSchema = new mongoose.Schema({
       		  end : Date 
       		  } 		
         }],
-        address: {				// Address for the contact person
+        address: [{				// Address for the contact person
           use : String, 		// home | work | temp | old - purpose of this address
-      	  type : String, 		// postal | physical | both
+      	  addressType : String, // postal | physical | both
       	  text : String, 		// Text representation of the address
       	  line : [String], 		// Street name, number, direction & P.O. Box etc.
       	  city : String, 		// Name of city, town etc.
@@ -160,7 +160,7 @@ var PatientSchema = new mongoose.Schema({
       		  	start: Date, 
       		  	end: Date 
       	  } 
-        },
+        }],
         gender: String,
         organization: {			// Organization that is associated with the contact
     		reference : String, // Relative, internal or absolute URL reference
@@ -195,7 +195,7 @@ var PatientSchema = new mongoose.Schema({
     		reference : String, // Relative, internal or absolute URL reference
     		display : String	// Text alternative for the resource
         },
-        type: String,			// replace | refer | seealso - type of link
+        linkType: String,			// replace | refer | seealso - type of link
     }]
 });
 

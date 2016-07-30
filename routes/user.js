@@ -3,15 +3,8 @@ var userCtrl = require('../databases/controllers/userCtrl');
 var restCtrl = require('../databases/controllers/RESTController');
 var Entities = require('html-entities').XmlEntities;
 
-exports.list = function(req, res){
-  res.send("respond with a resource");
-};
-
-
 exports.registerForm = function(req, res) {
-	res.render('register', {
-		title : 'Créer un compte'
-	});
+	res.render('register');
 };
 
 exports.register = function(req, res) {
@@ -27,7 +20,6 @@ exports.register = function(req, res) {
 	req.body.nameGiven = entities.encode(req.body.nameGiven);
 	req.body.job = entities.encode(req.body.job);
 	req.body.address = entities.encode(req.body.address);
-	console.log("Adresse: "+ req.body.address);
 	req.body.contactTel = entities.encode(req.body.contactTel);
 	req.body.telType = entities.encode(req.body.telType);
 	req.body.contactEmail = entities.encode(req.body.contactEmail);
@@ -38,79 +30,80 @@ exports.register = function(req, res) {
 	req.body.workTel = entities.encode(req.body.workTel);
 	
 	// Create user
-	userCtrl.createUser(req, res);
-	
-	// Check if creation done without errors
-	if(req.user == null)	{
-        res.status(500).render('error',{
-            loggedIn: false,
-            message: req.message
-        });
-		
-	}
-	else{
-		// If user is a patient
-		if(req.patient != null){
-			req.params.model = 'Patient';
-			req.body = req.patient;
-			// Create and save the patient
-			restCtrl.create(req, res, function(objpatient) {
-				if (objpatient.constructor.name == "Error") {
-			        res.status(500).render('error',{
-			            loggedIn: false,
-			            message: req.message
-			        });
-				} else {
-					console.log('id: '+ objpatient);
-					// Add the patient resource as reference to the user
-					var patientId = objpatient;
-					var user = req.user;
-					user.reference.push(patientId);
-					// If user is also a practitioner
-					if(req.practitioner != null){
-						req.params.model = 'Practitioner';
-						// Create and save the practitioner
-						restCtrl.create(req, res, function(objPractitioner) {
-							if (objPractitioner.constructor.name == "Error") {
-						        res.status(500).render('error',{
-						            loggedIn: false,
-						            message: req.message
-						        });
-							} else {
-								console.log('id: '+ objPractitioner);
-								// Add the practitioner resource as reference to the user
-								var practitionerId = objPractitioner;
-								user.reference.push(practitionerId);
-								// Save the user
-								userCtrl.saveUser(req, res);
-							}
-						});
-					}
-				}
-			});
-		// If user is only a practitioner
-		}else{
-			if(req.practitioner != null){
-				req.params.model = 'Practitioner';
-				// Create and save the practitioner
-				restCtrl.create(req, res, function(objPractitioner) {
-					if (objPractitioner.constructor.name == "Error") {
+	userCtrl.createUser(req, res, function(user, patient, practitioner){
+		// Check if creation done without errors
+		if(user == null)	{
+	        res.status(500).render('error',{
+	            loggedIn: false,
+	            message: req.message
+	        });			
+		}
+		else{
+			// If user is a patient
+			if(patient != null){
+				req.params.model = 'Patient';
+				req.body = patient;
+				// Create and save the patient
+				restCtrl.create(req, res, function(objpatient) {
+					if (objpatient.constructor.name.includes("Error")) {
 				        res.status(500).render('error',{
 				            loggedIn: false,
-				            message: req.message
+				            message: req.message + " " + objpatient
 				        });
 					} else {
-						console.log('id: '+ objPractitioner);
-						// Add the practitioner resource as reference to the user
-						var practitionerId = objPractitioner;
-						user.reference.push(practitionerId);
-						// Save the user
-						userCtrl.saveUser(req, res);
+						// Add the patient resource as reference to the user
+						var patientId = objpatient;
+						user.reference.push(patientId);
+						// If user is also a practitioner
+						if(practitioner != null){
+							req.params.model = 'Practitioner';
+							req.body = practitioner;
+							// Create and save the practitioner
+							restCtrl.create(req, res, function(objPractitioner) {
+								if (objPractitioner.constructor.name == "Error") {
+							        res.status(500).render('error',{
+							            loggedIn: false,
+							            message: req.message + " " + objPractitioner
+							        });
+								} else {
+									// Add the practitioner resource as reference to the user
+									var practitionerId = objPractitioner;
+									user.reference.push(practitionerId);
+									// Save the user
+									userCtrl.saveUser(user, res);
+								}
+							});
+						}else{
+							// Save the user
+							console.log("Just before saving user: " + JSON.stringify(user));
+							userCtrl.saveUser(user, res);
+						}
 					}
-				});				
+				});
+			// If user is only a practitioner
+			}else{
+				if(practitioner != null){
+					req.params.model = 'Practitioner';
+					req.body = practitioner;
+					// Create and save the practitioner
+					restCtrl.create(req, res, function(objPractitioner) {
+						if (objPractitioner.constructor.name == "Error") {
+					        res.status(500).render('error',{
+					            loggedIn: false,
+					            message: req.message + " " + objPractitioner
+					        });
+						} else {
+							// Add the practitioner resource as reference to the user
+							var practitionerId = objPractitioner;
+							user.reference.push(practitionerId);
+							// Save the user
+							userCtrl.saveUser(user, res);
+						}
+					});				
+				}
 			}
 		}
-	}
+	});	
 }
 
 exports.loginForm = function(req, res) {

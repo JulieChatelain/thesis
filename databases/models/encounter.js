@@ -54,23 +54,25 @@ var EncounterSchema = new mongoose.Schema({
     		end : Date
         }
     }],
-    class: {				// inpatient | outpatient | ambulatory | emergency +
+    classification: {				// inpatient | outpatient | ambulatory | emergency +
     	type: String,
     	required: true
     },
-    type: [{				// Specific type of encounter
+    encounterType: [{				// Specific type of encounter
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+		text : String			// Plain text representation of the concept
     }],
     priority: {				//Indicates the urgency of the encounter
         coding: [{
             system: String,
             code: String,
             display: String
-        }]
+        }],
+		text : String			// Plain text representation of the concept
     },
     patient: {
 		reference : String, // Relative, internal or absolute URL reference
@@ -90,7 +92,8 @@ var EncounterSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         }],
         period: {				// 	Period of time during the encounter participant was present
     		start : Date,
@@ -119,7 +122,8 @@ var EncounterSchema = new mongoose.Schema({
             system: String,
             code: String,
             display: String
-        }]
+        }],
+		text : String			// Plain text representation of the concept
     }],
     indication: [{			// Reason the encounter takes place (resource: condition, procedure)
 		reference : String, // Relative, internal or absolute URL reference
@@ -141,7 +145,8 @@ var EncounterSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         admittingDiagnosis: [{  // The admitting diagnosis as reported by admitting practitioner (condition)
     		reference : String, // Relative, internal or absolute URL reference
@@ -152,28 +157,32 @@ var EncounterSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         dietPreference: [{		// Diet preferences reported by the patient
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         }],
         specialCourtesy: [{		// Special courtesies (VIP, board member)
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         }],
         specialArrangement: [{	// Wheelchair, translator, stretcher, etc.
             coding: [{
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         }],
         destination: {			// Location to which the patient is discharged
     		reference : String, // Relative, internal or absolute URL reference
@@ -184,7 +193,8 @@ var EncounterSchema = new mongoose.Schema({
                 system: String,
                 code: String,
                 display: String
-            }]
+            }],
+    		text : String			// Plain text representation of the concept
         },
         dischargeDiagnosis: [{	// The final diagnosis given a patient before release from the hospital after all testing, surgery, and workup are complete
     		reference : String, // Relative, internal or absolute URL reference

@@ -23,8 +23,7 @@ var UserSchema = new mongoose.Schema({
 		end : Date
 	} ], 
 	token : {
-		type : String,
-		required : true
+		type : String
 	},
 	email : {
 		type : String,
@@ -38,7 +37,16 @@ var UserSchema = new mongoose.Schema({
 	language: { 
 		type: String, 
 		required: true 
+	},
+	isPatient: {
+		type: Boolean,
+		required: true
+	},
+	isPractitioner: {
+		type: Boolean,
+		required: true
 	}
+	
 
 });
 

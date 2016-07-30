@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="register" ng-controller="registerCtrl">
+<html ng-app="EHRServer" ng-controller="RegisterCtrl">
 
 
   <head>
@@ -31,83 +31,83 @@
     	<% } %>  
 		<fieldset ng-init="touched=false">
 		  	<label><%= __('Email') %>:</label>  
-		  	<input type="email" name="email" ng-model="email" required><span class="required">*</span><br>
+		  	<input type="email" name="email" ng-model="data.email" required><span class="required">*</span><br>
     		<span class="error" ng-show="registerForm.email.$touched && registerForm.email.$invalid">
     		<%= __('EmailInvalid') %><br></span>
     	
 		  	<label><%= __('Password') %>:</label> 
 		  	<input type="password" id="password" name="password" 
-		  	ng-model="password" ng-keyup="checkPasswordMatch(confirmPass,password)" required valid-password>
+		  	ng-model="data.password" ng-keyup="checkPasswordMatch(confirmPass,data.password)" required valid-password>
 		  	<span class="required">*</span><br>
     		<span class="error" ng-show="registerForm.password.$touched && registerForm.password.$invalid">
     		<%= __('PasswordInvalid') %><br></span>
     		
 		  	<label><%= __('ConfirmPassword') %>:</label> 
 		  	<input type="password" name="confirmPass" ng-model="confirmPass" 
-		  	ng-style="bgCol" ng-keyup="checkPasswordMatch(confirmPass,password)" ng-blur="touched=true">
+		  	ng-style="bgCol" ng-keyup="checkPasswordMatch(confirmPass,data.password)" ng-blur="touched=true">
 		  	<span class="required">*</span><br>
     		<span class="error" ng-hide="!touched || matchingPasswords"><%= __('ConfirmPassInvalid') %><br></span>
 		  	
 		  	<label><%= __('Iam') %>:</label> 
-		  	<input type="radio" name="userKind" ng-model="userKind" value="patient" checked> <%= __('APatient') %>
-  		  	<input type="radio" name="userKind" ng-model="userKind" value="practitioner"> <%= __('ADoctor') %>
-  		  	<input type="radio" name="userKind" ng-model="userKind" value="both"> <%= __('Both') %><br>
+		  	<input type="radio" name="userKind" ng-model="data.userKind" value="patient" checked> <%= __('APatient') %>
+  		  	<input type="radio" name="userKind" ng-model="data.userKind" value="practitioner"> <%= __('ADoctor') %>
+  		  	<input type="radio" name="userKind" ng-model="data.userKind" value="both"> <%= __('Both') %><br>
 		</fieldset>
 		  
 		<fieldset>
 		<legend><%= __('GeneralInfo') %></legend>
 		
-		  	<label><%= __('Name') %>:</label>  <input type="text" name="nameFamily" ng-model="nameFamily" required><span class="required">*</span><br>
+		  	<label><%= __('Name') %>:</label>  <input type="text" name="nameFamily" ng-model="data.nameFamily" required><span class="required">*</span><br>
     		<span class="error" ng-show="registerForm.nameFamily.$touched && registerForm.nameFamily.$invalid"><%= __('NameInvalid') %><br></span>
 		  	
-		  	<label><%= __('Surname') %>:</label> <input type="text" name="nameGiven" ng-model="nameGiven" required><span class="required">*</span><br>
+		  	<label><%= __('Surname') %>:</label> <input type="text" name="nameGiven" ng-model="data.nameGiven" required><span class="required">*</span><br>
     		<span class="error" ng-show="registerForm.nameGiven.$touched && registerForm.nameGiven.$invalid"><%= __('SurnameInvalid') %><br></span>
 		  	
 		  	<label><%= __('Gender') %>:</label> 
-		  	<input type="radio" name="gender" ng-model="gender" value="male" checked> <%= __('Man') %>
-  		  	<input type="radio" name="gender" ng-model="gender" value="female"> <%= __('Woman') %><br>
+		  	<input type="radio" name="gender" ng-model="data.gender" value="male" checked> <%= __('Man') %>
+  		  	<input type="radio" name="gender" ng-model="data.gender" value="female"> <%= __('Woman') %><br>
 		  	
-		  	<label><%= __('Birthdate') %>:</label> <input type="date" name="birthDate" ng-model="birthDate" required><span class="required">*</span><br>
+		  	<label><%= __('Birthdate') %>:</label> <input type="date" name="birthDate" ng-model="data.birthDate" required><span class="required">*</span><br>
     		<span class="error" ng-show="registerForm.birthDate.$touched && registerForm.birthDate.$invalid"><%= __('BirthdateInvalid') %><br></span>
 		  	
-		  	<label><%= __('Job') %>:</label>  <input type="text" name="job" ng-model="job"><br>
+		  	<label><%= __('Job') %>:</label>  <input type="text" name="job" ng-model="data.job"><br>
 		  	<p class="align">
 		  	
 		  	<label><%= __('Address') %>:</label>
-		  	<textarea rows="2" placeholder="Rue ..." name="address" ng-model="address"></textarea>
+		  	<textarea rows="2" placeholder="Rue ..." name="address" ng-model="data.address"></textarea>
 		  	</p>
 		  	<label><%= __('Contact') %>:</label><br>
-		  	<label><%= __('Tel') %>:</label> <input type="tel" name="contactTel" ng-model="contactTel">
-		  	<input type="radio" name="telType" ng-model="telType" value="home" checked> <%= __('Personal') %>
-  		  	<input type="radio" name="telType" ng-model="telType" value="work"> <%= __('Professional') %>
-  		  	<input type="radio" name="telType" ng-model="telType" value="mobile"> <%= __('Mobile') %>
+		  	<label><%= __('Tel') %>:</label> <input type="tel" name="contactTel" ng-model="data.contactTel">
+		  	<input type="radio" name="telType" ng-model="data.telType" value="home" checked> <%= __('Personal') %>
+  		  	<input type="radio" name="telType" ng-model="data.telType" value="work"> <%= __('Professional') %>
+  		  	<input type="radio" name="telType" ng-model="data.telType" value="mobile"> <%= __('Mobile') %>
 		  	<br>
-		  	<label><%= __('Email') %>:</label> <input type="email" name="contactEmail" ng-model="contactEMail">
+		  	<label><%= __('Email') %>:</label> <input type="email" name="contactEmail" ng-model="data.contactEMail">
 		  	
-		  	<input type="radio" name="emailType" ng-model="emailType" value="home" checked> <%= __('Personal') %>
-  		  	<input type="radio" name="emailType" ng-model="emailType" value="work"> <%= __('Professional') %>
+		  	<input type="radio" name="emailType" ng-model="data.emailType" value="home" checked> <%= __('Personal') %>
+  		  	<input type="radio" name="emailType" ng-model="data.emailType" value="work"> <%= __('Professional') %>
 		  	<br>	
 		  	
 		  	<label><%= __('SpokenLang') %>:</label>				  	
-			<input type="checkbox" name="speakFrench" ng-model="speakFrench"> <%= __('French') %>
-			<input type="checkbox" name="speakEnglish" ng-model="speakEnglish"> <%= __('English') %> 
-			<input type="checkbox" name="speakDutch" ng-model="speakDutch"> <%= __('Dutch') %> 
-			<input type="checkbox" name="speakGerman" ng-model="speakGerman"> <%= __('German') %> <br>
+			<input type="checkbox" name="speakFrench" ng-model="data.speakFrench"> <%= __('French') %>
+			<input type="checkbox" name="speakEnglish" ng-model="data.speakEnglish"> <%= __('English') %> 
+			<input type="checkbox" name="speakDutch" ng-model="data.speakDutch"> <%= __('Dutch') %> 
+			<input type="checkbox" name="speakGerman" ng-model="data.speakGerman"> <%= __('German') %> <br>
 			
 		  	<label><%= __('MainLang') %>:</label>				  	
-			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="fr"> <%= __('French') %>
-			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="en"> <%= __('English') %>
-			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="nl"> <%= __('Dutch') %>
-			<input type="radio" name="mainLanguage" ng-model="mainLanguage" value="de"> <%= __('German') %>
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="fr"> <%= __('French') %>
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="en"> <%= __('English') %>
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="nl"> <%= __('Dutch') %>
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="de"> <%= __('German') %>
 		</fieldset>
 		
 		<fieldset ng-hide="(userKind == 'patient')">
 			<legend><%= __('ForDoctor') %></legend>
-		  	<label><%= __('Speciality') %>:</label> <input type="text" name="speciality" ng-model="speciality"><br>
+		  	<label><%= __('Speciality') %>:</label> <input type="text" name="speciality" ng-model="data.speciality"><br>
 		  	<p class="align">
-		  	<label><%= __('JobTel') %>:</label> <input type="tel" name="workTel" ng-model="workTel"><br>
+		  	<label><%= __('JobTel') %>:</label> <input type="tel" name="workTel" ng-model="data.workTel"><br>
 		  	<label><%= __('JobPlace') %>:</label>
-		  	<textarea rows="2" placeholder="Hopital St-Machin, Rue ..." name="workLocation" ng-model="workLocation"></textarea>
+		  	<textarea rows="2" placeholder="Hopital St-Machin, Rue ..." name="workLocation" ng-model="data.workLocation"></textarea>
 		  	</p>
 		</fieldset>				
 		  
@@ -122,7 +122,11 @@
     </div>
     
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-<script src="/js/appRegister.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-sanitize.js"></script>
+<script src="/js/lib/ngstorage/ngStorage.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/RegisterCtrl.js"></script>
     
   </body>
 </html>

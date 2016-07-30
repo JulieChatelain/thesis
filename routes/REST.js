@@ -41,8 +41,8 @@ function findModel(name) {
 exports.create = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.create(req, res, function(obj) {
-		if (obj.constructor.name == "Error") {
-			console.log("Got an error: " + obj);
+		if (obj.constructor.name.includes("Error")) {
+			console.log("Create : " + obj);
 			var response = {
 					resourceType : "OperationOutcome",
 					text : {
@@ -74,8 +74,8 @@ exports.search = function(req, res) {
 exports.read = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
-		if (obj.constructor.name == "Error") {
-			console.log("Got an error: " + obj);
+		if (obj.constructor.name.includes("Error")) {
+			console.log("Read : " + obj);
 			res.send(500);
 		} else {
 			controller.show(req, res);
@@ -86,8 +86,8 @@ exports.read = function(req, res) {
 exports.vread = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.vread(req, res, req.params.id, req.params.vid, function(obj) {
-		if (obj.constructor.name == "Error") {
-			console.log("Got an error: " + obj);
+		if (obj.constructor.name.includes("Error")) {
+			console.log("Vread : " + obj);
 			res.send(500);
 		} else {
 			controller.show(req, res);
@@ -103,8 +103,8 @@ exports.history = function(req, res) {
 exports.update = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
-		if (obj.constructor.name == "Error") {
-			console.log("Got an error: " + obj);
+		if (obj.constructor.name.includes("Error")) {
+			console.log("Update : " + obj);
 			res.send(500);
 		} else {
 			controller.update(req, res);
@@ -115,8 +115,8 @@ exports.update = function(req, res) {
 exports.del = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
-		if (obj.constructor.name == "Error") {
-			console.log("Got an error: " + obj);
+		if (obj.constructor.name.includes("Error")) {
+			console.log("Delete : " + obj);
 			res.send(500);
 		} else {
 			controller.remove(req, res);

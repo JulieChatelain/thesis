@@ -1,33 +1,42 @@
-var app = angular.module("register", [  ]);
 
-app.controller('registerCtrl',function($log, $location,$scope, $http) {
+app.controller('RegisterCtrl',function($log, $location, $localStorage, $scope, $http) {
 	$scope.$log = $log;
-	$scope.userKind = 'patient';
-	$scope.gender = 'male';
-	$scope.eMail = '';
-	$scope.password = '';
+	
+	$scope.token = $localStorage.token;
+
 	$scope.confirmPass = '';
-	$scope.nameFamily = '';
-	$scope.nameGiven = '';
-	$scope.birthDate = '';
-	$scope.job = '';
-	$scope.address = '';
-	$scope.contactTel = '';
-	$scope.telType = 'home';
-	$scope.contactEmail = '';
-	$scope.emailType = 'home';
-	$scope.speakFrench = true;
-	$scope.speakEnglish = false;
-	$scope.speakDutch = false;
-	$scope.speakGerman = false;
-	$scope.mainLanguage = 'fr';
-	$scope.speciality = '';
-	$scope.workLocation = '';
-	$scope.workTel = '';
+	
+	$scope.data = {
+			userKind : 'patient',
+			gender : 'male',
+			eMail : '',
+			password : '',
+			nameFamily : '',
+			nameGiven : '',
+			birthDate : '',
+			job : '',
+			address : '',
+			contactTel : '',
+			telType : 'home',
+			contactEmail : '',
+			emailType : 'home',
+			speakFrench : true,
+			speakEnglish : false,
+			speakDutch : false,
+			speakGerman : false,
+			mainLanguage : 'fr',
+			speciality : '',
+			workLocation : '',
+			workTel : ''
+	};
 	
 	$scope.bgCol = {"background-color" : "#f3e5f5"};
 	$scope.matchingPasswords = false;
 	
+	/**
+	 * Check if the two passwords match.
+	 * Change the background color accordingly.
+	 */
 	$scope.checkPasswordMatch = function(password1, password2){
 		if(password1.length > 6 && password2.length > 6 && password1 == password2){
 			console.log("matching: " + password1 + " " + password2);
@@ -41,6 +50,20 @@ app.controller('registerCtrl',function($log, $location,$scope, $http) {
 		}
 	};
 	
+	/**
+	 * Register the user.
+	 */
+	$scope.register = function(){
+		$http.post('/register', data, config)
+		   .then(
+		       function(response){
+		         // success callback
+		       }, 
+		       function(response){
+		         // failure callback
+		       }
+		    );
+	};
 });
 
 app.directive('validPassword', function() {

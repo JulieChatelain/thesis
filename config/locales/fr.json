@@ -107,5 +107,8 @@
 	"UnknownUserKind": "Type d'utilisateur inconnu",
 	"Personal": "Personnel",
 	"Professional": "Professionel",
-	"Mobile": "Mobile"
+	"Mobile": "Mobile",
+	"message": "message",
+	"Error": "Erreur",
+	"MyEHR": "Mon dossier"
 }

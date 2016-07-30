@@ -166,7 +166,7 @@ exports.history = function(req, res, id, next) {
 /**
  * Create a resource.
  */
-exports.create = function(req, res) {
+exports.create = function(req, res, next) {
 
 	var modelName = req.params.model;
 
@@ -175,7 +175,7 @@ exports.create = function(req, res) {
 
 	delete resource._id;
 	
-	if(isEmpty(resource)){
+	if(utils.isEmpty(resource)){
 		next('');
 	}
 	else{
@@ -191,7 +191,7 @@ exports.create = function(req, res) {
 				if (rhErr) {
 					next(rhErr);
 				} else {
-					next(model + "/" + savedResourceHistory.id);
+					next(modelName + "/" + savedResourceHistory.id);
 				}
 			});
 		}

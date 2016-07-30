@@ -1,6 +1,4 @@
-var app = angular.module("patients", [ 'ngCookies' ]);
-
-app.controller('patientsCtrl',function($log, $location,$scope, $http, $cookies) {
+app.controller('patientsCtrl',function($log, $location,$scope, $http) {
 	$scope.$log = $log;
 	$scope.patients = [];
 	$scope.nameFilter = '';
