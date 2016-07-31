@@ -25,7 +25,7 @@
 	</div>
     <p>
     	
-		<form action="/register" name="registerForm" method="post">		
+		<form name="registerForm">		
     	<% if(locals.message){ %>
     		<span class="error"><%= __('message') %></span>  <br>
     	<% } %>  
@@ -114,7 +114,7 @@
 		  <input type="submit" value="<%= __('Register') %>" 
 		  ng-disabled="registerForm.nameFamily.$invalid || registerForm.email.$invalid 
 		  || registerForm.nameGiven.$invalid || registerForm.birthDate.$invalid 
-		  || registerForm.password.$invalid || !matchingPasswords"><br>
+		  || registerForm.password.$invalid || !matchingPasswords" ng-click="register()"><br>
 		</form>
 		
     </p>

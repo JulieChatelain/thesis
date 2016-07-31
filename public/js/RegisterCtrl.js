@@ -54,7 +54,10 @@ app.controller('RegisterCtrl',function($log, $location, $localStorage, $scope, $
 	 * Register the user.
 	 */
 	$scope.register = function(){
-		$http.post('/register', data, config)
+		
+		var data = $scope.data;
+		
+		$http.post('/register', data)
 		   .then(
 		       function(response){
 		         // success callback
