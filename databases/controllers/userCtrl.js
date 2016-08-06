@@ -6,6 +6,7 @@ var jwt = require('jsonwebtoken');
  * Search for an user according to the password and email.
  */
 exports.findUser = function(req, res) {
+	console.log("Searching for user.");
 	// Search the user
 	User.findOne({
 		email : req.body.email,
@@ -19,12 +20,14 @@ exports.findUser = function(req, res) {
 			});
 		} else {
 			if (user) {
+				console.log("User found.");
 				res.render('index',{
 					loggedIn : true,
 					userData : user,
 					token : user.token
 				});
 			} else {
+				console.log("User not found.");
 				res.render('login', {
 					loggedIn : false,
 					message : "IncorrectMailPass"
@@ -38,6 +41,7 @@ exports.findUser = function(req, res) {
  * Create an user, patient and/or practitioner resource.
  */
 exports.createUser = function(req, res, next) {
+	console.log("Create user.");
 	// check if data is valid
 	if (req.body.password < 7 || req.body.password != req.body.confirmPass) {
 		req.message = "PasswordInvalid";
@@ -55,10 +59,12 @@ exports.createUser = function(req, res, next) {
 		req.message = "EmailInvalid";
 		next(null,null,null);
 	} else {
+		console.log("Passed checks.");
 		// Check if user already exists
 		var password = req.body.password;
 		var email = req.body.email;
-		
+
+		console.log("Finding existing user.");
 		User.findOne({email : email,password : password},function(err, user) {
 			if (err) {
 				console.log("Cannot create user...");
@@ -70,6 +76,7 @@ exports.createUser = function(req, res, next) {
 					req.message = "UserAlreadyExists";
 					next(null,null,null);
 				} else {
+					console.log("Creating user.");
 					// Create new user
 					var userModel = new User();
 					userModel = JSON.parse(JSON.stringify(userModel));
@@ -85,13 +92,17 @@ exports.createUser = function(req, res, next) {
 					if (req.body.userKind == 'patient'|| req.body.userKind == 'both') {
 						userModel.isPatient = true;
 						patientModel = createPatient(req);		
+					}else{
+						userModel.isPatient = false;						
 					}
 
 					if (req.body.userKind == 'practitioner' || req.body.userKind == 'both') {
 						userModel.isPractitioner = true; 
 						practitionerModel = createPractitioner(req);
+					}else{
+						userModel.isPractitioner = false; 						
 					}
-					
+
 					req.message = "";
 					console.log("Juste created user: " + JSON.stringify(userModel));
 					next(userModel, patientModel, practitionerModel);
@@ -99,16 +110,19 @@ exports.createUser = function(req, res, next) {
 			}
 		});
 	}
+	console.log("message: " + req.message);
 };
 
 /**
  * Save the user in the database and return the index page.
  */
 exports.saveUser = function(userModel, res) {
+	console.log("Saving user");
 	var newUser = new User(userModel);
 	// Save
 	newUser.save(function(err, user) {
 		if (err) {
+			console.log("Error While Saving user: " + err);
 			res.status(500).render('error', {
 				loggedIn : false,
 				message : err
@@ -123,6 +137,7 @@ exports.saveUser = function(userModel, res) {
 						message : err2
 					});
 				} else {
+					console.log("Saved user");
 					res.status(201).render('index', {
 						loggedIn : true,
 						userData : user1,
@@ -142,6 +157,7 @@ exports.saveUser = function(userModel, res) {
  * Create a patient resource from the values in req.body.
  */
 var createPatient = function(req) {
+	console.log("Creating patient");
 	var Patient = mongoose.model('Patient');
 	var patientModel = new Patient();
 	// Need to do this because moongose put strange restrictions:
@@ -201,6 +217,7 @@ var createPatient = function(req) {
 		}
 		patientModel.communication.push(language);
 	}
+	console.log("Done creating patient: " + JSON.stringify(patientModel));
 	return patientModel;
 };
 
@@ -208,6 +225,7 @@ var createPatient = function(req) {
  * Create a practitioner resource from the values in req.body.
  */
 var createPractitioner = function(req) {
+	console.log("Creating practitioner");
 
 	var Practitioner = mongoose.model('Practitioner');
 	var practitionerModel = new Practitioner();
@@ -280,5 +298,6 @@ var createPractitioner = function(req) {
 		value : req.body.workTel,
 		use : 'work'
 	});
+	console.log("Done creating practitioner: " + JSON.stringify(practitionerModel));
 	return practitionerModel;
 };

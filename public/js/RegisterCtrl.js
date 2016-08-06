@@ -3,14 +3,13 @@ app.controller('RegisterCtrl',function($log, $location, $localStorage, $scope, $
 	$scope.$log = $log;
 	
 	$scope.token = $localStorage.token;
-
-	$scope.confirmPass = '';
 	
 	$scope.data = {
 			userKind : 'patient',
 			gender : 'male',
 			eMail : '',
 			password : '',
+			confirmPass : '',
 			nameFamily : '',
 			nameGiven : '',
 			birthDate : '',
@@ -60,10 +59,10 @@ app.controller('RegisterCtrl',function($log, $location, $localStorage, $scope, $
 		$http.post('/register', data)
 		   .then(
 		       function(response){
-		         // success callback
+		         console.log("Success data sent: ");
 		       }, 
 		       function(response){
-		         // failure callback
+			         console.log("Fail data sent");
 		       }
 		    );
 	};

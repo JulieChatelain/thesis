@@ -37,14 +37,14 @@
     	
 		  	<label><%= __('Password') %>:</label> 
 		  	<input type="password" id="password" name="password" 
-		  	ng-model="data.password" ng-keyup="checkPasswordMatch(confirmPass,data.password)" required valid-password>
+		  	ng-model="data.password" ng-keyup="checkPasswordMatch(data.confirmPass,data.password)" required valid-password>
 		  	<span class="required">*</span><br>
     		<span class="error" ng-show="registerForm.password.$touched && registerForm.password.$invalid">
     		<%= __('PasswordInvalid') %><br></span>
     		
 		  	<label><%= __('ConfirmPassword') %>:</label> 
-		  	<input type="password" name="confirmPass" ng-model="confirmPass" 
-		  	ng-style="bgCol" ng-keyup="checkPasswordMatch(confirmPass,data.password)" ng-blur="touched=true">
+		  	<input type="password" name="confirmPass" ng-model="data.confirmPass" 
+		  	ng-style="bgCol" ng-keyup="checkPasswordMatch(data.confirmPass,data.password)" ng-blur="touched=true">
 		  	<span class="required">*</span><br>
     		<span class="error" ng-hide="!touched || matchingPasswords"><%= __('ConfirmPassInvalid') %><br></span>
 		  	
@@ -101,7 +101,7 @@
 			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="de"> <%= __('German') %>
 		</fieldset>
 		
-		<fieldset ng-hide="(userKind == 'patient')">
+		<fieldset ng-hide="(data.userKind == 'patient')">
 			<legend><%= __('ForDoctor') %></legend>
 		  	<label><%= __('Speciality') %>:</label> <input type="text" name="speciality" ng-model="data.speciality"><br>
 		  	<p class="align">
