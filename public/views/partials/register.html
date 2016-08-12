@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html ng-app="EHRServer" ng-controller="RegisterCtrl">
 
-
-  <head>
-    <title><%= __('Register') %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  
-  <body>
-  
-   <header><% include header.html %></header>
-    
-  <div id="horizontal">  
   <nav>
   <h3 class="menuTitle"><%= __('Downloads') %></h3>		
 	<ul>
@@ -25,7 +12,8 @@
 	</div>
     <p>
     	
-		<form name="registerForm">		
+		<form name="registerForm" ng-submit="register()">		
+		<span class="error">{{message}}</span>
     	<% if(locals.message){ %>
     		<span class="error"><%= __('message') %></span>  <br>
     	<% } %>  
@@ -114,19 +102,8 @@
 		  <input type="submit" value="<%= __('Register') %>" 
 		  ng-disabled="registerForm.nameFamily.$invalid || registerForm.email.$invalid 
 		  || registerForm.nameGiven.$invalid || registerForm.birthDate.$invalid 
-		  || registerForm.password.$invalid || !matchingPasswords" ng-click="register()"><br>
+		  || registerForm.password.$invalid || !matchingPasswords"><br>
 		</form>
 		
     </p>
     </section>
-    </div>
-    
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-sanitize.js"></script>
-<script src="/js/lib/ngstorage/ngStorage.js"></script>
-<script src="/js/app.js"></script>
-<script src="/js/RegisterCtrl.js"></script>
-    
-  </body>
-</html>

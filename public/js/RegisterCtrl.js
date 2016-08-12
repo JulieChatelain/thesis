@@ -1,8 +1,11 @@
 
-app.controller('RegisterCtrl',function($log, $location, $localStorage, $scope, $http) {
+app.controller('RegisterCtrl',function($log, $window, $location, $localStorage, $scope, $http) {
 	$scope.$log = $log;
 	
 	$scope.token = $localStorage.token;
+	$scope.loggedIn = false;
+	
+	$scope.message = "";
 	
 	$scope.data = {
 			userKind : 'patient',
@@ -59,10 +62,15 @@ app.controller('RegisterCtrl',function($log, $location, $localStorage, $scope, $
 		$http.post('/register', data)
 		   .then(
 		       function(response){
-		         console.log("Success data sent: ");
+		         console.log("Success data sent: " + response.data + " mess:" + response.data.message);
+		         $scope.message = response.data.message;
+		         $localStorage.token = response.data.token;
+				 $scope.loggedIn = response.data.loggedIn;
+		         window.location = "/";  
 		       }, 
 		       function(response){
-			         console.log("Fail data sent");
+			         console.log("Fail data sent" + response.data + " mess:" + response.data.message);
+			         $scope.message = response.data.message;
 		       }
 		    );
 	};

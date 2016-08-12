@@ -1,15 +1,10 @@
 
-  <a ng-href="/"> <%=__('Home') %> | </a>
-  <% if(locals.loggedIn && loggedIn){ %>
-  	  <% if(locals.userData && userData.isPractitioner){ %>
-	  	<a ng-href="/patients"> <%=__('Patients') %> | </a>
-	  <% } %>  
-  	  <% if(locals.userData && userData.isPatient){ %>
-	  	<a ng-href="/myehr"> <%=__('MyEHR') %> | </a>
-	  <% } %>  
-	  <a ng-href="/"> <%=__('Profile') %> | </a>
-	  <a ng-href="/"> <%=__('Parameters') %> | </a>
-   <% } else { %>  
-	  <a ng-href="/login"> <%=__('Signin') %> | </a>
-	  <a ng-href="/register"> <%=__('Register') %> </a>
-  <% } %>  
+<a ng-href="#/"> <%=__('Home') %> | </a>
+<a data-ng-show="token" ng-href="#/patients"> <%=__('Patients') %> | </a>
+<a data-ng-show="token" ng-href="#/myehr"> <%=__('MyEHR') %> | </a>
+<a data-ng-show="token" ng-href="#/profile"> <%=__('Profile') %> | </a>
+<a data-ng-show="token" ng-href="#/parameters"> <%=__('Parameters') %> | </a>
+<a data-ng-hide="token" ng-href="#/login"> <%=__('Signin') %> | </a>
+<a data-ng-show="token" ng-click="logout()"> <%=__('Logout') %> | </a>
+<a data-ng-hide="token" ng-href="#/register"> <%=__('Register') %> </a>
+

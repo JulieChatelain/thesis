@@ -14,21 +14,21 @@ exports.findUser = function(req, res) {
 	}, function(err, user) {
 		if (err) {
 			console.log("FindUser : " + err);
-			res.render('error', {
+			res.json({
 				loggedIn : false,
 				message : "InternalError."
 			});
 		} else {
 			if (user) {
 				console.log("User found.");
-				res.render('index',{
+				res.json({
 					loggedIn : true,
 					userData : user,
 					token : user.token
 				});
 			} else {
 				console.log("User not found.");
-				res.render('login', {
+				res.json({
 					loggedIn : false,
 					message : "IncorrectMailPass"
 				});
@@ -123,7 +123,7 @@ exports.saveUser = function(userModel, res) {
 	newUser.save(function(err, user) {
 		if (err) {
 			console.log("Error While Saving user: " + err);
-			res.status(500).render('error', {
+			res.json({
 				loggedIn : false,
 				message : err
 			});
@@ -131,17 +131,18 @@ exports.saveUser = function(userModel, res) {
 			user.token = jwt.sign(user, process.env.JWT_SECRET);
 			user.save(function(err2, user1) {
 				if (err2) {
-					console.log("Error while saving the new user : " + erre)
-					res.status(500).render('error', {
+					console.log("Error while saving the new user : " + err2)
+					res.json({
 						loggedIn : false,
 						message : err2
 					});
 				} else {
 					console.log("Saved user");
-					res.status(201).render('index', {
+					res.json({
 						loggedIn : true,
 						userData : user1,
-						token : user1.token
+						token : user1.token,
+						message: "Enregistrement réussi."
 					});
 				}
 			});

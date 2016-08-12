@@ -4,8 +4,16 @@
 //-----------------------------------------------------------------------------
 
 
+/*
 exports.index = function(req, res) {
+	console.log("Loading index");
 	res.render('index');
+};
+
+exports.view = function(req, res){
+	console.log("Loading partial");
+	var view = req.params.view;
+	res.render(view);
 };
 
 exports.ehr = function(req, res) {
@@ -23,4 +31,4 @@ exports.patients = function(req, res) {
 		loggedIn: true
 	});
 };
-
+*/

@@ -1,4 +1,4 @@
-app.controller('EHRCtrl',function($log, $location, $scope, $http, $sce, utils) {
+app.controller('EHRCtrl',function($log, $location, $localStorage, $scope, $http, $sce, utils) {
 	$scope.$log = $log;
 	$scope.isPatientDiabetic = false;
 	$scope.nameFilter = '';

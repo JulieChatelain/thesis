@@ -1,0 +1,20 @@
+
+<nav>
+ 	<h3 class="menuTitle"><%= __('Downloads') %></h3>		
+	<ul>
+		<li class="menuElem"><a href="#"><%= __('DownloadSchemas') %></a></li> 
+	</ul>
+</nav>
+ 
+<section id="contents">
+	<p>
+		<form ng-submit="login()">
+   			<span class="error">{{message}}</span>  <br>
+			<%=__('Connection') %> : <br>
+		  	<label><%=__('Login') %>:</label>  <input type="text" ng-model="data.email"><br>
+		  	<label><%=__('Password') %>:</label> <input type="password" ng-model="data.password"><br>
+			<input type="submit" value="<%=__('Signin') %>"><br>
+		</form>
+	
+	</p>
+</section>

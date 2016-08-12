@@ -110,5 +110,6 @@
 	"Mobile": "Mobile",
 	"message": "message",
 	"Error": "Erreur",
-	"MyEHR": "Mon dossier"
+	"MyEHR": "Mon dossier",
+	"Logout": "Logout"
 }

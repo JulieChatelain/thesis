@@ -15,8 +15,8 @@ exports.ehrmenu = function(req, res) {
 	
 	EHROption.find({}, function(err, options) {
 		if (err) {
-			console.log("Got an error: " + err);
-			res.send(500);
+			console.log("Got an error while searching for ehr menu: " + err);
+			res.sendStatus(500);
 		} else {
 			// Translate the menu options
 			result = [];
