@@ -37,14 +37,12 @@ function checkToken(req, res, next) {
 	var header = req.headers["x-access-token"];
 	if(typeof header !== 'undefined'){
 		req.token = header;
-		console.log("Token found: " + req.token);
         next();
 	}else{
 		header = req.headers["authorization"];
 	    if (typeof header !== 'undefined') {
 	        var token = header.split(" ");
 	        req.token = token[1];
-	        console.log("Token found: " + req.token);
 	        next();
 	    } else {
 	        res.sendStatus(403);

@@ -5,7 +5,7 @@
 	Mes patients</h3>		
 	<ul>
 		<li class="menuElem" ng-repeat="p in patients | orderBy :'name.family[0]'"> 
-		<a href="/ehr/#/{{p.id}}">{{p.name.family[0].toUpperCase()}} {{p.name.given[0]}}</a></li> 
+		<a ng-href="#/ehr/{{p.id}}">{{p.name.family[0].toUpperCase()}} {{p.name.given[0]}}</a></li> 
 	</ul>
 </nav>
 

@@ -98,7 +98,19 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
         });
     };
 }])
-.controller('HomeCtrl', ['$scope', '$location', 'Authentication', function($scope, $location, Authentication) {
+.controller('HomeCtrl', ['$scope', '$log' , '$location', 'Authentication', function($scope, $log, $location, Authentication) {
+
+     
+}])
+.controller('MyEHRCtrl', ['$scope', '$log' , '$location', 'Rest', function($scope, $log, $location, Rest) {
+
+     
+}])
+.controller('ProfileCtrl', ['$scope', '$log' , '$location', 'Rest', function($scope, $log, $location, Rest) {
+
+     
+}])
+.controller('ParametersCtrl', ['$scope', '$log' , '$location', 'Rest', function($scope, $log, $location, Rest) {
 
      
 }])
@@ -128,12 +140,11 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 		return Math.abs(ageDate.getUTCFullYear() - 1970);
 	}     
 }])
-.controller('EHRCtrl', ['$scope', '$log', '$location', '$sce', 'Rest', 'utils', function($scope, $log, $location, $sce, Rest, utils) {
+.controller('EHRCtrl', ['$scope', '$log', '$location', '$routeParams', '$sce', 'Rest', 'utils', function($scope, $log, $location, $routeParams, $sce, Rest, utils) {
 	
 	$scope.$log = $log;
 	$scope.isPatientDiabetic = false;
 	$scope.nameFilter = '';
-	$scope.host = $location.host();
 
 	$scope.calculateAge = utils.calculateAge;
 	$scope.dateToString = utils.dateToString;
@@ -158,6 +169,13 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	 */
 	Rest.patients(function(res) {
 		$scope.patients = res.data;
+
+		// Select a patient
+		if($routeParams != 'undefined' && $routeParams.id != 'undefined'){
+			$scope.patientId = 'Patient/' + $routeParams.id;
+			$scope.selectPatient($scope.patientId);
+		}
+		
     }, function() {
         $scope.message = 'Failed to load the patients list.';
     });

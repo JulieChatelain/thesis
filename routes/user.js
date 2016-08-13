@@ -3,8 +3,6 @@ var userCtrl = require('../databases/controllers/userCtrl');
 var restCtrl = require('../databases/controllers/RESTController');
 
 exports.register = function(req, res) {
-
-	console.log("Registering.");
 	
 	// Create user
 	userCtrl.createUser(req, res, function(user, patient, practitioner){
@@ -31,13 +29,11 @@ exports.register = function(req, res) {
 				            message: req.message + " " + objpatient
 				        });
 					} else {
-						console.log("Patient saved.");
 						// Add the patient resource as reference to the user
 						var patientId = objpatient;
 						user.reference.push(patientId);
 						// If user is also a practitioner
 						if(practitioner != null){
-							console.log("Saving practitioner");
 							req.params.model = 'Practitioner';
 							req.body = practitioner;
 							// Create and save the practitioner
@@ -49,7 +45,6 @@ exports.register = function(req, res) {
 							            message: req.message + " " + objPractitioner
 							        });
 								} else {
-									console.log("Practitioner saved");
 									// Add the practitioner resource as reference to the user
 									var practitionerId = objPractitioner;
 									user.reference.push(practitionerId);
@@ -59,7 +54,6 @@ exports.register = function(req, res) {
 							});
 						}else{
 							// Save the user
-							console.log("Just before saving user: " + JSON.stringify(user));
 							userCtrl.saveUser(user, res);
 						}
 					}
@@ -67,7 +61,6 @@ exports.register = function(req, res) {
 			// If user is only a practitioner
 			}else{
 				if(practitioner != null){
-					console.log("Saving practitioner");
 					req.params.model = 'Practitioner';
 					req.body = practitioner;
 					// Create and save the practitioner
@@ -79,7 +72,6 @@ exports.register = function(req, res) {
 					            message: req.message + " " + objPractitioner
 					        });
 						} else {
-							console.log("Practitioner saved");
 							// Add the practitioner resource as reference to the user
 							var practitionerId = objPractitioner;
 							user.reference.push(practitionerId);
@@ -94,6 +86,5 @@ exports.register = function(req, res) {
 }
 
 exports.login = function(req, res) {
-	console.log("Login in");
 	userCtrl.findUser(req,res);
 };

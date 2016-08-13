@@ -25,9 +25,13 @@ app.config(['$routeProvider', '$httpProvider', function ($routeProvider, $httpPr
             templateUrl: 'partials/ehr.html',
             controller: 'EHRCtrl'
         }).
+        when('/ehr/Patient/:id', {
+            templateUrl: 'partials/ehr.html',
+            controller: 'EHRCtrl'
+        }).
         when('/myehr', {
             templateUrl: 'partials/myehr.html',
-            controller: 'EHRCtrl'
+            controller: 'MyEHRCtrl'
         }).
         when('/patients', {
             templateUrl: 'partials/patients.html',
@@ -35,11 +39,11 @@ app.config(['$routeProvider', '$httpProvider', function ($routeProvider, $httpPr
         }).
         when('/profile', {
             templateUrl: 'partials/profile.html',
-            controller: 'PatientsCtrl'
+            controller: 'ProfileCtrl'
         }).
         when('/parameters', {
             templateUrl: 'partials/parameters.html',
-            controller: 'PatientsCtrl'
+            controller: 'ParametersCtrl'
         }).
         otherwise({
             redirectTo: '/'
