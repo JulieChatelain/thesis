@@ -1,6 +1,6 @@
 'use strict';
 
-app.factory('Authentication', ['$http', '$localStorage', function($http, $localStorage){
+app.factory('Authentication', ['$http', '$log','$localStorage', function($http, $log, $localStorage){
 	
         var url = "http://localhost:3000";
         
@@ -48,7 +48,8 @@ app.factory('Authentication', ['$http', '$localStorage', function($http, $localS
                 changeUser({});
                 delete $localStorage.token;
                 success();
-            }
+            },
+            user : getUserFromToken()
         };
     }
 ]);

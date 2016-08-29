@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST', 'PUT','DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,x-access-token, Authorization');
     next();
 });
@@ -32,19 +32,40 @@ app.use(function(req, res, next) {
 //translation
 app.use(i18n);
 
-// check authorizations
+// check token and get user
 function checkToken(req, res, next) {
 	var header = req.headers["x-access-token"];
 	if(typeof header !== 'undefined'){
 		req.token = header;
-        next();
+        // verify token is valid & get user from token
+	    jwt.verify(req.token, process.env.JWT_SECRET, function(err, decoded) {      
+	      if (err) {
+	    	 console.log("CheckToken error: " + err);
+	        return res.sendStatus(403);
+	      } else {
+	        req.user = decoded;    
+	        console.log("decoded : " + JSON.stringify(decoded));
+	        next();
+	      }
+	    });
 	}else{
 		header = req.headers["authorization"];
 	    if (typeof header !== 'undefined') {
 	        var token = header.split(" ");
 	        req.token = token[1];
-	        next();
+	        // verify token is valid & get user from token
+		    jwt.verify(req.token, process.env.JWT_SECRET, function(err, decoded) {      
+		      if (err) {
+			    console.log("CheckToken error: " + err);
+		        return res.sendStatus(403);
+		      } else {
+			    req.user = decoded;    
+		        console.log("decoded : " + JSON.stringify(decoded));
+		        next();
+		      }
+		    });
 	    } else {
+	    	console.log("CheckToken error: typeof header === 'undefined'");
 	        res.sendStatus(403);
 	    }
 	}
@@ -55,6 +76,15 @@ function checkToken(req, res, next) {
 
 app.post('/login', user.login);
 app.post('/register', user.register);
+
+//----------------------------------------------------------------------------
+//---------------------- Authorizations Requests ------------------------------
+
+app.post('/approveAccess', checkToken, user.approveAccess);
+app.post('/requestAccess', checkToken, user.requestAccess);
+app.post('/changeAccess', checkToken, user.changeAccess);
+app.post('/removeAccess', checkToken, user.removeAccess);
+app.post('/listAccess', checkToken, user.listAccess);
 
 // ----------------------------------------------------------------------------
 // -------------------------- REST service ------------------------------------
@@ -74,11 +104,11 @@ app.get('/ehrmenu', provider.ehrmenu);
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-
+/*
 process.on('uncaughtException', function(err) {
     console.log("Uncaught Exception : " + err);
 });
-
+*/
 //launch server
 http.createServer(app).listen(app.get('port'), function(){
 console.log('Express server listening on port ' + app.get('port'));

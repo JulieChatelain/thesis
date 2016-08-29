@@ -289,7 +289,7 @@ input.ng-valid {
 
 .alignLeft { text-align: left; }
 .small { font-size:0.8em; }
-.error, .required {color: red;}
+.error, .required, .red {color: red;}
 
 
 

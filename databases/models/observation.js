@@ -58,11 +58,11 @@ var ObservationSchema = new mongoose.Schema({
         }],
         text: String
     },
-    subject: {
+    subject: {				// Who and/or what this is about
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
-    encounter: {
+    encounter: {			// Healthcare event during which this observation is made
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },

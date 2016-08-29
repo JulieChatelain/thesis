@@ -52,7 +52,7 @@ var PractitionerSchema = new mongoose.Schema({
         suffix: [String]
     },
     telecom: [{
-	  system : {				// C? phone | fax | email | pager | other
+    	  system : {				// C? phone | fax | email | pager | other
 			type : String,
 			enum : [ 'phone', 'fax', 'email', 'pager', 'other' ],
 			required : true

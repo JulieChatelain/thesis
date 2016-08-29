@@ -1,6 +1,6 @@
 
 app.service('utils', function($sce) {
-
+	
 	/** -----------------------------------------------------------------------
 	 * Display the first "display" of the code of a codeable concept
 	 *  -----------------------------------------------------------------------
@@ -32,9 +32,7 @@ app.service('utils', function($sce) {
 			tobaccoHistory : {valueString: 'X'}
 			
 		};
-		console.log("------------test----------");
 		if(typeof observations !== 'undefined'){
-			console.log("ob length: "+ observations.length);
 			for (var i = 0, len = observations.length; i < len; i++) {
 				if(observations[i].category.coding.length > 0){
 					var coding = observations[i].category.coding;

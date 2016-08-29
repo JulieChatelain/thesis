@@ -1,0 +1,49 @@
+
+<section id="contents">
+	<p>{{message}}</p>
+	<h3 ng-show="user.isPractitioner"><%= __('AuthReceived') %></h3>
+	<p ng-show="user.isPractitioner">
+		<%= __('ExplainAuthReceived') %>
+		<ul>
+		  <li ng-repeat="auth in practAuth | orderBy:'level'">
+		    ({{auth.level}}) {{ auth.refId }} [ <%= __('from') %> {{ auth.start | date:'dd-MM-yyyy' }} <%= __('to') %> {{ auth.end | date:'dd-MM-yyyy'}} ]
+		    <button ng-click="renounce(auth.refId)"> <%= __('RemoveAccess') %> </button>
+		  </li>
+		</ul>
+	</p>
+	
+	<h3 ng-show="user.isPractitioner"><%= __('PendingAuthRequestsSent') %></h3>
+	<p ng-show="user.isPractitioner">
+		<%= __('ExplainPendingAuthRequestsSent') %>
+		<ul>
+		  <li ng-repeat="auth in pendingPractAuth | orderBy:'level'">
+		    ({{auth.level}}) {{ auth.refId }} [ <%= __('from') %> {{ auth.start | date:'dd-MM-yyyy' }} <%= __('to') %> {{ auth.end | date:'dd-MM-yyyy'}} ]
+		    <button ng-click="renounce(auth.refId)"> <%= __('CancelRequest') %> </button>
+		  </li>
+		</ul>
+	</p>
+	
+	<h3 ng-show="user.isPatient"><%= __('AuthGiven') %></h3>
+	<p ng-show="user.isPatient">
+		<%= __('ExplainAuthGiven') %>
+		<ul>
+		  <li ng-repeat="auth in patientAuth | orderBy:'level'">
+		    ({{auth.level}}) {{ auth.refId }} [ <%= __('from') %> {{ auth.start | date:'dd-MM-yyyy' }} <%= __('to') %> {{ auth.end | date:'dd-MM-yyyy'}} ]
+		    <button ng-click="revoke(auth.refId)"> <%= __('RemoveAccess') %> </button>
+		    
+		  </li>
+		</ul>
+	</p>
+	
+	<h3 ng-show="user.isPatient"><%= __('PendingAuthRequestsReceived') %></h3>
+	<p ng-show="user.isPatient">
+		<%= __('ExplainPendingAuthRequestsReceived') %>
+		<ul>
+		  <li ng-repeat="auth in pendingPatientAuth | orderBy:'level'">
+		    ({{auth.level}}) {{ auth.refId }} [ <%= __('from') %> {{ auth.start | date:'dd-MM-yyyy' }} <%= __('to') %> {{ auth.end | date:'dd-MM-yyyy'}} ]
+		    <button ng-click="approve(auth.refId)"> <%= __('ApproveRequest') %> </button>
+		    <button ng-click="revoke(auth.refId)"> <%= __('RefuseAccess') %> </button>
+		  </li>
+		</ul>
+	</p>
+</section>

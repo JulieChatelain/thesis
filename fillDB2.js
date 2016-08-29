@@ -11,6 +11,7 @@ db.medicationorders.drop();
 db.diagnosticreports.drop();
 db.observations.drop();
 db.resourcehistorys.drop();
+db.accessauthorizations.drop();
 
 var id1 = ObjectId();
 var id2 = ObjectId();
@@ -292,12 +293,12 @@ db.patients.insert([ {
 // ********************************************************************
 
 db.users.insert({
-	reference : [ "Practitioner/" + id4.str ],
-	access : [ {
-		id : "Patient/" + id5.str
-	}, {
-		id : "Patient/" + id6.str
-	} ]
+	reference : {practitioner :  "Practitioner/" + id4.str },
+	email: "user1@mail.com",
+	password: "user1",
+	language: "fr",
+	isPractitioner: true,
+	isPatient: false
 });
 
 // ********************************************************************

@@ -11,20 +11,19 @@ var UserSchema = new mongoose.Schema({
 	// resetPasswordExpires: { type: Date, required: false },
 	// language: { type: String, required: true },
 	created : {
-		type : Date
+		type : Date,
+		required: true
 	},
-	reference : [ {			// refer to a perso and patient and/or practitioner resource
-		type : String,
-		required : false
-	} ], 
-	access : [ {			// list of patients the user has access to, for a determined period
-		id : String,
-		start : Date,
-		end : Date
-	} ], 
-	token : {
-		type : String
-	},
+	reference : {			// refer to a patient and/or practitioner resource
+		patientId : {
+			type : String,
+			required : false
+		},
+		practitionerId : {
+			type : String,
+			required : false
+		}
+	}, 
 	email : {
 		type : String,
 		required : true,

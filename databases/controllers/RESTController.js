@@ -40,16 +40,26 @@ var utils = require('./utils');
  */
 exports.show = function(req, res) {
 	var resource = req.resource;
-	var humanReadable = utils.generateText(resource, res, req.headers.host);
-	resource.text = {
-		status : "generated",
-		div : humanReadable
-	};
-	var json = JSON.stringify(resource, null, 2);
-	res.contentType('application/fhir+json');
-	res.location(resource.id);
-	res.status(200);
-	res.send(json);
+	// First check if they have the authorization	
+	utils.checkAuthorization(req, resource, function(accessLevel){
+		if(accessLevel == 1){
+			resource = utils.getMinimumRead(resource, req.params.model);
+		}
+		if(accessLevel > 0){	
+			var humanReadable = utils.generateText(resource, res, req.headers.host);
+			resource.text = {
+				status : "generated",
+				div : humanReadable
+			};
+			var json = JSON.stringify(resource, null, 2);
+			res.contentType('application/fhir+json');
+			res.location(resource.id);
+			res.status(200);
+			res.send(json);
+		}else{
+			res.sendStatus(403);
+		}
+	}); 
 };
 
 /**
@@ -58,13 +68,17 @@ exports.show = function(req, res) {
 exports.read = function(req, res, id, next) {
 	ResourceHistory.findById(id, function(rhErr, resourceHistory) {
 		if (rhErr) {
+			console.log("Error in RESTController read function: " + rhErr);
 			next(rhErr);
 		}
-		if (resourceHistory !== null) {
+		if (resourceHistory !== null && typeof resourceHistory != 'undefined') {
 			req.resourceHistory = resourceHistory;
 			var vid = resourceHistory.versionCount();
 			req.resourceHistory.findLatest(function(err, resource) {
-
+				if(err != null){
+					console.log("Error in RESTController read function: " + err);
+					next(err);
+				}
 				resource = JSON.parse(JSON.stringify(resource));
 				resource.resourceType = resourceHistory.resourceType;
 				resource.id = resourceHistory.resourceType + "/" + id;
@@ -91,7 +105,7 @@ exports.vread = function(req, res, id, vid, next) {
 		if (rhErr) {
 			next(rhErr);
 		}
-		if (resourceHistory !== null) {
+		if (resourceHistory !== null &&  typeof resourceHistory != 'undefined') {
 			req.resourceHistory = resourceHistory;
 			req.resourceHistory.getVersion(vid, function(err, resource) {
 				resource = JSON.parse(JSON.stringify(resource));
@@ -123,30 +137,38 @@ exports.history = function(req, res, id, next) {
 			res.send(500);
 		}
 		var history = [];
-		if (resourceHistory !== null) {
+		if (resourceHistory !== null &&  typeof resourceHistory != 'undefined') {
 			var i = 1;
 			// Get each version
 			async.forEach(resourceHistory.history, function(hist, callback) {
 				resourceHistory.getVersion(i, function(err, resource) {
-					resource = JSON.parse(JSON.stringify(resource));
-					resource.resourceType = resourceHistory.resourceType;
-					resource.id = resourceHistory.resourceType + "/" + id
-							+ "/_history/" + i;
-					resource.meta = {
-						versionId : i,
-						created : resourceHistory._id.getTimestamp(),
-						lastUpdated : hist.resourceId.getTimestamp(),
-						createdBy : resourceHistory.createdBy,
-						updatedBy : hist.updatedBy
-					};
-					var humanReadable = utils.generateText(resource,res,request.headers.host);
-					resource.text = {
-						status : "generated",
-						div : humanReadable
-					};
-					history.push(resource);
-					i++;
-					callback();
+					// First check if they have the authorization	
+					utils.checkAuthorization(req, resource, function(accessLevel){
+						if(accessLevel == 1){
+							resource = utils.getMinimumRead(resource);
+						}
+						if(accessLevel > 0){
+							resource = JSON.parse(JSON.stringify(resource));
+							resource.resourceType = resourceHistory.resourceType;
+							resource.id = resourceHistory.resourceType + "/" + id
+									+ "/_history/" + i;
+							resource.meta = {
+								versionId : i,
+								created : resourceHistory._id.getTimestamp(),
+								lastUpdated : hist.resourceId.getTimestamp(),
+								createdBy : resourceHistory.createdBy,
+								updatedBy : hist.updatedBy
+							};
+							var humanReadable = utils.generateText(resource,res,request.headers.host);
+							resource.text = {
+								status : "generated",
+								div : humanReadable
+							};
+							history.push(resource);
+						}
+						i++;
+						callback();
+					});
 				});
 			}, function(err) {
 				res.contentType('application/fhir+json');
@@ -179,23 +201,30 @@ exports.create = function(req, res, next) {
 		next('');
 	}
 	else{
-	resource.save(function(err, savedresource) {
-		if (err) {
-			next(err);
-		} else {
-			var resourceHistory = new ResourceHistory({
-				resourceType : modelName
-			});
-			resourceHistory.addVersion(savedresource.id, "");
-			resourceHistory.save(function(rhErr, savedResourceHistory) {
-				if (rhErr) {
-					next(rhErr);
-				} else {
-					next(modelName + "/" + savedResourceHistory.id);
-				}
-			});
-		}
-	});
+		// First check if they have the authorization	
+		//utils.checkAuthorization(req, resource, function(accessLevel){
+			//if(accessLevel > 1){
+				resource.save(function(err, savedresource) {
+					if (err) {
+						next(err);
+					} else {
+						var resourceHistory = new ResourceHistory({
+							resourceType : modelName
+						});
+						resourceHistory.addVersion(savedresource.id, "");
+						resourceHistory.save(function(rhErr, savedResourceHistory) {
+							if (rhErr) {
+								next(rhErr);
+							} else {
+								next(modelName + "/" + savedResourceHistory.id);
+							}
+						});
+					}
+				});
+			//}else{
+			//	next(new Error("Authorization refused"));
+			//}
+		//});
 	}
 };
 
@@ -204,34 +233,77 @@ exports.create = function(req, res, next) {
  */
 exports.update = function(req, res) {
 	var resource = req.resource;
-	resource = _.extend(resource, req.body);
-
-	delete resource._id;
-	delete resource.meta;
-	delete resource.id;
-	delete resource.resourceType;
-
-	resource.save(function(err, savedresource) {
-		if (err) {
-			var response = {
-				resourceType : "OperationOutcome",
-				text : {
-					status : "generated",
-					div : "<div>Error : " + err + "</div>"
-				},
-			};
-			res.status(500).send(response);
-			res.send(500);
-		} else {
-			var resourceHistory = req.resourceHistory;
-			resourceHistory.addVersion(savedresource);
-			resourceHistory.save(function(rhErr, savedResourceHistory) {
-				if (rhErr) {
+	// First check if they have the authorization	
+	var authorization = utils.checkAuthorization(req, resource);
+	utils.checkAuthorization(req, resource, function(accessLevel){
+		if(accessLevel == 3){
+			resource = _.extend(resource, req.body);
+		
+			delete resource._id;
+			delete resource.meta;
+			delete resource.id;
+			delete resource.resourceType;
+			delete resource.accessLevel;
+		
+			resource.save(function(err, savedresource) {
+				if (err) {
 					var response = {
 						resourceType : "OperationOutcome",
 						text : {
 							status : "generated",
-							div : "<div>Error : " + rhErr + "</div>"
+							div : "<div>Error : " + err + "</div>"
+						},
+					};
+					res.status(500).send(response);
+					res.send(500);
+				} else {
+					var resourceHistory = req.resourceHistory;
+					resourceHistory.addVersion(savedresource);
+					resourceHistory.save(function(rhErr, savedResourceHistory) {
+						if (rhErr) {
+							var response = {
+								resourceType : "OperationOutcome",
+								text : {
+									status : "generated",
+									div : "<div>Error : " + rhErr + "</div>"
+								},
+							};
+							res.status(500).send(response);
+						} else {
+							var response = {
+								resourceType : "OperationOutcome",
+								text : {
+									status : "generated",
+									div : "<div>The operation was successful.</div>"
+								}
+							};
+							res.contentType('application/fhir+json');
+							res.status(200).send(response);
+						}
+					});
+				}
+			});
+		}else{
+			res.sendStatus(403);
+		}
+	});
+};
+
+/**
+ * Remove a resource.
+ */
+exports.remove = function(req, res) {
+	var resource = req.resource;
+	// First check if they have the authorization	
+	utils.checkAuthorization(req, resource, function(accessLevel){
+		if(accessLevel == 5){
+			resource.remove(function(err) {
+				if (err) {
+					var response = {
+						resourceType : "OperationOutcome",
+						text : {
+							status : "generated",
+							div : "<div>Error : " + err + "</div>"
 						},
 					};
 					res.status(500).send(response);
@@ -244,38 +316,11 @@ exports.update = function(req, res) {
 						}
 					};
 					res.contentType('application/fhir+json');
-					res.status(200).send(response);
+					res.status(204).send(response);
 				}
 			});
-		}
-	});
-};
-
-/**
- * Remove a resource.
- */
-exports.remove = function(req, res) {
-	var resource = req.resource;
-	resource.remove(function(err) {
-		if (err) {
-			var response = {
-				resourceType : "OperationOutcome",
-				text : {
-					status : "generated",
-					div : "<div>Error : " + err + "</div>"
-				},
-			};
-			res.status(500).send(response);
-		} else {
-			var response = {
-				resourceType : "OperationOutcome",
-				text : {
-					status : "generated",
-					div : "<div>The operation was successful.</div>"
-				}
-			};
-			res.contentType('application/fhir+json');
-			res.status(204).send(response);
+		}else{
+			res.sendStatus(403);
 		}
 	});
 };
@@ -315,30 +360,39 @@ exports.list = function(req, res) {
 			history.findLatest(function(err, resource) {
 
 				var add = utils.compareObjects(conditions, resource);
-
 				if (add) {
-
 					// weird, but you can't add properties to the resource
 					// without this line:
 					resource = JSON.parse(JSON.stringify(resource));
-					resource['resourceType'] = req.params.model;
 					resource['id'] = req.params.model + "/" + history._id;
-					resource['meta'] = {
-						versionId : vid,
-						created : history._id.getTimestamp(),
-						lastUpdated : history.lastUpdatedAt(),
-						createdBy : history.createdBy,
-						published : new Date(Date.now()),
-						updatedBy : history.history[vid - 1].updatedBy
-					};
-					var humanReadable = utils.generateText(resource, res, req.headers.host);
-					resource['text'] = {
-						status : "generated",
-						div : humanReadable
-					};
-					result.push(resource);
+					resource['resourceType'] = req.params.model;
+					utils.checkAuthorization(req, resource, function(accessLevel){						
+						// First check if they have the authorization	
+						if(accessLevel > 0){
+							if(accessLevel == 1){
+								resource = utils.getMinimumRead(resource, req.params.model);
+							}
+							resource['accessLevel'] = accessLevel;
+							resource['meta'] = {
+								versionId : vid,
+								created : history._id.getTimestamp(),
+								lastUpdated : history.lastUpdatedAt(),
+								createdBy : history.createdBy,
+								published : new Date(Date.now()),
+								updatedBy : history.history[vid - 1].updatedBy								
+							};
+							var humanReadable = utils.generateText(resource, res, req.headers.host);
+							resource['text'] = {
+								status : "generated",
+								div : humanReadable
+							};
+							result.push(resource);
+						}			
+						callback();	
+					});	
+				}else{
+					callback();
 				}
-				callback();
 			});
 		}, function(err) {
 			res.contentType('application/fhir+json');

@@ -24,7 +24,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //partials
 app.get('/partials/:view', function(req, res){
-	console.log("Loading partial");
 	var view = req.params.view;
 	res.render('partials/' + view);
 });
@@ -32,7 +31,6 @@ app.get('/partials/:view', function(req, res){
 // index
 
 app.get("/", function(req, res) {
-	console.log("Loading index");
 	res.render('index');
 });
 

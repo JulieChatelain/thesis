@@ -42,7 +42,7 @@ exports.create = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.create(req, res, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
-			console.log("Create : " + obj);
+			console.log("Create error : " + obj);
 			var response = {
 					resourceType : "OperationOutcome",
 					text : {
@@ -75,8 +75,8 @@ exports.read = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
-			console.log("Read : " + obj);
-			res.send(500);
+			console.log("Read error: " + obj);
+			res.sendStatus(500);
 		} else {
 			controller.show(req, res);
 		}
@@ -87,7 +87,7 @@ exports.vread = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.vread(req, res, req.params.id, req.params.vid, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
-			console.log("Vread : " + obj);
+			console.log("Vread error : " + obj);
 			res.send(500);
 		} else {
 			controller.show(req, res);
@@ -104,7 +104,7 @@ exports.update = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
-			console.log("Update : " + obj);
+			console.log("Update error : " + obj);
 			res.send(500);
 		} else {
 			controller.update(req, res);
@@ -116,7 +116,7 @@ exports.del = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
-			console.log("Delete : " + obj);
+			console.log("Delete error : " + obj);
 			res.send(500);
 		} else {
 			controller.remove(req, res);

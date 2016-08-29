@@ -7,6 +7,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	$scope.$log = $log;
 	
     $scope.token = $localStorage.token;
+	$scope.user = Authentication.user;
     
     /**
      * User register data
@@ -46,11 +47,9 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	 */
 	$scope.checkPasswordMatch = function(password1, password2){
 		if(password1.length > 6 && password2.length > 6 && password1 == password2){
-			console.log("matching: " + password1 + " " + password2);
 			$scope.bgCol["background-color"] = "#E1F5FE";
 			$scope.matchingPasswords = true;
 		}else{
-			console.log("not matching: " + password1 + " " + password2);
 			$scope.bgCol["background-color"] = "#f3e5f5";
 			$scope.matchingPasswords = false;
 			
@@ -68,6 +67,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 
         Authentication.login(data, function(res) {
             $localStorage.token = res.data.token;
+        	$scope.user = Authentication.user;
             window.location = "/";   
         }, function() {
             $scope.message = 'Failed to login';
@@ -81,6 +81,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
     	var data = $scope.data;
         Authentication.register(data, function(res) {
             $localStorage.token = res.data.token;
+        	$scope.user = Authentication.user;
             window.location = "/"  
         }, function() {
         	$scope.message = 'Failed to register';
@@ -92,6 +93,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
      */
     $scope.logout = function() {
     	Authentication.logout(function() {
+    		$scope.user = Authentication.user;
             window.location = "/"
         }, function() {
             alert("Failed to logout!");
@@ -106,9 +108,136 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 
      
 }])
-.controller('ProfileCtrl', ['$scope', '$log' , '$location', 'Rest', function($scope, $log, $location, Rest) {
+.controller('ProfileCtrl', ['$scope', '$log' , '$location', 'Rest', 'Authentication', function($scope, $log, $location, Rest, Authentication) {
+	$scope.$log = $log;
+	$scope.user = Authentication.user;
+	// Get practitioner informations
+	if($scope.user.isPractitioner){
+		Rest.resource($scope.user.reference.practitionerId, function(res) {
+			$scope.practitioner = res.data;
+	    }, function() {
+	        $scope.message = 'Failed to load the practitioner profile.';
+	    });
+		
+		// Get authorizations received		
+		var data = {refId: $scope.user.reference.practitionerId};
+		Rest.authorizations(data, function(res) {
+			var accessList = res.data.accessList.access;
+			var iMax = accessList.length;
+			$scope.practAuth = []
+			$scope.pendingPractAuth = []
+			for (var i = 0; i < iMax; i++) 
+				if(accessList[i].isApproved)
+					$scope.practAuth.push(accessList[i]);	
+				else
+					$scope.pendingPractAuth.push(accessList[i]);	
+	    }, function() {
+	        $scope.message = 'Failed to load the practitioner authorizations.';
+	    });
+	    
+	}
 
-     
+	// Get patient informations
+	if($scope.user.isPatient){
+		Rest.resource($scope.user.reference.patientId, function(res) {
+			$scope.patient = res.data;
+	    }, function() {
+	        $scope.message = 'Failed to load the patient profile.';
+	    });
+		// Get authorizations given
+		var data = {refId: $scope.user.reference.patientId};
+		Rest.authorizations(data, function(res) {
+			var accessList = res.data.accessList.access;
+			$scope.patientAuth = []
+			$scope.pendingPatientAuth = []
+			var iMax = accessList.length;
+			for (var i = 0; i < iMax; i++) 
+				if(accessList[i].isApproved)
+					$scope.patientAuth.push(accessList[i]);	
+				else
+					$scope.pendingPatientAuth.push(accessList[i]);	
+	    }, function() {
+	        $scope.message = 'Failed to load the patient authorizations.';
+	    });
+		
+	}
+	
+	// Patient Revoke an authorization	
+	$scope.revoke = function(authId){
+		data = {
+				doctorId : authId,
+				patientId : $scope.user.reference.patientId
+		};
+		Rest.removeAccess(data, function(res) {
+			$scope.message = res.data.message;
+			reloadAuth();
+	    }, function() {
+	        $scope.message = res.data.message;
+	    });
+	};
+	
+
+	// Practitioner renounce an authorization	
+	$scope.renounce = function(authId){
+		data = {
+				doctorId : $scope.user.reference.practitionerId,
+				patientId : authId
+		};
+		Rest.removeAccess(data, function(res) {
+			$scope.message = res.data.message;
+			reloadAuth();
+	    }, function() {
+	        $scope.message = res.data.message;
+	    });
+	};
+	
+	// Approve an authorization
+	$scope.approve = function(pId){
+		console.log("pId : " + pId);
+		var data =  {
+			practitionerId : pId
+		};
+		Rest.approveAccess(data, function(res) {
+			$scope.message = res.data.message;
+			reloadAuth();
+	    }, function() {
+	        $scope.message = res.data.message;
+	    });
+	};
+	
+	var reloadAuth = function(){
+		// Get authorizations given
+		var data = {refId: $scope.user.reference.patientId};
+		Rest.authorizations(data, function(res) {
+			var accessList = res.data.accessList.access;
+			$scope.patientAuth = []
+			$scope.pendingPatientAuth = []
+			var iMax = accessList.length;
+			for (var i = 0; i < iMax; i++) 
+				if(accessList[i].isApproved)
+					$scope.patientAuth.push(accessList[i]);	
+				else
+					$scope.pendingPatientAuth.push(accessList[i]);	
+	    }, function() {
+	        $scope.message = 'Failed to load the patient authorizations.';
+	    });
+		// Get authorizations received		
+		data = {refId: $scope.user.reference.practitionerId};
+		Rest.authorizations(data, function(res) {
+			var accessList = res.data.accessList.access;
+			var iMax = accessList.length;
+			$scope.practAuth = []
+			$scope.pendingPractAuth = []
+			for (var i = 0; i < iMax; i++) 
+				if(accessList[i].isApproved)
+					$scope.practAuth.push(accessList[i]);	
+				else
+					$scope.pendingPractAuth.push(accessList[i]);	
+	    }, function() {
+	        $scope.message = 'Failed to load the practitioner authorizations.';
+	    });
+	};
+	
 }])
 .controller('ParametersCtrl', ['$scope', '$log' , '$location', 'Rest', function($scope, $log, $location, Rest) {
 
@@ -117,19 +246,46 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 .controller('PatientsCtrl', ['$scope', '$log', '$location', 'Rest', function($scope, $log, $location, Rest) {
 	$scope.$log = $log;
 	$scope.patients = [];
-	$scope.nameFilter = '';
-	
+	$scope.myPatients = [];
+	$scope.patientsNameFilter = '';
+	$scope.myPatientsNameFilter = '';
 
 	/** -----------------------------------------------------------------------
-	 * Get the patient list
+	 * Get the patients list
 	 *  -----------------------------------------------------------------------
 	 */
 	Rest.patients(function(res) {
-		$scope.patients = res.data;		
+		$scope.patients = res.data;	
+		 var myPatients = [];
+		// Find the doctor's own patients in the list.
+		// It's those with an access level higher than 2.
+		var iMax = $scope.patients.length;
+		for (var i = 0; i < iMax; i++) {
+			if($scope.patients[i].accessLevel > 2){
+				myPatients.push($scope.patients[i]);	
+			}
+		}
+		$scope.myPatients = myPatients;
+		
     }, function() {
         $scope.message = 'Failed to load the patients list.';
     });
 
+	/** -----------------------------------------------------------------------
+	 * Request access to a patient
+	 *  -----------------------------------------------------------------------
+	 */
+	$scope.requestAccess = function(patient){
+		var data = {
+				patientId : patient,
+				accessLevel : 5
+				};
+		Rest.requestAccess(data, function(res) {
+			$scope.message = res.data.message;
+	    }, function() {
+	        $scope.message = 'Failed to load the practitioner authorizations.';
+	    });
+	};
 	/** -----------------------------------------------------------------------
 	 * Compute the age from the birthday
 	 *  -----------------------------------------------------------------------
@@ -168,10 +324,17 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	 *  -----------------------------------------------------------------------
 	 */
 	Rest.patients(function(res) {
-		$scope.patients = res.data;
-
+		var result = res.data;
+		$scope.patients = [];
+		// Find the doctor's own patients in the list.
+		// It's those with an access level higher than 2.
+		var iMax = result.length;
+		for (var i = 0; i < iMax; i++) 
+			if(result[i].accessLevel > 1)
+				$scope.patients.push(result[i]);	
+		
 		// Select a patient
-		if($routeParams != 'undefined' && $routeParams.id != 'undefined'){
+		if(typeof $routeParams != 'undefined' && typeof $routeParams.id != 'undefined'){
 			$scope.patientId = 'Patient/' + $routeParams.id;
 			$scope.selectPatient($scope.patientId);
 		}
