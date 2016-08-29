@@ -49,5 +49,8 @@
 	"ForDoctor": "ForDoctor",
 	"Specialty": "Specialty",
 	"JobTel": "JobTel",
-	"JobPlace": "JobPlace"
+	"JobPlace": "JobPlace",
+	"NewEncounter": "NewEncounter",
+	"MyEHR": "MyEHR",
+	"Logout": "Logout"
 }

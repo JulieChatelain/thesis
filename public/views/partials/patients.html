@@ -5,7 +5,7 @@
 	<input type="text" ng-model="myPatientNameFilter">
 	<ul>
 	  <li ng-repeat="myPatient in myPatients | patientFilter : myPatientNameFilter">
-	    <a href="/ehr/#/{{myPatient.id}}">{{ myPatient.name.family[0].toUpperCase() }} {{ myPatient.name.given[0] }}
+	    <a ng-href="#/ehr/{{myPatient.id}}">{{ myPatient.name.family[0].toUpperCase() }} {{ myPatient.name.given[0] }}
 		({{ calculateAge(myPatient.birthDate)}} ans)</a><br>
 	  </li>
 	</ul>
@@ -26,7 +26,7 @@
 	<input type="text" ng-model="patientsNameFilter">
 	<ul>
 	  <li ng-repeat="patient in patients | patientFilter : patientsNameFilter">
-	    <a href="/ehr/#/{{patient.id}}">{{ patient.name.family[0].toUpperCase() }} {{ patient.name.given[0] }}
+	    <a ng-href="#/ehr/{{patient.id}}">{{ patient.name.family[0].toUpperCase() }} {{ patient.name.given[0] }}
 		({{ calculateAge(patient.birthDate)}} ans)</a> <button ng-click="requestAccess(patient.id)" ng-show="patient.accessLevel < 2"><%= __('RequestAccess') %></button><br>
 	  </li>
 	</ul>

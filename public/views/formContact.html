@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html ng-app="formContact" ng-controller="formContactCtrl" ng-init="
+unfoldImg=['unfold.png','fold.png'];
+show=['none','visible'];id=[1,0,0,0,0,0,0];
+newDrug=0;">
+<!-- 
+	id indicates which section is shown in the center.
+	The possible sections are: 
+		Patient data, 
+		Current treatment form, 
+		Insuline & Glyceamia form,
+		General examination form,
+		Physical examination form,
+		Eventual complication form,
+		Conclusion form.
+	The value 1 indicate that the section is displayed.
+ -->
+<head>
+	<meta charset="utf-8" ></code>
+  	<title>Nouvelle consultation</title>
+  	<link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<!-- <script src="/node_modules/angular/angular.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+<body>
+
+<!--  ================================================================== -->
+<!--  ============================ MENU ================================ -->
+<!--  ================================================================== -->
+<div id="horizontal">
+
+<nav>
+	<h3 class="menuTitle">Consultations 
+	<a href=""><img src="/img/add.png" alt="Ajouter un médicament" ng-click="addNew(drugsDiabetes,newItem('drug'))"/></a> 
+	</h3>
+	<div class="newEncounter">
+	{{currentDate | date:'dd-MM-yyyy'}}<br />
+	<span class="small">Dr. YYYY XXXXX (Diabétologue)</span>
+    <ul class="encounterMenu">
+        <li ng-click="id = [0,1,0,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[1]]}}" />
+	        <a href="">Traitement en cours</a>
+        </li>
+        <li ng-click="id = [0,0,1,0,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[2]]}}" />
+	        <a href="">Insuline & glycémie</a>
+        </li>
+        <li ng-click="id = [0,0,0,1,0,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[3]]}}" />
+	        <a href="">Interrogatoire général</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,1,0,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[4]]}}" />
+	        <a href="">Examen clinique</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,1,0];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[5]]}}" />
+	        <a href="">Complications éventuelles</a>
+        </li>
+        <li ng-click="id = [0,0,0,0,0,0,1];">
+	        <img src="/img/eye.png" alt="Section Courante" style="display:{{show[id[6]]}}" />
+	        <a href="">Conclusion</a>
+        </li>
+    </ul>    
+	</div>
+	
+	<div class="encounter">
+		1-01-2016<br />
+		<span class="small">Dr. YYYY XXXXX (Diabétologue)</span>
+	</div>
+	
+	<div class="encounterBlocked">
+		9-02-2015<br />
+		<span class="small">Dr. ZZZZZ (Généraliste)</span>
+	</div>
+	
+	<div class="encounter">
+		1-01-2015<br />
+		<span class="small">Dr. YYYY XXXXX (Diabétologue)</span>
+	</div>
+	
+    <h3>Raports</h3>
+    <h3>Protocols</h3>
+</nav>
+
+
+<!--  ================================================================== -->
+<!--  =================== CENTRAL SECTION ============================== -->
+<!--  ================================================================== -->
+
+
+<!--  ==================== Patient Data ================================ -->
+
+<section id="contents">
+	<section id="patient">
+		<div id="patientSummary">  
+			<a href=""><img src="/img/{{unfoldImg[id[0]]}}" alt="Developer" ng-click="id[0] = (id[0]+1)%2;" /></a>
+			<img src="/img/avatar/male1.png" alt="Photo du patient" />
+			<div class="patientInfo">{{name.desc}} {{familyName.desc | uppercase}} </div>
+			<div class="patientInfo"> ({{age}} ans) </div>
+			<div class="patientInfo"> 
+			Profession : <span ng-hide="job.editing" ng-click="job.editing=true">{{job.desc}}</span> 
+			<input type="text" ng-model="job.desc" ng-show="job.editing" ng-blur="job.editing=false" autofocus/>
+			</div>
+			<div class="patientInfo"> 
+			<span ng-hide="tel.editing" ng-click="tel.editing=true">Tel : {{tel.desc}}</span>
+			<input type="tel" ng-model="tel.desc" ng-show="tel.editing" ng-blur="tel.editing=false" autofocus></code>
+			</div>
+			<div class="patientInfo"> Diabétique depuis {{diabSince}} ans</div>
+		</div>
+		<div id="patientData" style="display:{{show[id[0]]}}" >
+			<div class="dataCard" ng-init="showCard1=true;">
+				<p ng-click="showCard1=(showCard1==false)"><strong>Histoire du diabète:</strong></p>
+				<ul class="cardContent" ng-show="showCard1">	
+					<li><strong>Date du diagnostic :</strong> <span>{{dateDiag | date:'dd-MM-yyyy'}}</span> </li>
+					<li><strong>Symptômes :</strong> 
+					<span ng-hide="symptoms.editing" ng-click="symptoms.editing=true">{{symptoms.desc}}</span>	
+					<textarea ng-model="symptoms.desc" ng-show="symptoms.editing" ng-blur="symptoms.editing=false" autofocus></textarea>
+					</li>
+					<li><strong>Durée du ou des symptômes:</strong> 
+					<span ng-hide="symptomsTime.editing" ng-click="symptomsTime.editing=true">{{symptomsTime.desc}}</span>
+					<input type="text" ng-model="symptomsTime.desc" ng-show="symptomsTime.editing" ng-blur="symptomsTime.editing=false" autofocus/>
+					</li>
+					<li><strong>Hospitalisation:</strong> 
+					<span ng-hide="hospitalisation.editing" ng-click="hospitalisation.editing=true">
+					{{hospitalisation.desc}} {{hospitalisation.where}} {{hospitalisation.why}}</span>
+					
+					<span ng-show="hospitalisation.editing" ng-blur="hospitalisation.editing=false">
+					<input type="radio" ng-model="hospitalisation.desc" value="Oui" autofocus>Oui
+					<input type="radio" ng-model="hospitalisation.desc" value="Non">Non
+					<label ng-show="hospitalisation.desc=='Oui'">Où? </label>
+					<input ng-show="hospitalisation.desc=='Oui'" type="text" ng-model="hospitalisation.where"/> 
+					<label ng-show="hospitalisation.desc=='Oui'">Pourquoi? </label>
+					<input ng-show="hospitalisation.desc=='Oui'" type="text" ng-model="hospitalisation.why"/>
+					</span>				
+					</li>
+					<li><strong>Traitement depuis le diagnostic et à ce jour :</strong> 
+					<span ng-hide="treatmentSince.editing" ng-click="treatmentSince.editing=true">{{treatmentSince.desc}}</span>	
+					<textarea ng-model="treatmentSince.desc" ng-show="treatmentSince.editing" ng-blur="treatmentSince.editing=false" autofocus></textarea>
+					</li>
+					<li><strong>Qualité du contrôle glycémique :</strong> 
+					<span ng-hide="qualityGlycControle.editing" ng-click="qualityGlycControle.editing=true">{{qualityGlycControle.desc}}</span>
+					<textarea ng-model="qualityGlycControle.desc" ng-show="qualityGlycControle.editing" ng-blur="qualityGlycControle.editing=false" autofocus></textarea>
+					</li>
+					<li><strong>Correction des hypoglycémies :</strong> 
+					<span ng-hide="hypoCorrection.editing" ng-click="hypoCorrection.editing=true">{{hypoCorrection.desc}}</span>
+					<input type="text" ng-model="hypoCorrection.desc" ng-show="hypoCorrection.editing" ng-blur="hypoCorrection.editing=false" autofocus/>
+					</li>
+					<li><strong>Horaire des hypoglycémies :</strong> 
+					<span ng-hide="hypoSchedule.editing" ng-click="hypoSchedule.editing=true">{{hypoSchedule.desc}}</span>
+					<input type="text" ng-model="hypoSchedule.desc" ng-show="hypoSchedule.editing" ng-blur="hypoSchedule.editing=false" autofocus/>
+					</li>
+				</ul>	
+			</div>
+			<div class="dataCard" ng-init="showCard2=true">
+				<p ng-click="showCard2=(showCard2==false)"><strong>Antécédents principaux:</strong></p>
+				<ul class="cardContent" ng-show="showCard2">
+				<li ng-repeat="hist in familyHistory" ng-show="hist.main"><input type="checkbox" ng-model="hist.main"/>{{hist.desc}}</li>
+				</ul>
+			</div>
+			<div class="dataCard" ng-init="showCard3=false">
+				<p ng-click="showCard3=(showCard3==false)"><strong>Antécédents personnels:</strong></p>
+				<p class="cardContent" ng-show="showCard3"></p>
+			</div>
+			<div class="dataCard" ng-init="showCard4=false">
+				<p ng-click="showCard4=(showCard4==false)"><strong>Antécédents familiaux:</strong></p>
+				<ul class="cardContent" ng-show="showCard4">
+				<li ng-repeat="hist in familyHistory"><input type="checkbox" ng-model="hist.main"/>{{hist.desc}}</li>
+				</ul>
+			</div>
+			<div class="dataCard" ng-init="showCard5=false">
+				<p ng-click="showCard5=(showCard5==false)"><strong>Prises de sang précédentes:</strong></p>
+				<p class="cardContent" ng-show="showCard5"></p>
+			</div>
+			<div class="dataCard" ng-init="showCard6=false">
+				<p ng-click="showCard6=(showCard6==false)"><strong>Bilan des complications:</strong></p>
+				<p class="cardContent" ng-show="showCard6"></p>
+			</div>
+			<div class="dataCard" ng-init="showCard7=false">
+				<p ng-click="showCard7=(showCard7==false)"><strong>Facteurs de risques:</strong></p>
+				<p class="cardContent" ng-show="showCard7"></p>
+			</div>
+			<div class="dataCard" ng-init="showCard8=false">
+				<p ng-click="showCard8=(showCard8==false)"><strong>Conditions:</strong></p>
+				<p class="cardContent" ng-show="showCard8"></p>
+			</div>
+		</div>
+	</section>
+
+
+<!--  ================ New contact form pieces =========================== -->
+
+	<section id="formContact">
+	
+		<!--  ================ Current Treatment ===================== -->
+		
+		<div class="formPiece" style="display:{{show[id[1]]}}">
+			<h2>Traitements en cours</h2>
+			<fieldset>
+			<table class="drugTable">
+				<caption>Traitements aigus (diabète)</caption>
+			   <tr>
+			       <th>Quantité</th>
+			       <th>Unité</th>
+			       <th>Médicament</th>
+			       <th>Fréquence</th>
+			       <th>Durée</th>
+			       <th>Ajouté</th>
+			       <th>Modifié</th>
+			       <th></th>
+			   </tr>
+			
+			   <tr ng-repeat="drug in drugsDiabetes">
+		            <td ng-click="edit(drug,0)">
+		                <span ng-hide="drug.editing[0]">{{drug.quantity}}</span>
+		                <input type="number" step="0.01" min="0"
+		                ng-show="drug.editing[0]" ng-model="drug.quantity" ng-blur="done(drug,0)" autofocus />
+		            </td>
+		            <td ng-click="edit(drug,1)">
+		                <span ng-hide="drug.editing[1]">{{drug.unit}}</span>
+		                <input list="unitList" ng-show="drug.editing[1]" ng-model="drug.unit" ng-blur="done(drug,1)" autofocus />
+		                <datalist id="unitList">
+		                <option ng-repeat="unit in units" value="{{unit}}"/>
+		                </datalist>
+		            </td>
+		            <td ng-click="edit(drug,2)">
+		                <span ng-hide="drug.editing[2]">{{drug.name}}</span>
+		                <input list="drugList" ng-show="drug.editing[2]" ng-model="drug.name" ng-blur="done(drug,2)" autofocus />
+		            	<datalist id="drugList">
+		                <option ng-repeat="drugName in drugsNames" value="{{drugName}}"/>
+		                </datalist>
+		            </td>
+		            <td ng-click="edit(drug,3)">
+		                <span ng-hide="drug.editing[3]">{{drug.freq}}</span>
+		                <input list="freqList" ng-show="drug.editing[3]" ng-model="drug.freq" ng-blur="done(drug,3)" autofocus />
+		            	<datalist id="freqList">
+		                <option ng-repeat="freq in frequencies" value="{{freq}}"/>
+		                </datalist>
+		            </td>
+		            <td ng-click="edit(drug,4)">
+		                <span ng-hide="drug.editing[4]" >{{drug.time}}</span>
+		                <input list="timeList" ng-show="drug.editing[4]" ng-model="drug.time" ng-blur="done(drug,4)" autofocus />
+		            	<datalist id="timeList">
+		                <option ng-repeat="time in times" value="{{time}}"/>
+		                </datalist>
+		            </td>
+		            <td>Ajouté le {{drug.dateAdded | date:'dd-MM-yyyy'}} par {{drug.addedBy}}</td>
+		            <td><span ng-if="drug.modified">Modifié le {{drug.dateModified | date:'dd-MM-yyyy'}} par {{drug.modifiedBy}}</span></td>
+		            <td><a href="#"><img src="/img/mini_delete.png" alt="Supprimer" ng-click="del(drugsDiabetes,drug)"/></a></td>
+		       </tr>	
+			</table>
+			<a href=""><img src="/img/add.png" alt="Ajouter un médicament" ng-click="addNew(drugsDiabetes,newItem('drug'))"/></a>
+			</fieldset>
+			<fieldset>
+			<table class="drugTable">
+				<caption>Traitements aigus (Autres)</caption>
+			   <tr>
+			       <th>Quantité</th>
+			       <th>Unité</th>
+			       <th>Médicament</th>
+			       <th>Fréquence</th>
+			       <th>Durée</th>
+			       <th>Ajouté</th>
+			       <th>Modifié</th>
+			       <th></th>
+			   </tr>
+			
+			   <tr ng-repeat="drug in drugsOther">
+		            <td ng-click="edit(drug,0)">
+		                <span ng-hide="drug.editing[0]">{{drug.quantity}}</span>
+		                <input type="number" step="0.01" min="0"
+		                ng-show="drug.editing[0]" ng-model="drug.quantity" ng-blur="done(drug,0)" autofocus />
+		            </td>
+		            <td ng-click="edit(drug,1)">
+		                <span ng-hide="drug.editing[1]">{{drug.unit}}</span>
+		                <input list="unitList" ng-show="drug.editing[1]" ng-model="drug.unit" ng-blur="done(drug,1)" autofocus />
+		                <datalist id="unitList">
+		                <option ng-repeat="unit in units" value="{{unit}}"/>
+		                </datalist>
+		            </td>
+		            <td ng-click="edit(drug,2)">
+		                <span ng-hide="drug.editing[2]">{{drug.name}}</span>
+		                <input list="drugList" ng-show="drug.editing[2]" ng-model="drug.name" ng-blur="done(drug,2)" autofocus />
+		            	<datalist id="drugList">
+		                <option ng-repeat="drugName in drugsNames" value="{{drugName}}"/>
+		                </datalist>
+		            </td>
+		            <td ng-click="edit(drug,3)">
+		                <span ng-hide="drug.editing[3]">{{drug.freq}}</span>
+		                <input list="freqList" ng-show="drug.editing[3]" ng-model="drug.freq" ng-blur="done(drug,3)" autofocus />
+		            	<datalist id="freqList">
+		                <option ng-repeat="freq in frequencies" value="{{freq}}"/>
+		                </datalist>
+		            </td>
+		            <td ng-click="edit(drug,4)">
+		                <span ng-hide="drug.editing[4]" >{{drug.time}}</span>
+		                <input list="timeList" ng-show="drug.editing[4]" ng-model="drug.time" ng-blur="done(drug,4)" autofocus />
+		            	<datalist id="timeList">
+		                <option ng-repeat="time in times" value="{{time}}"/>
+		                </datalist>
+		            </td>
+		            <td>Ajouté le {{drug.dateAdded | date:'dd-MM-yyyy'}} par {{drug.addedBy}}</td>
+		            <td><span ng-if="drug.modified">Modifié le {{drug.dateModified | date:'dd-MM-yyyy'}} par {{drug.modifiedBy}}</span></td>
+		            <td><a href="#"><img src="/img/mini_delete.png" alt="Supprimer" ng-click="del(drugsOther,drug)"/></a></td>
+		       </tr>	
+			</table>
+			<a href=""><img src="/img/add.png" alt="Ajouter un médicament" ng-click="addNew(drugsOther,newItem('drug'))"/></a>
+			</fieldset>
+			<fieldset>
+			<table>
+				<caption>Traitements non-médicamenteux</caption>
+				<tr ng-repeat="treatment in otherTreatments">
+		            <td ng-click="edit(treatment,-1)">
+		                <span ng-hide="treatment.editing">{{treatment.desc}}</span>
+		                <input ng-show="treatment.editing" ng-model="treatment.desc" ng-blur="done(treatment,-1)" autofocus />
+		            </td>
+		            <td>Ajouté le {{treatment.dateAdded | date:'dd-MM-yyyy'}} par {{treatment.addedBy}}</td>
+		            <td><span ng-if="treatment.modified">Modifié le {{treatment.dateModified | date:'dd-MM-yyyy'}} par {{treatment.modifiedBy}}</span></td>
+		            <td><a href="#"><img src="/img/mini_delete.png" alt="Supprimer" ng-click="del(otherTreatments,treatment)"/></a></td>
+		       </tr>	
+			</table>
+			<a href=""><img src="/img/add.png" alt="Ajouter un traitement" ng-click="addNew(otherTreatments,newItem('treatment'))"/></a>
+			</fieldset>
+		</div>
+		
+		<!--  ================ Insuline and Glycaemia ===================== -->
+		
+		<div id="insulinAndGlycaemia" style="display:{{show[id[2]]}}" 
+			ng-init="newGlyc=60;threshold=30;nbHypos=0;nbHypers=0">
+			<h2>Insuline & Glycémies</h2>
+			<fieldset>
+			<table>
+				<caption>Contrôles glycémiques aux précédentes consultations</caption>
+				<tr>
+					<th>Date</th>
+					<th>HbA1c</th>
+				</tr>
+				<tr ng-repeat="glyc in glycChecks | orderBy:'date'">
+					<td>{{glyc.date | date:'dd-MM-yyyy HH:mm'}}</td>
+					<td>{{glyc.HbA1c}} mmol/mol</td>
+				</tr>
+			</table>
+			<label for="newGlycControl">Nouveau contrôle glycémique:</label>
+			<input ng-model="newGlyc" id="newGlycControl" type="number" step="1" min="5" max="300" />
+			mmol/mol
+			<button ng-click="addNew(glycChecks,newItem('glycControl',newGlyc))">Ajouter</button>
+			</fieldset>
+			<fieldset>
+			<p class="alignLeft">
+				<label for="subjectiveFeelings">Ressenti subjectif:</label><br /> 
+				<textarea id="subjectiveFeelings" rows="2"></textarea><br />
+			</fieldset>
+			<fieldset>
+			<table>
+				<tr>
+					<th></th>
+					<th>Matin</th>
+					<th>Midi</th>
+					<th>Souper</th>
+					<th>Coucher</th>					
+				</tr>
+				<tr>
+					<td>Insuline</td>
+					<td ng-repeat="insuline in insulines ">
+		                <span  ng-click="edit(insuline,0)" ng-hide="insuline.editing[0]" >{{insuline.time}} : </span>
+		                <input type="time" ng-show="insuline.editing[0]" ng-model="insuline.time" ng-blur="done(insuline,0)" />		
+		                                
+		                <span  ng-click="edit(insuline,1)" ng-hide="insuline.editing[1]" >{{insuline.quantity}} </span>
+		                <input type="number" step="0.1" ng-show="insuline.editing[1]" ng-model="insuline.quantity" ng-blur="done(insuline,1)" />
+		                
+		                <span  ng-click="edit(insuline,2)" ng-hide="insuline.editing[2]" > {{insuline.type}}</span>
+		                <select ng-show="insuline.editing[2]" ng-model="insuline.type" ng-blur="done(insuline,2)" >
+		                	<option value="Courte (2-5h)">Courte (2-5h)
+		                	<option value="Rapide (5-7h)">Rapide (5-7h)
+		                	<option value="Mixte (10-12h)">Mixte (10-12h)
+		                	<option value="Intermédiaire (10-12h)">Intermédiaire (10-12h)
+		                	<option value="Lente (24h)">Lente (24h)	                	
+		                </select>
+			        </td>
+		        </tr>
+				<tr>
+					<td>Glycémie<br />(valeurs d'autocontrôle)</td>
+					<td ng-repeat="control in autoControls " ng-click="edit(control)">
+		                <span ng-hide="control.editing" >{{control.time}} : {{control.value}}</span>
+		                <input type="time" ng-show="control.editing" ng-model="control.time" ng-blur="done(control)" />
+		                <input type="number" step="0.1" ng-show="control.editing" ng-model="control.value" ng-blur="done(control)" />
+		            </td>
+		        </tr>
+			</table>
+			Insuline, dose de correction: 
+			<input type="time" />
+            <select >
+            	<option value="Lente">Lente
+            	<option value="Intermédiaire">Intermédiaire
+            	<option value="Rapide">Rapide
+            	<option value="Rapide & Lente">Rapide & Lente
+            	<option value="Rapide & Intermédiaire">Rapide & Intermédiaire		                	
+            </select>
+            </fieldset>
+            <fieldset>
+            <p>
+				<strong>Hypoglycémie(s):</strong> 
+				<select ng-model="nbHypos">
+					<option value="0">0
+				    <option ng-repeat="n in [] | range:'15'" value="n">{{n}}
+				    <option value="+15">+15
+				</select>
+				<select ng-model="severityHypos">
+				    <option value="light">Légère	
+				    <option value="medium">Moyenne
+				    <option value="serious">Grave	
+				    <option value="various">Variées	  	      
+				</select>
+				<select ng-model="whenHypos">
+				    <option value="beforeBreakfast">Avant le déjeuner
+				    <option value="beforeDiner">Avant midi
+				    <option value="midday">A midi
+				    <option value="afternoon">Après-midi	
+				    <option value="eveningBeforeSupper">Le soir avant manger	
+				    <option value="eveningAfterSupper">Le soir après manger			
+				    <option value="duringTheNight">Durant la nuit		    		
+				    <option value="randomly">Aléatoirement pendant la journée		    
+				</select><br />
+				<label for="explanation">Explication:</label>
+				<textarea id="explanation" rows="2"></textarea><br />
+				Correction: 
+				<input type="radio" ng-model="hypoCorrection" value="auto">Sois-même
+				<input type="radio" ng-model="hypoCorrection" value="externalHelp">Aide extérieure<br />
+				<textarea rows="2" placeholder="Corrigé avec ..."></textarea><br />
+				<label for="threshold">Seuil de perception: </label>
+				<input type="number" step="10" ng-model="threshold"/><br />	<br />		
+			</p>
+			</fieldset>
+			<fieldset>
+			<p>
+				<strong>Hyperglycémie(s):</strong> 
+				<select ng-model="nbHypers">
+					<option value="0">0
+				    <option ng-repeat="n in [] | range:'15'" value="n">{{n}}
+				    <option value="+15">+15
+				</select>
+				<select ng-model="severityHypers">
+				    <option value="light">Légère	
+				    <option value="medium">Moyenne
+				    <option value="serious">Grave	
+				    <option value="various">Variées	  	      
+				</select>
+				<select ng-model="whenHypers">
+				    <option value="beforeBreakfast">Avant le déjeuner
+				    <option value="beforeDiner">Avant midi
+				    <option value="midday">A midi
+				    <option value="afternoon">Après-midi	
+				    <option value="eveningBeforeSupper">Le soir avant manger	
+				    <option value="eveningAfterSupper">Le soir après manger			
+				    <option value="duringTheNight">Durant la nuit		    		
+				    <option value="randomly">Aléatoirement pendant la journée		    
+				</select><br />
+				<label for="explanation">Explication:</label>
+				<textarea id="explanation" rows="2"></textarea><br />
+				Correction: 
+				<input type="radio" ng-model="hyperCorrection" value="auto">Sois-même
+				<input type="radio" ng-model="hyperCorrection" value="externalHelp">Aide extérieure<br />
+				<textarea rows="2" placeholder="Corrigé avec ..."></textarea><br />
+				<label for="threshold">Seuil de perception: </label>
+				<input type="number" step="10" ng-model="threshold"/><br />				
+			</p>
+			</fieldset>
+		</div>
+		
+		<!--  ===================== General Exam ========================= -->
+		
+		<div id="generalExam" style="display:{{show[id[3]]}}">
+			<h2>Interrogatoire général</h2>
+			<fieldset>
+			<table>
+				<caption>Activité physique</caption>
+				<tr ng-repeat="activity in activities" >
+		            <td ng-click="edit(activity,-1)">
+		                <span ng-hide="activity.editing">{{activity.desc}}</span>
+		                <input ng-show="activity.editing" ng-model="activity.desc" ng-blur="done(activity,-1)" autofocus />
+		            </td>
+		            <td><a href="#"><img src="/img/mini_delete.png" alt="Supprimer" ng-click="del(activities,activity)"/></a></td>
+		       </tr>	
+			</table>
+			<a href=""><img src="/img/add.png" alt="Ajouter une activité" ng-click="addNew(activities,newItem('treatment'))"/></a>
+			</fieldset>
+			<fieldset>
+			<p>
+				<label for="Alimentation">Alimentation:</label>
+				<textarea id="alimentation" rows="2" placeholder="Mange toujours beaucoup et très gras."></textarea><br />
+				Evénements particuliers:
+				<textarea rows="2" placeholder="Trop mangé pendant les vacances..."></textarea><br />
+				Coeur:
+				<textarea rows="2" placeholder="palpitations ? essoufflements ? douleurs de poitrine ? etc…"></textarea><br />
+				Poumons:
+				<textarea rows="2" placeholder="asthme ? bronchites ? tabac : toujours ou arrêt ? etc…"></textarea><br />
+				Digestion:
+				<textarea rows="2" placeholder="Normale? Anormale?"></textarea><br />
+				Appareil génito-urinaire:
+				<textarea rows="2"></textarea><br />
+				Articulations:
+				<textarea rows="2" placeholder="capsulites rétractiles ? etc…"></textarea><br />
+			</p>	
+			</fieldset>
+		</div>
+		
+		<!--  ===================== Physical Exam ======================== -->
+		
+		<div id="physicalExam" style="display:{{show[id[4]]}}" ng-init="weight=70">
+			<h2>Examen clinique</h2>
+			<fieldset>
+			<p>
+				<label class="align">Poids:</label> <input type="number" step="1" ng-model="weight"/> kg (Delta: {{(weight + 70) / 2}})<br />
+				<label class="align">Tour de taille:</label> <input type="number" step="1" value="100"/> cm<br />
+				<strong>Examen cardio-pulmonaire:</label></strong><br />
+				<label>Oscultation:</label> 
+				<textarea rows="2" ></textarea><br />
+				Tension artérielle: <label>Debout:</label> <input type="number" step="0.1" value="12.0"/> 
+				<label>Couché:</label> <input type="number" step="0.1" value="12.0"/><br />
+				<label><strong>Examen digestif:</strong></label>
+				<textarea rows="2" placeholder="palpation normale ? anormale ? "></textarea><br />
+				 
+			</p>
+			</fieldset>
+			<fieldset>
+			<table>
+				<caption>Zones de lipodystrophies</caption>
+				<tr ng-repeat="zone in lipoZones">
+		            <td ng-click="edit(zone,0)">
+		                <span ng-hide="zone.editing[0]">{{zone.number}}</span>
+		                <input type="number" step="1" 
+		                ng-show="zone.editing[0]" ng-model="zone.number" ng-blur="done(zone,0)" autofocus />
+		            </td>
+		            <td ng-click="edit(zone,1)">
+		                <span ng-hide="zone.editing[1]">{{zone.location}}</span>
+		                <select ng-show="zone.editing[1]" ng-model="zone.location" ng-blur="done(zone,1)" autofocus>
+						    <option value="Abdomen (à gauche)">Abdomen (à gauche)
+						    <option value="Abdomen (à droite)">Abdomen (à droite)
+						    <option value="Cuisse gauche">Cuisse gauche
+						    <option value="Cuisse droite">Cuisse droite	
+						    <option value="Fesse gauche">Fesse gauche	
+						    <option value="Fesse droite">Fesse droite		    
+						</select>
+		            </td>
+		            <td><a href="#"><img src="/img/mini_delete.png" alt="Supprimer" ng-click="del(lipoZones,zone)"/></a></td>
+		       </tr>	
+			</table>
+			<a href=""><img src="/img/add.png" alt="Ajouter une zone" ng-click="addNew(lipoZones,newItem('zone'))"/></a>
+			</fieldset>
+			<fieldset>
+			<p>
+				<strong>Examen des membres inférieurs</strong><br />
+				Etat général:
+				<textarea rows="2"></textarea><br />
+				Examen du pied:
+				<textarea rows="2"></textarea><br />
+				Pouls périphériques: 
+				<textarea rows="2"></textarea><br />
+				Test au monofilament:
+				<textarea rows="2"></textarea><br />
+				Réflexes:
+				<textarea rows="2"></textarea><br />			
+			</p>
+			</fieldset>
+		</div>
+		
+		<!--  ================ Eventual Complications ===================== -->
+		
+		<div id="eventualComplications" style="display:{{show[id[5]]}}">
+			<h2>Complications éventuelles</h2>
+			<fieldset>
+			<p>
+				<Strong>Occulaires:</Strong><br />
+				Examen du fond de l'oeil:
+				<textarea rows="2"></textarea><br />
+				Autre:
+				<textarea rows="2"></textarea><br />
+				<Strong>Rénales:</Strong>
+				Albumine dans les urines:
+				<input type="radio" ng-model="albumin" value="true">Oui
+				<input type="radio" ng-model="albumin" value="false" checked>Non
+				<input ng-show="albumin" type="number" step="1" value="20" /> 
+				<select ng-show="albumin" ng-init="albuUnit='mg/L'"ng-model="albuUnit">
+				    <option value="mg/L" selected>mg/L	
+				    <option value="mg/mmol">mg/mmol
+				    <option value="mg/24h">mg/24h
+				    <option value="µg/min">µg/min		
+				    <option value="µg/mg">µg/mg	      
+				</select><br />
+				<strong>Neurologiques</strong><br />
+				<textarea rows="2"></textarea><br />
+				<strong>Cardio-vasculaires</strong><br />
+				<textarea rows="2"></textarea><br />
+				<strong>Maladies auto-immunitaires associées</strong><br />
+				<textarea rows="2"></textarea><br />
+			</p>
+			</fieldset>
+		</div>
+		
+		<!--  ===================== Conclusion ============================ -->
+		
+		<div id="conclusion" style="display:{{show[id[6]]}}">
+			<h2>Conclusion</h2>
+			<fieldset>
+			<p>
+				<textarea rows="10" placeholder="Conclusion..."></textarea><br />
+			</p>
+			</fieldset>
+		</div>
+		
+	</section>				
+</section>
+</div>
+<footer>
+<button>Sauvegarder</button>
+</footer>		
+
+<script src="/js/formContact.js"></script>
+
+</body>	
+</html>

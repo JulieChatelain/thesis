@@ -1,6 +1,7 @@
 
 <a ng-href="#/"> <%=__('Home') %> | </a>
 <a data-ng-show="token && user.isPractitioner" ng-href="#/patients"> <%=__('Patients') %> | </a>
+<a data-ng-show="token && user.isPractitioner" href="/newEncounter"> <%=__('NewEncounter') %> | </a>
 <a data-ng-show="token && user.isPatient" ng-href="#/myehr"> <%=__('MyEHR') %> | </a>
 <a data-ng-show="token" ng-href="#/profile"> <%=__('Profile') %> | </a>
 <a data-ng-show="token" ng-href="#/parameters"> <%=__('Parameters') %> | </a>

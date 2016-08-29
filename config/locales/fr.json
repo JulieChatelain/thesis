@@ -130,5 +130,6 @@
 	"RefuseAccess": "Refuser l'accès",
 	"from": "du",
 	"to": "au",
-	"AuthApproved": "AuthApproved"
+	"AuthApproved": "Autorisation approuvée",
+	"NewEncounter": "Nouvelle consultation"
 }

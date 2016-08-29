@@ -35,6 +35,13 @@ app.get("/", function(req, res) {
 });
 
 
+app.get("/newEncounter", function(req, res) {
+	res.render('formContact', { 
+    title: 'Nouvelle Consultation'
+	});
+});
+
+
 //launch server
 http.createServer(app).listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));
