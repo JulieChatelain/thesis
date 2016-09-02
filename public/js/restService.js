@@ -28,6 +28,9 @@ app.factory('Rest', ['$http', function($http){
             },
             removeAccess: function(data, success, error) {
             	$http.post(url + '/removeAccess', data).then(success,error);
+            },
+            changePassword: function(data, success, error) {
+            	$http.post(url + '/changePassword', data).then(success,error);
             }
         };
     }

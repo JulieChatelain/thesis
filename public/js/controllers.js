@@ -15,7 +15,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	$scope.data = {
 			userKind : 'patient',
 			gender : 'male',
-			eMail : '',
+			email : '',
 			password : '',
 			confirmPass : '',
 			nameFamily : '',
@@ -111,10 +111,116 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 .controller('ProfileCtrl', ['$scope', '$log' , '$location', 'Rest', 'Authentication', function($scope, $log, $location, Rest, Authentication) {
 	$scope.$log = $log;
 	$scope.user = Authentication.user;
+
+	$scope.bgCol = {"background-color" : "#f3e5f5"};
+	$scope.matchingPasswords = false;
+	$scope.message = "";
+	
+	/**
+	 * Check if the two passwords match.
+	 * Change the background color accordingly.
+	 */
+	$scope.checkPasswordMatch = function(password1, password2){
+		if(password1.length > 6 && password2.length > 6 && password1 == password2){
+			$scope.bgCol["background-color"] = "#E1F5FE";
+			$scope.matchingPasswords = true;
+		}else{
+			$scope.bgCol["background-color"] = "#f3e5f5";
+			$scope.matchingPasswords = false;
+			
+		}
+	};
+	 /**
+     * User profile data
+     */
+	$scope.data = {
+			gender : 'male',
+			email : '',
+			nameFamily : '',
+			nameGiven : '',
+			birthDate : new Date(),
+			job : '',
+			address : '',
+			contactTel : '',
+			telType : 'home',
+			contactEmail : '',
+			emailType : 'home',
+			speakFrench : true,
+			speakEnglish : false,
+			speakDutch : false,
+			speakGerman : false,
+			mainLanguage : 'fr',
+			speciality : '',
+			workLocation : '',
+			workTel : ''
+	};
+	
+	$scope.password = { password: '', pass: '', confirmPass: ''};
+	
+	/**
+	 * Take a practitioner or patient resource as input and
+	 * extract the basic data needed to fill the form.
+	 */
+	var fillPersonData = function(person){
+		$scope.data.email = $scope.user.email;
+		// Name
+		$scope.data.nameFamily = person.name.family[0];
+		$scope.data.nameGiven = person.name.given[0];
+		// Birthday
+		$scope.data.birthDate = new Date(person.birthDate);
+		// Gender
+		$scope.data.gender = person.gender;
+		// Job
+		if($scope.user.isPatient)
+			$scope.data.job = person.profession[0];
+		else
+			$scope.data.job = $scope.practitioner.practitionerRole[0].specialty[0].text;
+		
+		// Phone and email
+		for (var i = 0; i < person.telecom.length; i++) {
+			if(person.telecom[i].system == "phone") {
+				if(person.telecom[i].use == "work" || $scope.user.isPractitioner) {
+					$scope.data.jobTel = person.telecom[i].value;
+				}
+				else{
+					$scope.data.contactTel = person.telecom[i].value;
+					$scope.data.typeTel = person.telecom[i].use;				
+				}
+			}
+			if(person.telecom[i].system == "email") {
+				$scope.data.contactEmail = person.telecom[i].value;
+				$scope.data.emailType = person.telecom[i].use;					
+			}
+		}
+		
+		// Address
+		$scope.data.address = person.address[0].text;
+		
+		// Languages 
+		for (var i = 0; i < person.communication.length; i++) {
+			if(person.communication[i].language.coding[0].code == "fr")
+				$scope.data.speakFrench = true;
+			if(person.communication[i].language.coding[0].code == "en")
+				$scope.data.speakEnglish = true;
+			if(person.communication[i].language.coding[0].code == "de")
+				$scope.data.speakGerman = true;
+			if(person.communication[i].language.coding[0].code == "nl")
+				$scope.data.speakDutch = true;
+			if(person.communication[i].preferred)
+				$scope.data.mainLanguage = person.communication[i].language.coding[0].code;
+		}
+		
+	};
+	
 	// Get practitioner informations
 	if($scope.user.isPractitioner){
 		Rest.resource($scope.user.reference.practitionerId, function(res) {
 			$scope.practitioner = res.data;
+			// Fill the update form with the practitioner informations :
+			fillPersonData($scope.practitioner);
+			// Plus the information special practitioner
+			$scope.data.speciality = $scope.practitioner.practitionerRole[0].specialty[0].text;
+			$scope.data.workLocation = $scope.practitioner.practitionerRole[0].location[0].display;
 	    }, function() {
 	        $scope.message = 'Failed to load the practitioner profile.';
 	    });
@@ -133,7 +239,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 					$scope.pendingPractAuth.push(accessList[i]);	
 	    }, function() {
 	        $scope.message = 'Failed to load the practitioner authorizations.';
-	    });
+	    });		
 	    
 	}
 
@@ -141,6 +247,8 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	if($scope.user.isPatient){
 		Rest.resource($scope.user.reference.patientId, function(res) {
 			$scope.patient = res.data;
+			// Fill the update form with the patient informations :
+			fillPersonData($scope.patient);
 	    }, function() {
 	        $scope.message = 'Failed to load the patient profile.';
 	    });
@@ -162,7 +270,10 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 		
 	}
 	
-	// Patient Revoke an authorization	
+	
+	/**
+	 * Revoke an authorization
+	 */
 	$scope.revoke = function(authId){
 		data = {
 				doctorId : authId,
@@ -177,7 +288,9 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	};
 	
 
-	// Practitioner renounce an authorization	
+	/**
+	 * Renounce an authorization
+	 */
 	$scope.renounce = function(authId){
 		data = {
 				doctorId : $scope.user.reference.practitionerId,
@@ -191,7 +304,10 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	    });
 	};
 	
-	// Approve an authorization
+	
+	/**
+	 * Approve an authorization
+	 */
 	$scope.approve = function(pId){
 		console.log("pId : " + pId);
 		var data =  {
@@ -205,6 +321,27 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	    });
 	};
 	
+	/**
+	 * Change the user's password
+	 */
+	$scope.changePassword = function() {
+		Rest.changePassword(password, function(res) {
+			
+	    }, function() {
+	        
+	    });
+	};
+	
+	/**
+	 * Update the user's profile informations
+	 */
+	$scope.updateProfile = function() {
+		
+	};
+	
+	/**
+	 * Reload the authorization to see possible changes.
+	 */
 	var reloadAuth = function(){
 		// Get authorizations given
 		var data = {refId: $scope.user.reference.patientId};

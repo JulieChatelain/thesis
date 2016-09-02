@@ -131,5 +131,10 @@
 	"from": "du",
 	"to": "au",
 	"AuthApproved": "Autorisation approuvée",
-	"NewEncounter": "Nouvelle consultation"
+	"NewEncounter": "Nouvelle consultation",
+	"ChangePassword": "Changer de mot de passe",
+	"Update": "Mettre à jour",
+	"UpdateInfos": "Mise à jour des informations",
+	"NewPassword": "Nouveau mot de passe",
+	"OldPassword": "Mot de passe actuel"
 }

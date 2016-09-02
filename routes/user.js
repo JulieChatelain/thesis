@@ -7,6 +7,9 @@ var jwt = require('jsonwebtoken');
 //---------------------- Authorization functions ------------------------------
 //-----------------------------------------------------------------------------
 
+/**
+ * Approve an authorization request
+ */
 exports.approveAccess = function(req, res){
 	var user = req.user;
 	console.log("1 approving auth for: " + req.body.practitionerId);
@@ -37,17 +40,28 @@ exports.approveAccess = function(req, res){
 	});
 }
 
+/**
+ * Request access to a patient data
+ */
 exports.requestAccess = function(req, res){
 	userCtrl.requestAccess(req,res);
 }
+/**
+ * Change the level of access of a practitioner to a patient data
+ */
 exports.changeAccess = function(req, res){
 	userCtrl.changeAccess(req,res);
 }
-
+/**
+ * Remove the access of a practioner to a patient data
+ */
 exports.removeAccess = function(req, res){
 	userCtrl.removeAccess(req,res);
 }
 
+/**
+ * List all the authorization 
+ */
 exports.listAccess = function(req, res){
 	var user = req.user;
 	userCtrl.findAuthorizations(req.body.refId, function(auth){
@@ -157,6 +171,9 @@ exports.register = function(req, res) {
 	});	
 }
 
+/**
+ * Find the user in the DB and send back the token.
+ */
 exports.login = function(req, res) {
 	userCtrl.findUser(req, res, function(user, userToken, message){
 		if (user != null) {
@@ -172,4 +189,46 @@ exports.login = function(req, res) {
 			});
 		}
 	});
+};
+
+/**
+ * change the user password
+ */
+exports.changePassword = function(req, res) {
+	if(req.body.pass == req.body.confirmPass){
+		userCtrl.findUser(req, res, function(user, userToken, message){
+			if (user != null) {
+				user.password = req.body.pass;
+				user.save(function(err, savedUser) {
+					if (err) {
+						console.log("Error While Saving user: " + err);
+						res.json({
+							success: false,
+							message : err
+						});
+					} else {
+						var userToken = jwt.sign(user, process.env.JWT_SECRET,{
+					          expires: 600 // in minute ( = 10 hours)
+				        });
+						res.json({
+							success: true,
+							userData : savedUser,
+							token : userToken,
+							message: res.__('PasswordChanged')
+						});
+					}
+				});
+			} else {
+				res.json({
+					success : false,
+					message : message
+				});
+			}
+		});
+	}else{
+		res.json({
+			success : false,
+			message : res.__('WrongConfirmPass')
+		});
+	}
 };

@@ -1,5 +1,104 @@
 
 <section id="contents">
+
+	<h3><%= __('Profile') %></h3>
+	
+		<span class="error">{{message}}</span>
+    	<% if(locals.message){ %>
+    		<span class="error"><%= __('message') %></span>  <br>
+    	<% } %>  
+    	<h4><%= __('ChangePassword') %></h4>
+    	<form name="passwordForm" ng-submit="changePassword()">	
+		<fieldset ng-init="touched=false">
+		  	<label><%= __('Email') %>:</label> {{data.email}}<br>
+		  	
+    		<label><%= __('OldPassword') %>:</label> 
+		  	<input type="password" id="password" name="password" 
+		  	ng-model="password.password" required>
+		  	<span class="required">*</span><br>
+    		
+		  	<label><%= __('NewPassword') %>:</label> 
+		  	<input type="password" id="pass" name="pass" 
+		  	ng-model="password.pass" ng-keyup="checkPasswordMatch(password.confirmPass,password.pass)" required valid-password>
+		  	<span class="required">*</span><br>
+    		<span class="error" ng-show="passwordForm.pass.$touched && passwordForm.pass.$invalid">
+    		<%= __('PasswordInvalid') %><br></span>
+    		
+		  	<label><%= __('ConfirmPassword') %>:</label> 
+		  	<input type="password" name="confirmPass" ng-model="password.confirmPass" 
+		  	ng-style="bgCol" ng-keyup="checkPasswordMatch(password.confirmPass,password.pass)" ng-blur="touched=true">
+		  	<span class="required">*</span><br>
+    		<span class="error" ng-hide="!touched || matchingPasswords"><%= __('ConfirmPassInvalid') %><br></span>
+		  	
+		</fieldset>
+		<input type="submit" value="<%= __('ChangePassword') %>" 
+		  ng-disabled="passwordForm.pass.$invalid || !matchingPasswords">
+		</form>
+		<h4><%= __('UpdateInfos') %></h4>
+		<form name="updateForm" ng-submit="updateProfile()">		
+		<fieldset>
+		<legend><%= __('GeneralInfo') %></legend>
+		
+		  	<label><%= __('Name') %>:</label>  <input type="text" name="nameFamily" ng-model="data.nameFamily" required><span class="required">*</span><br>
+    		<span class="error" ng-show="updateForm.nameFamily.$touched && updateForm.nameFamily.$invalid"><%= __('NameInvalid') %><br></span>
+		  	
+		  	<label><%= __('Surname') %>:</label> <input type="text" name="nameGiven" ng-model="data.nameGiven" required><span class="required">*</span><br>
+    		<span class="error" ng-show="updateForm.nameGiven.$touched && updateForm.nameGiven.$invalid"><%= __('SurnameInvalid') %><br></span>
+		  	
+		  	<label><%= __('Gender') %>:</label> 
+		  	<input type="radio" name="gender" ng-model="data.gender" value="male" checked> <%= __('Man') %>
+  		  	<input type="radio" name="gender" ng-model="data.gender" value="female"> <%= __('Woman') %><br>
+		  	
+		  	<label><%= __('Birthdate') %>:</label> <input type="date" name="birthDate" ng-model="data.birthDate" required><span class="required">*</span><br>
+    		<span class="error" ng-show="updateForm.birthDate.$touched && updateForm.birthDate.$invalid"><%= __('BirthdateInvalid') %><br></span>
+		  	
+		  	<label><%= __('Job') %>:</label>  <input type="text" name="job" ng-model="data.job"><br>
+		  	<p class="align">
+		  	
+		  	<label><%= __('Address') %>:</label>
+		  	<textarea rows="2" placeholder="Rue ..." name="address" ng-model="data.address"></textarea>
+		  	</p>
+		  	<label><%= __('Contact') %>:</label><br>
+		  	<label><%= __('Tel') %>:</label> <input type="tel" name="contactTel" ng-model="data.contactTel">
+		  	<input type="radio" name="telType" ng-model="data.telType" value="home" checked> <%= __('Personal') %>
+  		  	<input type="radio" name="telType" ng-model="data.telType" value="work"> <%= __('Professional') %>
+  		  	<input type="radio" name="telType" ng-model="data.telType" value="mobile"> <%= __('Mobile') %>
+		  	<br>
+		  	<label><%= __('Email') %>:</label> <input type="email" name="contactEmail" ng-model="data.contactEmail">
+		  	
+		  	<input type="radio" name="emailType" ng-model="data.emailType" value="home" checked> <%= __('Personal') %>
+  		  	<input type="radio" name="emailType" ng-model="data.emailType" value="work"> <%= __('Professional') %>
+		  	<br>	
+		  	
+		  	<label><%= __('SpokenLang') %>:</label>				  	
+			<input type="checkbox" name="speakFrench" ng-model="data.speakFrench"> <%= __('French') %>
+			<input type="checkbox" name="speakEnglish" ng-model="data.speakEnglish"> <%= __('English') %> 
+			<input type="checkbox" name="speakDutch" ng-model="data.speakDutch"> <%= __('Dutch') %> 
+			<input type="checkbox" name="speakGerman" ng-model="data.speakGerman"> <%= __('German') %> <br>
+			
+		  	<label><%= __('MainLang') %>:</label>				  	
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="fr"> <%= __('French') %>
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="en"> <%= __('English') %>
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="nl"> <%= __('Dutch') %>
+			<input type="radio" name="mainLanguage" ng-model="data.mainLanguage" value="de"> <%= __('German') %>
+		</fieldset>
+		
+		<fieldset ng-hide="!(user.isPractitioner)">
+			<legend><%= __('ForDoctor') %></legend>
+		  	<label><%= __('Speciality') %>:</label> <input type="text" name="speciality" ng-model="data.speciality"><br>
+		  	<p class="align">
+		  	<label><%= __('JobTel') %>:</label> <input type="tel" name="workTel" ng-model="data.workTel"><br>
+		  	<label><%= __('JobPlace') %>:</label>
+		  	<textarea rows="2" placeholder="Hopital St-Machin, Rue ..." name="workLocation" ng-model="data.workLocation"></textarea>
+		  	</p>
+		</fieldset>				
+		  
+		  <input type="submit" value="<%= __('Update') %>" 
+		  ng-disabled="updateForm.nameFamily.$invalid
+		  || updateForm.nameGiven.$invalid || updateForm.birthDate.$invalid"><br>
+		</form>
+
+
 	<p>{{message}}</p>
 	<h3 ng-show="user.isPractitioner"><%= __('AuthReceived') %></h3>
 	<p ng-show="user.isPractitioner">

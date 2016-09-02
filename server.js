@@ -76,6 +76,7 @@ function checkToken(req, res, next) {
 
 app.post('/login', user.login);
 app.post('/register', user.register);
+app.post('/changePassword', user.changePassword);
 
 //----------------------------------------------------------------------------
 //---------------------- Authorizations Requests ------------------------------

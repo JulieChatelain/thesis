@@ -523,37 +523,37 @@ var createPatient = function(req) {
 		});
 
 	if (req.body.speakFrench == true || req.body.speakFrench == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "fr",display : "Français"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "fr",display : "Français"});
 		if (req.body.mainLanguage == 'fr'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		patientModel.communication.push(language);
+		patientModel.communication.push(commu);
 	}
 
 	if (req.body.speakEnglish == true || req.body.speakEnglish == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "en",display : "English"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "en",display : "English"});
 		if (req.body.mainLanguage == 'en'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		patientModel.communication.push(language);
+		patientModel.communication.push(commu);
 	}
 	if (req.body.speakDutch == true || req.body.speakDutch == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "nl",display : "Nederlands"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "nl",display : "Nederlands"});
 		if (req.body.mainLanguage == 'nl'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		patientModel.communication.push(language);
+		patientModel.communication.push(commu);
 	}
 	if (req.body.speakGerman == true || req.body.speakGerman == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "de",display : "Deutsch"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "de",display : "Deutsch"});
 		if (req.body.mainLanguage == 'de'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		patientModel.communication.push(language);
+		patientModel.communication.push(commu);
 	}
 	return patientModel;
 };
@@ -590,39 +590,39 @@ var createPractitioner = function(req) {
 		});
 
 	if (req.body.speakFrench == true || req.body.speakFrench == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "fr",display : "Français"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "fr",display : "Français"});
 		if (req.body.mainLanguage == 'fr'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		practitionerModel.communication.push(language);
+		practitionerModel.communication.push(commu);
 	}
 
 	if (req.body.speakEnglish == true || req.body.speakEnglish == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "en",display : "English"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "en",display : "English"});
 		if (req.body.mainLanguage == 'en'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		practitionerModel.communication.push(language);
+		practitionerModel.communication.push(commu);
 	}
 	if (req.body.speakDutch == true || req.body.speakDutch == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "nl",display : "Nederlands"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "nl",display : "Nederlands"});
 		if (req.body.mainLanguage == 'nl'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		practitionerModel.communication.push(language);
+		practitionerModel.communication.push(commu);
 	}
 	if (req.body.speakGerman == true || req.body.speakGerman == 'on'){
-		var language = {coding: [], preferred : false};
-		language.coding.push({code : "de",display : "Deutsch"});
+		var commu = {language : {coding: [], preferred : false}, preferred: false};
+		commu.language.coding.push({code : "de",display : "Deutsch"});
 		if (req.body.mainLanguage == 'de'){
-			language.preferred = true;
+			commu.preferred = true;
 		}
-		practitionerModel.communication.push(language);
+		practitionerModel.communication.push(commu);
 	}
-
+	
 	practitionerModel.practitionerRole.push({
 		specialty : req.body.speciality,
 		location : [ {
