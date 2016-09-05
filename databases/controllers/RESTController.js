@@ -211,7 +211,6 @@ exports.create = function(req, res, next) {
 						var resourceHistory = new ResourceHistory({
 							resourceType : modelName
 						});
-						resourceHistory.addVersion(savedresource.id, "");
 						resourceHistory.save(function(rhErr, savedResourceHistory) {
 							if (rhErr) {
 								next(rhErr);
@@ -231,12 +230,11 @@ exports.create = function(req, res, next) {
 /**
  * Update a resource. Add the new version of the resource to the history.
  */
-exports.update = function(req, res) {
+exports.update = function(req, res, next) {
 	var resource = req.resource;
-	// First check if they have the authorization	
-	var authorization = utils.checkAuthorization(req, resource);
+	// First check if they have the authorization		
 	utils.checkAuthorization(req, resource, function(accessLevel){
-		if(accessLevel == 3){
+		if(accessLevel >= 3){
 			resource = _.extend(resource, req.body);
 		
 			delete resource._id;
@@ -253,9 +251,10 @@ exports.update = function(req, res) {
 							status : "generated",
 							div : "<div>Error : " + err + "</div>"
 						},
+						success: false,
+						message: res.__('UpdateFailed')
 					};
-					res.status(500).send(response);
-					res.send(500);
+					next(response, 500);
 				} else {
 					var resourceHistory = req.resourceHistory;
 					resourceHistory.addVersion(savedresource);
@@ -267,24 +266,37 @@ exports.update = function(req, res) {
 									status : "generated",
 									div : "<div>Error : " + rhErr + "</div>"
 								},
+								success: false,
+								message: res.__('UpdateFailed')
 							};
-							res.status(500).send(response);
+							next(response, 500);
 						} else {
 							var response = {
 								resourceType : "OperationOutcome",
 								text : {
 									status : "generated",
 									div : "<div>The operation was successful.</div>"
-								}
+								},
+								success: true,
+								message: res.__('UpdateSuccessful')
 							};
 							res.contentType('application/fhir+json');
-							res.status(200).send(response);
+							next(response, 200);
 						}
 					});
 				}
 			});
 		}else{
-			res.sendStatus(403);
+			var response = {
+					resourceType : "OperationOutcome",
+					text : {
+						status : "generated",
+						div : "<div>Access Forbidden.</div>"
+					},
+					success: false,
+					message: res.__('ForbiddenAccess')
+				};
+			next(response, 403);
 		}
 	});
 };
@@ -305,6 +317,8 @@ exports.remove = function(req, res) {
 							status : "generated",
 							div : "<div>Error : " + err + "</div>"
 						},
+						success: false,
+						message: res.__('DeleteFailed')
 					};
 					res.status(500).send(response);
 				} else {
@@ -313,14 +327,26 @@ exports.remove = function(req, res) {
 						text : {
 							status : "generated",
 							div : "<div>The operation was successful.</div>"
-						}
+						},
+						success: true,
+						message: res.__('DeleteSuccessful')
 					};
 					res.contentType('application/fhir+json');
 					res.status(204).send(response);
 				}
 			});
 		}else{
-			res.sendStatus(403);
+			var response = {
+					resourceType : "OperationOutcome",
+					text : {
+						status : "generated",
+						div : "<div>Forbidden Access.</div>"
+					},
+					success: false,
+					message: res.__('ForbiddenAccess')
+				};
+			res.contentType('application/fhir+json');
+			res.status(403).send(response);
 		}
 	});
 };

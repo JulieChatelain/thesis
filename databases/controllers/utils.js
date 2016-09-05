@@ -929,7 +929,6 @@ exports.getMinimumRead = getMinimumRead;
 var checkAuthorization = function(req, resource, next) {
 	//return next(5);
 	if (typeof req.token != 'undefined' && typeof req.user != 'undefined') {
-
 		var AccessAuthorization = mongoose.model('AccessAuthorization');
 		var user = req.user;
 		var resRef = "";
@@ -948,7 +947,7 @@ var checkAuthorization = function(req, resource, next) {
 				|| req.params.model == 'Practitioner') {
 			resRef = resource.id;
 			if ((user.isPatient && user.reference.patientId == resRef)
-					|| (user.isPractitioner && user.reference.practitionertId == resRef))
+					|| (user.isPractitioner && user.reference.practitionerId == resRef))
 				return next(5);
 
 		}

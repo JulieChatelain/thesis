@@ -558,6 +558,7 @@ var createPatient = function(req) {
 	return patientModel;
 };
 
+exports.createPatient = createPatient;
 
 /**
  * Create a practitioner resource from the values in req.body.
@@ -624,7 +625,7 @@ var createPractitioner = function(req) {
 	}
 	
 	practitionerModel.practitionerRole.push({
-		specialty : req.body.speciality,
+		specialty : [{coding: [], text: req.body.speciality}],
 		location : [ {
 			display : req.body.workLocation
 		} ]
@@ -634,5 +635,8 @@ var createPractitioner = function(req) {
 		value : req.body.workTel,
 		use : 'work'
 	});
+	
 	return practitionerModel;
 };
+
+exports.createPractitioner = createPractitioner;

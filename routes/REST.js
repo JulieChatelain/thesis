@@ -107,7 +107,9 @@ exports.update = function(req, res) {
 			console.log("Update error : " + obj);
 			res.send(500);
 		} else {
-			controller.update(req, res);
+			controller.update(req, res,function(response, status){
+				res.status(status).send(response);
+			});
 		}
 	});
 };

@@ -136,5 +136,8 @@
 	"Update": "Mettre à jour",
 	"UpdateInfos": "Mise à jour des informations",
 	"NewPassword": "Nouveau mot de passe",
-	"OldPassword": "Mot de passe actuel"
+	"OldPassword": "Mot de passe actuel",
+	"PasswordChanged": "Mot de passe correctement changé !",
+	"ForbiddenAccess": "Accès interdit",
+	"UpdateSuccessful": "Mise à jour réussie !"
 }

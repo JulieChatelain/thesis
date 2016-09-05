@@ -76,9 +76,9 @@ function checkToken(req, res, next) {
 
 app.post('/login', user.login);
 app.post('/register', user.register);
-app.post('/changePassword', user.changePassword);
+app.post('/changePassword', checkToken, user.changePassword);
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //---------------------- Authorizations Requests ------------------------------
 
 app.post('/approveAccess', checkToken, user.approveAccess);
@@ -86,6 +86,11 @@ app.post('/requestAccess', checkToken, user.requestAccess);
 app.post('/changeAccess', checkToken, user.changeAccess);
 app.post('/removeAccess', checkToken, user.removeAccess);
 app.post('/listAccess', checkToken, user.listAccess);
+
+//-----------------------------------------------------------------------------
+//---------------------------- User data --------------------------------------
+
+app.post('/updateProfile', checkToken, user.updateProfile);
 
 // ----------------------------------------------------------------------------
 // -------------------------- REST service ------------------------------------

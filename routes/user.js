@@ -232,3 +232,81 @@ exports.changePassword = function(req, res) {
 		});
 	}
 };
+
+/**
+ * Update the personal informations of the user.
+ */
+exports.updateProfile = function(req, res) {
+	// If the user is a patient
+	// Update the informations in the patient resource
+	if(req.user.isPatient){ 
+		req.params.model = "Patient";
+		var id = req.user.reference.patientId.split("/")[1];
+		// search for the original resource
+		restCtrl.read(req, res, id, function(resource){
+			if (resource.constructor.name.includes("Error")) {
+				console.log("Update error : " + resource);
+				res.send(500);
+			} else {
+				// create a patient resource from the data sent
+				var patient = userCtrl.createPatient(req);
+				req.body = patient;
+				// update the original with those new data
+				restCtrl.update(req, res,function(response, status){
+					if(!req.user.isPractitioner){
+						res.status(status).send(response);
+					}else{
+						// Also update the information in the user's practitioner resource
+						// if there wasn't a problem with the update of the patient resource
+						if(status == 200){
+							req.params.model = "Practitioner";
+							var id2 = req.user.reference.practitionerId.split("/")[1];
+							restCtrl.read(req, res, id2, function(resource2){
+								if (resource2.constructor.name.includes("Error")) {
+									console.log("Update error : " + resource2);
+									res.send(500);
+								} else {
+									var pract = userCtrl.createPractitioner(req);
+									req.body = pract;
+									restCtrl.update(req, res,function(response2, status2){
+										res.status(status2).send(response2);
+									});
+								}
+							});	
+						}
+						else {
+							res.status(status).send(response);
+						}
+						
+					}
+				});
+			}
+		});
+	}
+	// If the user is only a practitioner
+	// Update the informations in the practitioner resource
+	else {
+		var id = req.user.reference.practitionerId.split("/")[1];
+		req.params.model = "Practitioner";
+		// search for the original resource
+		restCtrl.read(req, res, id, function(resource){
+			if (resource.constructor.name.includes("Error")) {
+				console.log("Update error : " + resource);
+				res.sendStatus(500);
+			} else {
+				// create a patient resource from the data sent
+				var pract = userCtrl.createPractitioner(req);
+				req.body = pract;
+				// update the original with those new data
+				restCtrl.update(req, res,function(response, status){
+					res.status(status).send(response);
+				});
+			}
+		});		
+	}
+}
+
+
+
+
+

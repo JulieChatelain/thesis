@@ -31,6 +31,9 @@ app.factory('Rest', ['$http', function($http){
             },
             changePassword: function(data, success, error) {
             	$http.post(url + '/changePassword', data).then(success,error);
+            },
+            updateProfile: function(data, success, error) {
+            	$http.post(url + '/updateProfile', data).then(success,error);
             }
         };
     }

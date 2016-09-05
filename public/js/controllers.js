@@ -155,7 +155,12 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 			workTel : ''
 	};
 	
-	$scope.password = { password: '', pass: '', confirmPass: ''};
+	$scope.password = { 
+			password: '', 
+			pass: '',
+			confirmPass: '',
+			email: $scope.user.email
+			};
 	
 	/**
 	 * Take a practitioner or patient resource as input and
@@ -179,8 +184,8 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 		// Phone and email
 		for (var i = 0; i < person.telecom.length; i++) {
 			if(person.telecom[i].system == "phone") {
-				if(person.telecom[i].use == "work" || $scope.user.isPractitioner) {
-					$scope.data.jobTel = person.telecom[i].value;
+				if(person.telecom[i].use == "work" && $scope.user.isPractitioner) {
+					$scope.data.workTel = person.telecom[i].value;
 				}
 				else{
 					$scope.data.contactTel = person.telecom[i].value;
@@ -325,10 +330,10 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	 * Change the user's password
 	 */
 	$scope.changePassword = function() {
-		Rest.changePassword(password, function(res) {
-			
+		Rest.changePassword($scope.password, function(res) {
+			$scope.message = res.data.message;
 	    }, function() {
-	        
+	    	$scope.message = res.data.message;
 	    });
 	};
 	
@@ -336,7 +341,11 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	 * Update the user's profile informations
 	 */
 	$scope.updateProfile = function() {
-		
+		Rest.updateProfile($scope.data, function(res) {
+			$scope.message = res.data.message;
+	    }, function() {
+	        $scope.message =  res.data.message;
+	    });
 	};
 	
 	/**
