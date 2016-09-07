@@ -29,7 +29,8 @@ var _ = require('underscore');
 var fs = require('fs');
 var async = require('async');
 var ResourceHistory = mongoose.model('ResourceHistory');
-var utils = require('./utils');
+var textConverter = require('./textConverter');
+var accessManager = require('./accessManager');
 // var ResponseFormatHelper = require(__dirname +
 // '/../../lib/response_format_helper');
 
@@ -41,12 +42,12 @@ var utils = require('./utils');
 exports.show = function(req, res) {
 	var resource = req.resource;
 	// First check if they have the authorization	
-	utils.checkAuthorization(req, resource, function(accessLevel){
+	accessManager.checkAuthorization(req, resource, function(accessLevel){
 		if(accessLevel == 1){
-			resource = utils.getMinimumRead(resource, req.params.model);
+			resource = textConverter.getMinimumRead(resource, req.params.model);
 		}
 		if(accessLevel > 0){	
-			var humanReadable = utils.generateText(resource, res, req.headers.host);
+			var humanReadable = textConverter.generateText(resource, res, req.headers.host);
 			resource.text = {
 				status : "generated",
 				div : humanReadable
@@ -143,9 +144,9 @@ exports.history = function(req, res, id, next) {
 			async.forEach(resourceHistory.history, function(hist, callback) {
 				resourceHistory.getVersion(i, function(err, resource) {
 					// First check if they have the authorization	
-					utils.checkAuthorization(req, resource, function(accessLevel){
+					accessManager.checkAuthorization(req, resource, function(accessLevel){
 						if(accessLevel == 1){
-							resource = utils.getMinimumRead(resource);
+							resource = textConverter.getMinimumRead(resource);
 						}
 						if(accessLevel > 0){
 							resource = JSON.parse(JSON.stringify(resource));
@@ -159,7 +160,7 @@ exports.history = function(req, res, id, next) {
 								createdBy : resourceHistory.createdBy,
 								updatedBy : hist.updatedBy
 							};
-							var humanReadable = utils.generateText(resource,res,request.headers.host);
+							var humanReadable = textConverter.generateText(resource,res,request.headers.host);
 							resource.text = {
 								status : "generated",
 								div : humanReadable
@@ -197,12 +198,12 @@ exports.create = function(req, res, next) {
 
 	delete resource._id;
 	
-	if(utils.isEmpty(resource)){
+	if(textConverter.isEmpty(resource)){
 		next('');
 	}
 	else{
 		// First check if they have the authorization	
-		//utils.checkAuthorization(req, resource, function(accessLevel){
+		//accessManager.checkAuthorization(req, resource, function(accessLevel){
 			//if(accessLevel > 1){
 				resource.save(function(err, savedresource) {
 					if (err) {
@@ -233,7 +234,7 @@ exports.create = function(req, res, next) {
 exports.update = function(req, res, next) {
 	var resource = req.resource;
 	// First check if they have the authorization		
-	utils.checkAuthorization(req, resource, function(accessLevel){
+	accessManager.checkAuthorization(req, resource, function(accessLevel){
 		if(accessLevel >= 3){
 			resource = _.extend(resource, req.body);
 		
@@ -307,7 +308,7 @@ exports.update = function(req, res, next) {
 exports.remove = function(req, res) {
 	var resource = req.resource;
 	// First check if they have the authorization	
-	utils.checkAuthorization(req, resource, function(accessLevel){
+	accessManager.checkAuthorization(req, resource, function(accessLevel){
 		if(accessLevel == 5){
 			resource.remove(function(err) {
 				if (err) {
@@ -385,18 +386,18 @@ exports.list = function(req, res) {
 
 			history.findLatest(function(err, resource) {
 
-				var add = utils.compareObjects(conditions, resource);
+				var add = textConverter.compareObjects(conditions, resource);
 				if (add) {
 					// weird, but you can't add properties to the resource
 					// without this line:
 					resource = JSON.parse(JSON.stringify(resource));
 					resource['id'] = req.params.model + "/" + history._id;
 					resource['resourceType'] = req.params.model;
-					utils.checkAuthorization(req, resource, function(accessLevel){						
+					accessManager.checkAuthorization(req, resource, function(accessLevel){						
 						// First check if they have the authorization	
 						if(accessLevel > 0){
 							if(accessLevel == 1){
-								resource = utils.getMinimumRead(resource, req.params.model);
+								resource = textConverter.getMinimumRead(resource, req.params.model);
 							}
 							resource['accessLevel'] = accessLevel;
 							resource['meta'] = {
@@ -407,7 +408,7 @@ exports.list = function(req, res) {
 								published : new Date(Date.now()),
 								updatedBy : history.history[vid - 1].updatedBy								
 							};
-							var humanReadable = utils.generateText(resource, res, req.headers.host);
+							var humanReadable = textConverter.generateText(resource, res, req.headers.host);
 							resource['text'] = {
 								status : "generated",
 								div : humanReadable

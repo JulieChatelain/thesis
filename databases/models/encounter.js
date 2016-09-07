@@ -26,6 +26,11 @@
 
 var mongoose = require('mongoose');
 
+/**
+ * An interaction between a patient and healthcare provider(s) 
+ * for the purpose of providing healthcare service(s) or assessing 
+ * the health status of a patient. 
+ */
 var EncounterSchema = new mongoose.Schema({
     identifier: [{
 		use : {
@@ -42,12 +47,14 @@ var EncounterSchema = new mongoose.Schema({
     }],
     status: {				// planned | arrived | in-progress | onleave | finished | cancelled
     	type: String, 
-    	required:true
+    	enum : ["planned" , "arrived" , "in-progress" , "onleave" , "finished" , "cancelled"],
+    	required : true
     	},			
     statusHistory: [{		// List of past encounter statuses
         status: {
 	    	type: String, 
-	    	required:true
+	    	enum : ["planned" , "arrived" , "in-progress" , "onleave" , "finished" , "cancelled"],
+	    	required : true
     	},	
         period: {
     		start : Date,
@@ -56,6 +63,7 @@ var EncounterSchema = new mongoose.Schema({
     }],
     classification: {				// inpatient | outpatient | ambulatory | emergency +
     	type: String,
+    	enum : ["inpatient" , "outpatient" , "ambulatory" , "emergency", "home", "field", "daytime", "virtual", "other"],
     	required: true
     },
     encounterType: [{				// Specific type of encounter
@@ -74,7 +82,7 @@ var EncounterSchema = new mongoose.Schema({
         }],
 		text : String			// Plain text representation of the concept
     },
-    patient: {
+    patient: {				// The patient present at the encounter
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
@@ -104,7 +112,7 @@ var EncounterSchema = new mongoose.Schema({
     		display : String	// Text alternative for the resource
         }
     }],
-    appointment: {
+    appointment: {			// The appointment that scheduled this encounter
 		reference : String, // Relative, internal or absolute URL reference
 		display : String	// Text alternative for the resource
     },
@@ -208,6 +216,7 @@ var EncounterSchema = new mongoose.Schema({
         },
         status: {				// 	planned | active | reserved | completed        	
         	type: String,		// EncounterLocationStatus (Required)
+        	enum : ["planned" , "active" , "reserved" , "completed"],
         	required: true
         },
         period: {				// Time period during which the patient was present at the location

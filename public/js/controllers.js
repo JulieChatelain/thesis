@@ -108,7 +108,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 
      
 }])
-.controller('ProfileCtrl', ['$scope', '$log' , '$location', 'Rest', 'Authentication', function($scope, $log, $location, Rest, Authentication) {
+.controller('ProfileCtrl', ['$scope', '$log' , '$location', '$localStorage', 'Rest', 'Authentication', function($scope, $log, $location, $localStorage, Rest, Authentication) {
 	$scope.$log = $log;
 	$scope.user = Authentication.user;
 
@@ -332,6 +332,8 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	$scope.changePassword = function() {
 		Rest.changePassword($scope.password, function(res) {
 			$scope.message = res.data.message;
+            $localStorage.token = res.data.token;
+        	$scope.user = Authentication.user;
 	    }, function() {
 	    	$scope.message = res.data.message;
 	    });

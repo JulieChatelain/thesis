@@ -1,9 +1,9 @@
 var mongoose = require('mongoose');
 
 /**
- * ----------------------------------------------------------------------- Check
- * if a resource is empty
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * Check if a resource is empty
+ * ----------------------------------------------------------------------------
  */
 var isEmpty = function(resource) {
 
@@ -38,9 +38,9 @@ var isEmpty = function(resource) {
 exports.isEmpty = isEmpty;
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert a codeable concept resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getCodeableConcept = function(cc) {
 	if ("text" in cc && cc.text != "") {
@@ -58,9 +58,9 @@ var getCodeableConcept = function(cc) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert a range resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getRange = function(range, res) {
 	var rangeString = "";
@@ -80,9 +80,9 @@ var getRange = function(range, res) {
 	return rangeString;
 };
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert a reference resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getReference = function(r, linkName, res, host) {
 	var rString = "";
@@ -102,10 +102,10 @@ var getReference = function(r, linkName, res, host) {
 	return rString;
 };
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert a timing resource to text.<br>
  * frequency per period for duration
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getTiming = function(timing, res) {
 	var timingString = "";
@@ -142,9 +142,9 @@ var getTiming = function(timing, res) {
 	}
 };
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert ratio resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getRatio = function(ratio, res) {
 	var ratioString = "";
@@ -182,9 +182,9 @@ var getRatio = function(ratio, res) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert period resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getPeriod = function(period, res) {
 	var periodString = "";
@@ -199,9 +199,9 @@ var getPeriod = function(period, res) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert quantity resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getQuantity = function(qty, res) {
 	var qtyString = "";
@@ -216,9 +216,9 @@ var getQuantity = function(qty, res) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert sampled data resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getSampledData = function(data, res) {
 	var dataString = "";
@@ -227,9 +227,9 @@ var getSampledData = function(data, res) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert a date to a string in format dd/mm/yyyy.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var dateToString = function(d) {
 	var date = new Date(d);
@@ -244,9 +244,9 @@ var dateToString = function(d) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Convert attachment resource to text.
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var getAttachment = function(att, res) {
 	var str = "";
@@ -266,12 +266,12 @@ var getAttachment = function(att, res) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * Transforms a jason resource into human readable text (format html).
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * MEDICATION ORDER<br>
  * Format example for a medication order: "
  * <p>
@@ -290,7 +290,7 @@ var getAttachment = function(att, res) {
  * href="localhost:3000/ehr/practitioner/3786786">Dr. Jean DUPUIS</a>.<br>
  * Stoppé le 02/02/12, raison : fin du traitement.<br>
  * </p>
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var medicationOrderToString = function(mo, res, host) {
 	if (isEmpty(mo) == true) {
@@ -415,7 +415,7 @@ var medicationOrderToString = function(mo, res, host) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * CONDITION<br>
  * Format example for a condition: "
  * <p>
@@ -432,7 +432,7 @@ var medicationOrderToString = function(mo, res, host) {
  * Enregistrer le 10/10/10 <strong>Note:</strong> ...<br>
  * Modifié en dernier le 10/12/10 par Dr.Jean DUPUIS.<br>
  * </p>
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var conditionToString = function(resource, res, host) {
 	if (isEmpty(resource) == true) {
@@ -596,6 +596,7 @@ var conditionToString = function(resource, res, host) {
 
 	return rString;
 };
+
 
 /**
  * OBSERVATION<br>
@@ -783,9 +784,79 @@ var observationToString = function(resource, res, host) {
 };
 
 /**
- * -----------------------------------------------------------------------
+ * ENCOUNTER<br>
+ * Example:<br>
+ * <br>
+ * Enregistrer le 10/10/10; Modifié en dernier le 10/12/10 par Dr.Jean DUPUIS.<br>
+ */
+var encounterToString = function(resource, res){
+	
+	if (isEmpty(resource) == true) 
+		return "";	
+	
+	var rString= res.__('Encounter');
+
+	if ("period" in resource && !isEmpty(resource.period)) 
+		if ("start" in resource.period && !isEmpty(resource.period.start))
+			rString +=  " " res.__('of') + " " + dateToString(resource.period.start);
+				
+	if ("classification" in resource && !isEmpty(resource.classification)) 
+		rString += " (" + res.__(resource.classification) + ")<br>";
+		
+	if ("encounterType" in resource && !isEmpty(resource.encounterType)) 
+		rString += "<i>" + res.__(getCodeablConcept(resource.encounterType)) + "</i><br>";
+	
+
+	if ("participant" in resource && !isEmpty(resource.participant)) {
+		var len = resource.participant.length;
+		for (var i = 0; i < len; i++) {
+			var len2 = resource.participant[i].role.length;
+			for (var k = 0; k < len2; k++) {
+				if ("individual" in resource.participant[i] && !isEmpty(resource.participant[i].individual)) {
+					rString += res.__(getCodeableConcept(resource.participant[i].role[k]));
+					rString += " : " + resource.participant[i].individual;
+				}
+			}
+		}
+	}
+
+	if ("location" in resource && !isEmpty(resource.location)) {
+		
+	}
+	
+	if ("reason" in resource && !isEmpty(resource.reason)) {
+		
+	}
+
+	if ("indication" in resource && !isEmpty(resource.indication)) {
+		
+	}
+	
+	rString += "<hr><span class='small'>";
+	// Last modified the dd/mm/yyyy by ...
+	rString += "" + res.__('LastModified');
+	if ("meta" in resource && !isEmpty(resource.meta)) {
+		if ("lastUpdated" in resource.meta
+				&& !isEmpty(resource.meta.lastUpdated)) {
+			rString += " " + res.__('the') + " "
+					+ dateToString(resource.meta.lastUpdated) + "";
+		}
+		if ("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)) {
+			rString += " " + res.__('by') + " <a href='" + host + "/ehr/"
+					+ resource.meta.updatedBy + "'>" + resource.meta.updatedBy
+					+ "</a>";
+		}
+	}
+	rString += "</small><br>";
+
+	
+	return rString;
+};
+
+/**
+ * ----------------------------------------------------------------------------
  * Generate a text version (html format) of the resource
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 var generateText = function(resource, res, host) {
 	switch (resource.resourceType) {
@@ -831,9 +902,9 @@ var generateText = function(resource, res, host) {
 exports.generateText = generateText;
 
 /**
- * ----------------------------------------------------------------------- Check
- * if two objects are similar
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * Check if two objects are similar
+ * ----------------------------------------------------------------------------
  */
 var compareObjects = function(a, b) {
 	if (a == null && b != null)
@@ -873,9 +944,9 @@ var compareObjects = function(a, b) {
 exports.compareObjects = compareObjects;
 
 /**
- * ----------------------------------------------------------------------- Get
- * the "minimumRead" version of the resource
- * -----------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * Get the "minimumRead" version of the resource
+ * ----------------------------------------------------------------------------
  */
 
 var getWorkTelecom = function(telecom) {
@@ -920,86 +991,3 @@ var getMinimumRead = function(resource, modelName) {
 
 };
 exports.getMinimumRead = getMinimumRead;
-
-/**
- * ----------------------------------------------------------------------- Check
- * if the demander has the necessary authorization to view the resource.
- * -----------------------------------------------------------------------
- */
-var checkAuthorization = function(req, resource, next) {
-	//return next(5);
-	if (typeof req.token != 'undefined' && typeof req.user != 'undefined') {
-		var AccessAuthorization = mongoose.model('AccessAuthorization');
-		var user = req.user;
-		var resRef = "";
-		var dateNow = new Date();
-		var authLvl = 0; // 0 = Not authorized to view it.
-		// find to whom the resource belong to
-		if (typeof resource.patient != 'undefined') {
-			resRef = resource.patient.reference;
-			if (user.isPatient && user.reference.patientId == resRef)
-				return next(3);
-		} else if (typeof resource.subject != 'undefined') {
-			resRef = resource.subject.reference;
-			if (user.isPatient && user.reference.patientId == resRef)
-				return next(3);
-		} else if (req.params.model == 'Patient'
-				|| req.params.model == 'Practitioner') {
-			resRef = resource.id;
-			if ((user.isPatient && user.reference.patientId == resRef)
-					|| (user.isPractitioner && user.reference.practitionerId == resRef))
-				return next(5);
-
-		}
-		if (user.isPractitioner) {
-			var userPractitionerId = user.reference.practitionerId;
-			
-			// find the authorizations
-			AccessAuthorization
-					.findOne(
-							{
-								referenceId : userPractitionerId
-							},
-							function(err, auth) {
-								if (err) {
-									console.log("Find access error: " + err);
-									return next(0);
-								} else {
-									if(auth == null){
-										authLvl = 0;
-									}else{
-										var len = auth.access.length;
-										for (var i = 0; i < len; i++) {
-											if (auth.access[i].refId == resRef
-													&& auth.access[i].isApproved) {
-												// we search for the highest
-												// authorization:
-												if (auth.access[i].level > authLvl)
-													authLvl = auth.access[i].level;
-											}
-										}
-									}
-									// Practitioner can see the minimum readable
-									// of any patient and practitioner
-									if (authLvl == 0
-											&& (req.params.model == 'Patient' || req.params.model == 'Practitioner')) {
-										return next(1);
-									}
-									return next(authLvl);
-								}
-							});
-
-		} else {
-			// Patient can see the minimum readable of any practitioner.
-			if (req.params.model == 'Practitioner') {
-				return next(1);
-			} else {
-				return next(0);
-			}
-		}
-	} else {
-		return next(0);
-	}
-};
-
-exports.checkAuthorization = checkAuthorization;
