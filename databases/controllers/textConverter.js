@@ -798,7 +798,7 @@ var encounterToString = function(resource, res){
 
 	if ("period" in resource && !isEmpty(resource.period)) 
 		if ("start" in resource.period && !isEmpty(resource.period.start))
-			rString +=  " " res.__('of') + " " + dateToString(resource.period.start);
+			rString +=  " " + res.__('of') + " " + dateToString(resource.period.start);
 				
 	if ("classification" in resource && !isEmpty(resource.classification)) 
 		rString += " (" + res.__(resource.classification) + ")<br>";

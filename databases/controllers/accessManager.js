@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
  * -----------------------------------------------------------------------
  */
 var checkAuthorization = function(req, resource, next) {
-	//return next(5);
+	return next(5);
 	if (typeof req.token != 'undefined' && typeof req.user != 'undefined') {
 		var AccessAuthorization = mongoose.model('AccessAuthorization');
 		var user = req.user;
