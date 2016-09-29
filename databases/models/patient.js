@@ -25,177 +25,51 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
+var SubDocs = require('./subDocs/subDocs');
+
 /**
  * Demographics and other administrative information about an individualreceiving care or other health-related services. 
  */
 var PatientSchema = new mongoose.Schema({
-    identifier: [{
-		use : {
-			type : String,
-			enum : [ 'usual', 'official', 'temp', 'secondary' ],
-			required : true
-		},
-		assigner : String, 	// Organization that issued id (may be just text)
-		system : String, 	// The namespace for the identifier (uri)
-		value : {			// The value that is unique
-			type : String,
-			required : true
-		}
-    }],
+    identifier: [SubDocs.Identifier],
     active: Boolean,		// Whether this patient's record is in active use
-    name: {
-        use: String,
-        text: String,
-        family: [String],
-        given: [String],
-        prefix: [String],
-        suffix: [String]
-    },
-    telecom: [{
-    	  system : {				// C? phone | fax | email | pager | other
-			type : String,
-			enum : [ 'phone', 'fax', 'email', 'pager', 'other' ],
-			required : true
-			}, 		
-    	  value : String, 			// The actual contact point details
-    	  use : { 					// home | work | temp | old | mobile - purpose of this contact point
-    		type : String,
-  			enum : [ 'home', 'work', 'temp', 'old', 'mobile' ],
-  			required : true
-  			}, 	
-    	  rank : Number, 			// Specify preferred order of use (1 = highest)
-    	  period : { 				// Time period when the contact point was/is in use
-    		  start: Date, 
-    		  end : Date 
-    		  } 		
-    }],
+    name: SubDocs.HumanName,
+    telecom: [SubDocs.ContactPoint],
     gender: String,
     birthDate: Date,
+    
     //	Indicates if the individual is deceased or not
     deceasedBoolean: Boolean,
     deceasedDateTime: Date,
-    address: [{
-          use : String, 		// home | work | temp | old - purpose of this address
-    	  addressType : String,	// postal | physical | both
-    	  text : String, 		// Text representation of the address
-    	  line : [String], 		// Street name, number, direction & P.O. Box etc.
-    	  city : String, 		// Name of city, town etc.
-    	  district : String, 	// District name (aka county)
-    	  state : String, 		// Sub-unit of country (abbreviations ok)
-    	  postalCode : String, 	// Postal code for area
-    	  country : String, 	// Country (can be ISO 3166 3 letter code)
-    	  period : { 			// Time period when address was/is in use
-    		  	start: Date, 
-    		  	end: Date 
-    	  } 
-    }],
+    
+    address: [SubDocs.Address],
     profession:[String],
-    maritalStatus: {			// Marital (civil) status of a patient
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-		text : String			// Plain text representation of the concept
-    },
+    maritalStatus: SubDocs.CodeableConcept,	// Marital (civil) status of a patient   
+    
     // Whether patient is part of a multiple birth
     multipleBirthBoolean: Boolean,
     multipleBirthInteger: Number,
-    photo: [{					// Attached images
-		contentType : String, 	// Mime type of the content, with charset etc.
-		language : String, 		// Human language of the content (BCP-47)
-		data : Buffer, 			// Data inline, base64ed
-		url : String, 			// Uri where the data can be found
-		size : Number, 			// Number of bytes of content (if url provided)
-		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
-		title : String, 		// Label to display in place of the data
-		creation : Date			// Date attachment was first created	
-    }],
-    contact: [{					// 	A contact party (e.g. guardian, partner, friend) for the patient
-        relationship: [{		// The kind of relationship
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        }],
-        name: {
-            use: String,
-            text: String,
-            family: [String],
-            given: [String],
-            prefix: [String],
-            suffix: [String]
-        },
-        telecom: [{
-      	  system : {				// C? phone | fax | email | pager | other
-  			type : String,
-  			enum : [ 'phone', 'fax', 'email', 'pager', 'other' ],
-  			required : true
-  			}, 		
-      	  value : String, 			// The actual contact point details
-      	  use : { 					// home | work | temp | old | mobile - purpose of this contact point
-      		type : String,
-    			enum : [ 'home', 'work', 'temp', 'old', 'mobile' ],
-    			required : true
-    			}, 	
-      	  rank : Number, 			// Specify preferred order of use (1 = highest)
-      	  period : { 				// Time period when the contact point was/is in use
-      		  start: Date, 
-      		  end : Date 
-      		  } 		
-        }],
-        address: [{				// Address for the contact person
-          use : String, 		// home | work | temp | old - purpose of this address
-      	  addressType : String, // postal | physical | both
-      	  text : String, 		// Text representation of the address
-      	  line : [String], 		// Street name, number, direction & P.O. Box etc.
-      	  city : String, 		// Name of city, town etc.
-      	  district : String, 	// District name (aka county)
-      	  state : String, 		// Sub-unit of country (abbreviations ok)
-      	  postalCode : String, 	// Postal code for area
-      	  country : String, 	// Country (can be ISO 3166 3 letter code)
-      	  period : { 			// Time period when address was/is in use
-      		  	start: Date, 
-      		  	end: Date 
-      	  } 
-        }],
+    
+    photo: [SubDocs.Attachment],	// Attached images
+    contact: [{						// 	A contact party (e.g. guardian, partner, friend) for the patient
+        relationship: [SubDocs.CodeableConcept], // The kind of relationship
+        name: SubDocs.HumanName,
+        telecom: [SubDocs.ContactPoint],
+        address: [SubDocs.Address],
         gender: String,
-        organization: {			// Organization that is associated with the contact
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        },
-        period: {				// The period during which this contact person or organization is valid to be contacted relating to this patient
-    		start : Date,
-    		end : Date
-        }
+        organization: SubDocs.Reference,	// Organization that is associated with the contact
+        period: SubDocs.Period				// The period during which this contact person or organization is valid to be contacted relating to this patient
+    	
     }],
-    communication: [{		//	A list of Languages which may be used to communicate with the patient about his or her health
-        language: {			// The language which can be used to communicate with the patient about his or her health
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        preferred: Boolean	// Language preference indicator
+    communication: [{						//	A list of Languages which may be used to communicate with the patient about his or her health
+        language: SubDocs.CodeableConcept,	// The language which can be used to communicate with the patient about his or her health
+        preferred: Boolean					// Language preference indicator
     }],
-    careProvider: [{		// Patient's nominated primary care provider
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    managingOrganization: {	// Organization that is the custodian of the patient record
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    link: [{					// Link to another patient resource that concerns the same actual person
-        other: {				// The other patient resource that the link refers to
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        },
-        linkType: String,			// replace | refer | seealso - type of link
+    careProvider: [SubDocs.Reference],		// Patient's nominated primary care provider
+    managingOrganization: SubDocs.Reference,// Organization that is the custodian of the patient record
+    link: [{								// Link to another patient resource that concerns the same actual person
+        other: SubDocs.Reference,			// The other patient resource that the link refers to
+        linkType: String,					// replace | refer | seealso - type of link
     }]
 });
 

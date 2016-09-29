@@ -40,11 +40,12 @@ showReports=false;showProtocols=false;">
 	Consultations </h3>	
 	<div ng-hide="(showEncounters==false)" ng-init="eMenu=[true,true,true]">
 	
-	<div class="menuElem">
-	</div>
+		<div class="menuElem" ng-repeat="encounter in encounters | orderBy: 'period.start'" ng-click="selectEncounter(encounter.id)">
+			{{encounter.period.start | date:'dd-MM-yyyy'}}<br />
+			<span class="small" ng-repeat="praticien in encounter.participant">
+			{{praticien.individual.display}} ({{praticien.role[0].text}})</span>
+		</div>
 	
-	<div class="encounterBlocked">
-	</div>
 	
 	</div>
 	<!-- 
@@ -74,7 +75,7 @@ showReports=false;showProtocols=false;">
 <!--  ==================== Patient Data ================================ -->
 
 <section id="contents">
-	<section id="patient" ng-init="showPatientData=true">
+	<section id="patient">
 	
 		<div id="title"> 
 			<img src="/img/more.png" alt="Plus"  ng-hide="(showPatientData==true)" ng-click="showPatientData=(showPatientData==false)"/>
@@ -96,8 +97,14 @@ showReports=false;showProtocols=false;">
 				</a> 
 				<strong>{{elem.name}} : </strong></p>
 				<div ng-include="'../../'+elem.url"></div>
-			</div>
-			
+			</div>			
+		</div>
+		
+	</section>
+	
+	<section id="encounter" ng-if="encounter">
+		<div class="dataCard" style="text-align:left;">
+			<span ng-bind-html="display(encounter)"></span>
 		</div>
 	</section>
 

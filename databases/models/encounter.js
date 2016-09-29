@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
+var SubDocs = require('./subDocs/subDocs');
 
 /**
  * An interaction between a patient and healthcare provider(s) 
@@ -32,206 +33,70 @@ var mongoose = require('mongoose');
  * the health status of a patient. 
  */
 var EncounterSchema = new mongoose.Schema({
-    identifier: [{
-		use : {
-			type : String,
-			enum : [ 'usual', 'official', 'temp', 'secondary' ],
-			required : true
-		},
-		assigner : String, 	// Organization that issued id (may be just text)
-		system : String, 	// The namespace for the identifier (uri)
-		value : {			// The value that is unique
-			type : String,
-			required : true
-		}
-    }],
-    status: {				// planned | arrived | in-progress | onleave | finished | cancelled
+	identifier: [SubDocs.Identifier],
+    status: {						// planned | arrived | in-progress | onleave | finished | cancelled
     	type: String, 
     	enum : ["planned" , "arrived" , "in-progress" , "onleave" , "finished" , "cancelled"],
-    	required : true
+    	required : true,
+    	default: 'finished'
     	},			
-    statusHistory: [{		// List of past encounter statuses
+    statusHistory: [{				// List of past encounter statuses
         status: {
 	    	type: String, 
 	    	enum : ["planned" , "arrived" , "in-progress" , "onleave" , "finished" , "cancelled"],
 	    	required : true
     	},	
-        period: {
-    		start : Date,
-    		end : Date
-        }
+        period: SubDocs.Period
     }],
     classification: {				// inpatient | outpatient | ambulatory | emergency +
     	type: String,
     	enum : ["inpatient" , "outpatient" , "ambulatory" , "emergency", "home", "field", "daytime", "virtual", "other"],
-    	required: true
+    	required: true,
+		default: 'ambulatory'
     },
-    encounterType: [{				// Specific type of encounter
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-		text : String			// Plain text representation of the concept
+    encounterType: [SubDocs.CodeableConcept],	// Specific type of encounter
+    priority: SubDocs.CodeableConcept,			//Indicates the urgency of the encounter
+    patient: SubDocs.Reference,					// The patient present at the encounter
+    episodeOfCare: [SubDocs.Reference],			// Episode(s) of care that this encounter should be recorded against
+    incomingReferral: [SubDocs.Reference],		// The ReferralRequest that initiated this encounter
+    participant: [{								// List of participants involved in the encounter
+        role: [SubDocs.CodeableConcept],		// Role of participant in encounter
+        period: SubDocs.Period,					// 	Period of time during the encounter participant was present
+        individual: SubDocs.Reference,			// Persons involved in the encounter other than the patient
     }],
-    priority: {				//Indicates the urgency of the encounter
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-		text : String			// Plain text representation of the concept
+    appointment: SubDocs.Reference,				// The appointment that scheduled this encounter
+    period: SubDocs.Period,						// The start and end time of the encounter
+    length: SubDocs.Quantity,					// Quantity of time the encounter lasted (less time absent)
+    reason: [SubDocs.CodeableConcept],			// Reason the encounter takes place (code)
+    indication: [SubDocs.Reference],			// Reason the encounter takes place (resource: condition, procedure)
+    hospitalization: {							// Details about the admission to a healthcare service
+        preAdmissionIdentifier: SubDocs.Identifier,
+        origin: SubDocs.Reference,				// The location from which the patient came before admission
+        admitSource: SubDocs.CodeableConcept,	// 	From where patient was admitted (physician referral, transfer)
+        admittingDiagnosis: [SubDocs.Reference], // The admitting diagnosis as reported by admitting practitioner (condition)
+        reAdmission: SubDocs.CodeableConcept,	// The type of hospital re-admission that has occurred (if any). If the value is absent, then this is not identified as a readmission
+            
+        dietPreference: [SubDocs.CodeableConcept],		// Diet preferences reported by the patient
+        specialCourtesy: [SubDocs.CodeableConcept],		// Special courtesies (VIP, board member)
+        specialArrangement: [SubDocs.CodeableConcept],	// Wheelchair, translator, stretcher, etc.
+        destination: SubDocs.Reference,					// Location to which the patient is discharged
+        dischargeDisposition: SubDocs.CodeableConcept,	// Category or kind of location after discharge
+        dischargeDiagnosis: [SubDocs.Reference]			// The final diagnosis given a patient before release from the hospital after all testing, surgery, and workup are complete
+    	
     },
-    patient: {				// The patient present at the encounter
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    episodeOfCare: [{		// Episode(s) of care that this encounter should be recorded against
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    incomingReferral: [{	// The ReferralRequest that initiated this encounter
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    participant: [{				// List of participants involved in the encounter
-        role: [{				// Role of participant in encounter
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        }],
-        period: {				// 	Period of time during the encounter participant was present
-    		start : Date,
-    		end : Date
-        },
-        individual: {			// Persons involved in the encounter other than the patient
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        }
-    }],
-    appointment: {			// The appointment that scheduled this encounter
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    period: {				// The start and end time of the encounter
-		start : Date,
-		end : Date
-    },
-    length: {				// Quantity of time the encounter lasted (less time absent)
-    	value: Number,
-    	unit: String,
-    	system : String
-    },
-    reason: [{				// Reason the encounter takes place (code)
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-		text : String			// Plain text representation of the concept
-    }],
-    indication: [{			// Reason the encounter takes place (resource: condition, procedure)
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    hospitalization: {			// Details about the admission to a healthcare service
-        preAdmissionIdentifier: {
-            use: String,
-            label: String,
-            system: String,
-            value: String
-        },
-        origin: {				// The location from which the patient came before admission
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        },
-        admitSource: {			// 	From where patient was admitted (physician referral, transfer)
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        admittingDiagnosis: [{  // The admitting diagnosis as reported by admitting practitioner (condition)
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        }],
-        reAdmission: {			// The type of hospital re-admission that has occurred (if any). If the value is absent, then this is not identified as a readmission
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        dietPreference: [{		// Diet preferences reported by the patient
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        }],
-        specialCourtesy: [{		// Special courtesies (VIP, board member)
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        }],
-        specialArrangement: [{	// Wheelchair, translator, stretcher, etc.
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        }],
-        destination: {			// Location to which the patient is discharged
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        },
-        dischargeDisposition: {	// Category or kind of location after discharge
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        dischargeDiagnosis: [{	// The final diagnosis given a patient before release from the hospital after all testing, surgery, and workup are complete
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        }]
-    },
-    location: [{				// List of locations where the patient has been
-        location: {				// Location the encounter takes place
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        },
-        status: {				// 	planned | active | reserved | completed        	
-        	type: String,		// EncounterLocationStatus (Required)
+    location: [{					// List of locations where the patient has been
+        location: SubDocs.Reference,// Location the encounter takes place
+        status: {					// 	planned | active | reserved | completed        	
+        	type: String,			// EncounterLocationStatus (Required)
         	enum : ["planned" , "active" , "reserved" , "completed"],
-        	required: true
+        	required: true,
+        	default: 'completed'
         },
-        period: {				// Time period during which the patient was present at the location
-    		start : Date,
-    		end : Date
-        }
+        period: SubDocs.Period				// Time period during which the patient was present at the location
     }],
-    serviceProvider: {		// The custodian organization of this Encounter record
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    partOf: {				// Another Encounter this encounter is part of
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }
+    serviceProvider: SubDocs.Reference,		// The custodian organization of this Encounter record
+    partOf: SubDocs.Reference,				// Another Encounter this encounter is part of
+    conclusion : String						// (Not in original model)
 });
 
 var encounter = mongoose.model('Encounter', EncounterSchema);

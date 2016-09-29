@@ -25,275 +25,74 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
+var SubDocs = require('./subDocs/subDocs');
 
+/**
+ * Measurements and simple assertions made about a patient, device or other subject. 
+ */
 var ObservationSchema = new mongoose.Schema({
-    identifier: [{
-		use : {
-			type : String,
-			enum : [ 'usual', 'official', 'temp', 'secondary' ],
-			required : true
-		},
-		assigner : String, 	// Organization that issued id (may be just text)
-		system : String, 	// The namespace for the identifier (uri)
-		value : {			// The value that is unique
-			type : String,
-			required : true
-		}
-    }],
-    status: String,			// registered | preliminary | final | amended +
-    category: {				// Classification of type of observation: 
-    						// social-history, vital-signs, imaging, laboratory, procedure, survey, exam, therapy
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-        text: String
-    },
-    code: {					// Type of observation (code / type)
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-        text: String
-    },
-    subject: {				// Who and/or what this is about
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    encounter: {			// Healthcare event during which this observation is made
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    effectiveDateTime: Date,	// Clinically relevant time/time-period for observation
-    effectivePeriod: {
-		start : Date,
-		end : Date
-    },
-    issued: Date,			// Date/Time this was made available
-    performer: [{			// Who is responsible for the observation
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
+    identifier: [SubDocs.Identifier],
+    status: String,						// registered | preliminary | final | amended +
+    category: SubDocs.CodeableConcept,	// Classification of type of observation: 
+    									// social-history, vital-signs, imaging, laboratory, procedure, survey, exam, therapy
+    code: SubDocs.CodeableConcept,		// Type of observation (code / type)
+    subject: SubDocs.Reference,			// Who and/or what this is about
+    encounter: SubDocs.Reference,		// Healthcare event during which this observation is made
+    effectiveDateTime: Date,			// Clinically relevant time/time-period for observation
+    effectivePeriod: SubDocs.Period,
+    issued: Date,						// Date/Time this was made available
+    performer: [SubDocs.Reference],		// Who is responsible for the observation
     // Actual result
-    valueQuantity: {
-        value: String,
-        units: String,
-        system: String,
-        code: String
-    },
-    valueCodeableConcept: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-        text: String
-    },
+    valueQuantity: SubDocs.Quantity,
+    valueCodeableConcept: SubDocs.CodeableConcept,
     valueString: String,
-    valueRange: {
-		low : String, 
-		high : String
-    },
-    valueRatio: {
-    	numerator: {
-    		  value : Number, 				// Numerical value (with implicit precision)
-    		  unit : String, 				// Unit representation
-    		  system : String, 				// C? System that defines coded unit form
-    		  code : String 				// Coded form of the unit    		
-    	},
-    	denominator: {
-  		  value : Number, 				// Numerical value (with implicit precision)
-		  unit : String, 				// Unit representation
-		  system : String, 				// C? System that defines coded unit form
-		  code : String 				// Coded form of the unit    	    		
-    	}
-    },
-    valueSampledData: {
-    	  origin : String, 			// R!  Zero value and units
-    	  period : Number, 			// R!  Number of milliseconds between samples
-    	  factor : Number, 			// Multiply data by this before adding to origin
-    	  lowerLimit : Number,		// Lower limit of detection
-    	  upperLimit : Number, 		// Upper limit of detection
-    	  dimensions : Number, 		// R!  Number of sample points at each time point
-    	  data : String 			// R!  Decimal values with spaces, or "E" | "U" | "L"
-    },
-    valueAttachment: {
-		contentType : String, 	// Mime type of the content, with charset etc.
-		language : String, 		// Human language of the content (BCP-47)
-		data : Buffer, 			// Data inline, base64ed
-		url : String, 			// Uri where the data can be found
-		size : Number, 			// Number of bytes of content (if url provided)
-		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
-		title : String, 		// Label to display in place of the data
-		creation : Date			// Date attachment was first created	
-    },
+    valueRange: SubDocs.Range,
+    valueRatio: SubDocs.Ratio,
+    valueSampledData: SubDocs.SampledData,
+    valueAttachment: SubDocs.Attachment,
     valueTime: String,			// A time during the day, with no date specified
     							// Regex: ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?
     valueDateTime: Date,
-    valuePeriod: {
-		start : Date,
-		end : Date
-    },
-    dataAbsentReason: {			// Why the result is missing
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-        text: String
-    },
-    interpretation: {			// High, low, normal, etc.
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-        text: String
-    },
-    comments: String,		// Comments about result
-    bodySite: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-        text: String
-    },
-    method: {				// How it was done
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-        text: String
-    },
-    specimen: {
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    device: {
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
+    valuePeriod: SubDocs.Period,
+    dataAbsentReason: SubDocs.CodeableConcept,	// Why the result is missing
+    interpretation: SubDocs.CodeableConcept,	// High, low, normal, etc.
+    comments: String,							// Comments about result
+    bodySite: SubDocs.CodeableConcept,
+    method: SubDocs.CodeableConcept,			// How it was done
+    specimen: SubDocs.Reference,
+    device: SubDocs.Reference,
     referenceRange: [{		// Provides guide for interpretation
     						// Must have at least a low or a high or text
         low: String,
         high: String,
-        meaning: {			// Indicates the meaning/use of this range of this range
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-            text: String
-        },
-        age: {				// Applicable age range, if relevant
-            low: String,
-            high: String,
-        },
+        meaning: SubDocs.CodeableConcept,	// Indicates the meaning/use of this range of this range
+        age: SubDocs.Range,					// Applicable age range, if relevant
         text: String,		// Text based reference range in an observation
     }],
     related: [{				// Resource related to this observation
         fhirType: String,	// has-member | derived-from | sequel-to | replaces | qualified-by | interfered-by
-        target: {
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        }
+        target: SubDocs.Reference,
     }],
     component: [{				// 	Component results
-        code: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-            text: String
-        },
-        valueQuantity: {
-            value: String,
-            units: String,
-            system: String,
-            code: String
-        },
-        valueCodeableConcept: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-            text: String
-        },
+        code: SubDocs.CodeableConcept,
+        valueQuantity: SubDocs.Quantity,
+        valueCodeableConcept: SubDocs.CodeableConcept,
         valueString: String,
-        valueRange: {
-    		low : String, 
-    		high : String
-        },
-        valueRatio: {
-        	  numerator: {
-      		  value : Number, 				// Numerical value (with implicit precision)
-      		  unit : String, 				// Unit representation
-      		  system : String, 				// C? System that defines coded unit form
-      		  code : String 				// Coded form of the unit    		
-	      	},
-	      	denominator: {
-	    		  value : Number, 				// Numerical value (with implicit precision)
-	  		  unit : String, 				// Unit representation
-	  		  system : String, 				// C? System that defines coded unit form
-	  		  code : String 				// Coded form of the unit    	    		
-	      	}
-        },
-        valueSampledData: {
-    	  origin : String, 			// R!  Zero value and units
-    	  period : Number, 			// R!  Number of milliseconds between samples
-    	  factor : Number, 			// Multiply data by this before adding to origin
-    	  lowerLimit : Number,		// Lower limit of detection
-    	  upperLimit : Number, 		// Upper limit of detection
-    	  dimensions : Number, 		// R!  Number of sample points at each time point
-    	  data : String 			// R!  Decimal values with spaces, or "E" | "U" | "L"
-	    },
-	    valueAttachment: {
-			contentType : String, 	// Mime type of the content, with charset etc.
-			language : String, 		// Human language of the content (BCP-47)
-			data : Buffer, 			// Data inline, base64ed
-			url : String, 			// Uri where the data can be found
-			size : Number, 			// Number of bytes of content (if url provided)
-			hash : Buffer, 			// Hash of the data (sha-1, base64ed)
-			title : String, 		// Label to display in place of the data
-			creation : Date			// Date attachment was first created	
-        },
+        valueRange: SubDocs.Range,
+        valueRatio: SubDocs.Ratio,
+        valueSampledData: SubDocs.SampledData,
+	    valueAttachment: SubDocs.Attachment,
         valueTime: String,
         valueDateTime: Date,
-        valuePeriod: {
-    		start : Date,
-    		end : Date
-        },
-        dataAbsentReason: {			// Why the result is missing
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-            text: String
-        },
-        referenceRange: [{	// Provides guide for interpretation
-			// Must have at least a low or a high or text
+        valuePeriod: SubDocs.Period,
+        dataAbsentReason: SubDocs.CodeableConcept,	// Why the result is missing
+        referenceRange: [{						// Provides guide for interpretation
+												// Must have at least a low or a high or text
             low: String,
             high: String,
-            meaning: {			// Indicates the meaning/use of this range of this range
-                coding: [{
-                    system: String,
-                    code: String,
-                    display: String
-                }],
-                text: String
-            },
-            age: {				// Applicable age range, if relevant
-                low: String,
-                high: String,
-            },
-            text: String,		// Text based reference range in an observation
+            meaning: SubDocs.CodeableConcept,	// Indicates the meaning/use of this range of this range
+            age: SubDocs.Range,					// Applicable age range, if relevant
+            text: String,						// Text based reference range in an observation
         }]
     }]
 });

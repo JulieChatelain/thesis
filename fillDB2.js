@@ -580,11 +580,24 @@ db.observations.insert([ {
 
 db.encounters.insert([ {
 	_id : id7,
-	classCode : "ambulatory",
+	classification : "ambulatory",
 	patient : {
 		reference : "Patient/" + id6.str,
 		display : "Marie Dupuis"
 	},
+	period : {
+		start : new Date(1995, 05, 15),
+		end : new Date(1995, 05, 20)
+	},
+	participant: [{
+		role: [{
+			text : "Diabétologue"			
+		}],
+		individual: {			
+			reference : "", 
+			display : "Dr. Frank Einstein"	
+		}}
+	    ],
 	reason : [ {
 		coding : [ {
 			system : "http://snomed.info/sct",
@@ -597,14 +610,28 @@ db.encounters.insert([ {
 			code : "272060000",
 			display : "Fatigue"
 		} ]
-	} ]
+	} ],
+	conclusion : "La patiente souffre probablement de diabète. Analyse demandée."
 }, {
 	_id : id9,
-	classCode : "inpatient",
+	classification : "inpatient",
 	patient : {
 		reference : "Patient/" + id5.str,
 		display : "Jean Dupont"
 	},
+	period : {
+		start : new Date(1995, 05, 15),
+		end : new Date(1995, 05, 20)
+	},
+	participant: [{
+		role: [{
+			text : "Diabétologue"			
+		}],
+		individual: {			
+			reference : "", 
+			display : "Dr. Frank Einstein"	
+		}}
+	    ],
 	reason : [ {
 		coding : [ {
 			system : "http://snomed.info/sct",
@@ -614,10 +641,12 @@ db.encounters.insert([ {
 	} ],
 	hospitalization : {
 		admittingDiagnosis : [ {
-			reference : "Condition/" + id16.str
+			reference : "Condition/" + id16.str,
+			display : "Coma"
 		} ],
 		dischargeDiagnosis : [ {
-			reference : "Condition/" + id13.str
+			reference : "Condition/" + id13.str,
+			display : "Diabetes Mellitus type I"
 		} ]
 	},
 	location : [ {
@@ -630,7 +659,8 @@ db.encounters.insert([ {
 			start : new Date(1995, 05, 15),
 			end : new Date(1995, 05, 20)
 		}
-	} ]
+	} ],
+	conclusion : "Le patient souffre probablement de diabète. Analyse demandée."
 } ]);
 
 // ********************************************************************

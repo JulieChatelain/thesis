@@ -453,6 +453,8 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	$scope.calculateAge = utils.calculateAge;
 	$scope.dateToString = utils.dateToString;
 	
+	$scope.showPatientData = true;
+	
 	/** -----------------------------------------------------------------------
 	 * Get the ehr options
 	 *  -----------------------------------------------------------------------
@@ -498,6 +500,7 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	$scope.selectPatient = function selectPatient(id) {
 		$scope.patientId = id;
 		$scope.isPatientDiabetic = false;
+		$scope.encounter = undefined;
 
 		// Get the patient according to his id
 		Rest.patient($scope.patientId, function(res) {
@@ -577,9 +580,31 @@ app.controller('AuthenticationCtrl', ['$scope', '$log', '$location', '$localStor
 	        $scope.message = 'Failed to load the prescriptions.';
 	    });
 		
+		// Get all the encounters concerning this patient
+		var encounter = 'Encounter?patient={"reference":"'
+			+ encodeURIComponent($scope.patientId) + '"}';
+		Rest.resource(encounter, function(res) {
+			$scope.encounters = res.data;
+	    }, function() {
+	        $scope.message = 'Failed to load the encounter.';
+	    });
 		
 	};
-
+	
+	/** -----------------------------------------------------------------------
+	 *  Select an encounter to display
+	 *  -----------------------------------------------------------------------
+	 */
+	$scope.selectEncounter = function(id) {
+		// find the encounter in our list
+		var len = $scope.encounters.length;
+		for(var i = 0; i < len; ++i){
+			if($scope.encounters[i].id== id){
+				$scope.encounter = $scope.encounters[i];
+				$scope.showPatientData = false;
+			}
+		}
+	};
 
 	/** -----------------------------------------------------------------------
 	 * Find since how long the patient has been diabetic.

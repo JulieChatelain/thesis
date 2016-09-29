@@ -25,6 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
+var SubDocs = require('./subDocs/subDocs');
+
 /**
  * An order for both supply of the medication and the instructions 
  * for administration of the medication to a patient. The resource 
@@ -33,153 +35,61 @@ var mongoose = require('mongoose');
  * as well as for care plans, etc. 
  */
 var MedicationOrderSchema = new mongoose.Schema({
-    identifier: [{			// External identifier
-		use : {
-			type : String,
-			enum : [ 'usual', 'official', 'temp', 'secondary' ],
-			required : true
-		},
-		assigner : String, 	// Organization that issued id (may be just text)
-		system : String, 	// The namespace for the identifier (uri)
-		value : {			// The value that is unique
-			type : String,
-			required : true
-		}
-    }],
-    dateWritten: Date,		// When prescription was authorized
+	identifier: [SubDocs.Identifier],
+    dateWritten: Date,						// When prescription was authorized
     status: {
 		type : String,
 		enum : [ 'active', 'on-hold', 'completed', 'entered-in-error', 'stopped', 'draft' ],
 		required : true
 	},	
-    dateEnded: Date,		// When prescription was stopped
-    reasonEnded: {			// Why the prescription was stopped
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-		text : String			// Plain text representation of the concept
-    },
-    patient: {
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    prescriber: {
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    encounter: {			// Created during encounter/admission/stay
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    reasonCodeableConcept: {	// 	Reason or indication for writing the prescription
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }],
-		text : String			// Plain text representation of the concept
-    },
-    reasonReference: {
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    note: String,			// Information about the prescription
-    medicationReference: {	// Medication to be taken
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    dosageInstruction: [{		//How medication should be taken
-        text: String,				// Dosage instructions expressed as text
-        additionalInstructions: {	// Supplemental instructions - e.g. "with meals"
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        timing: {					// When medication should be administered
-        	duration : Number, 		// How long when it happens
-            durationMax : Number, 	// How long when it happens (Max)
-            durationUnits : {
-    			type : String,
-    			enum : [ 's', 'min', 'h', 'd', 'wk', 'mo', 'a' ]
-    		},
-            frequency : Number, 	// Event occurs frequency times per period
-            frequencyMax : Number, 	// Event occurs up to frequencyMax times per period
-            period : Number, 		// Event occurs frequency times per period
-            periodMax : Number, 	// Upper limit of period (3-4 hours)
-            periodUnits : {
-    			type : String,
-    			enum : [ 's', 'min', 'h', 'd', 'wk', 'mo', 'a' ]
-    		}, 
-            when : String 			// Regular life events the event is tied to
-        },
+    dateEnded: Date,						// When prescription was stopped
+    reasonEnded: SubDocs.CodeableConcept,	// Why the prescription was stopped
+    patient: SubDocs.Reference,
+    prescriber: SubDocs.Reference,
+    encounter: SubDocs.Reference,					// Created during encounter/admission/stay
+    reasonCodeableConcept: SubDocs.CodeableConcept,	// 	Reason or indication for writing the prescription
+    reasonReference: SubDocs.Reference,
+    note: String,									// Information about the prescription
+    medicationReference: SubDocs.Reference,			// Medication to be taken
+    
+    // How medication should be taken
+    dosageInstruction: [{							
+        text: String,								// Dosage instructions expressed as text
+        additionalInstructions: SubDocs.CodeableConcept,// Supplemental instructions - e.g. "with meals"
+        timing: SubDocs.Timing,						// When medication should be administered
         asNeededBoolean: Boolean,
-        siteCodeableConcept: {	// Body site to administer to
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        route: {				// How drug should enter body
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        method: {				// Technique for administering medication
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }],
-    		text : String			// Plain text representation of the concept
-        },
-        doseRange: {			// Ex: between x ml and x ml
-        	low: {
-            	value: Number,
-            	unit: String
-            },
-        	high: {
-            	value: Number,
-            	unit: String
-            },
-        },
-        maxDosePerPeriod: {			// Max 40 ml per  3 day
-        	numerator: {
-	        	value : Number, 		// Numerical value (with implicit precision)
-	        	comparator : {			//  how to understand the value
-	    			type : String,
-	    			enum : [ '<', '<=', '>=', '>' ]
-	    		}, 	
-	        	unit : String, 			// Unit representation
-	        	system : String, 		// C? System that defines coded unit form
-	        	code : String 			// Coded form of the unit
-        	},
-        	denominator:  {
-	        	value : Number, 		// Numerical value (with implicit precision)
-	        	comparator : {			//  how to understand the value
-	    			type : String,
-	    			enum : [ '<', '<=', '>=', '>' ]
-	    		}, 	
-	        	unit : String, 			// Unit representation
-	        	system : String, 		// C? System that defines coded unit form
-	        	code : String 			// Coded form of the unit
-        	}
-        }
-    }]
+        asNeededCodeableConcept: SubDocs.CodeableConcept,
+        siteCodeableConcept: SubDocs.CodeableConcept,// Body site to administer to
+        siteReference : SubDocs.Reference,
+        route: SubDocs.CodeableConcept,				// How drug should enter body
+        method: SubDocs.CodeableConcept,			// Technique for administering medication
+        // Amount of medication per dose
+        doseRange: SubDocs.Range,					// Ex: between x ml and x ml
+        doseQuantity: String,
+        // Amount of medication per unit of time
+        rateRatio: SubDocs.Ratio,
+        rateRange: SubDocs.Range,
+        // Upper limit on medication per unit of time
+        maxDosePerPeriod: SubDocs.Ratio
+    }],
+    // Medication supply authorization
+    dispenseRequest : {
+    	//Product to be supplied
+    	medicationCodeableConcept: SubDocs.CodeableConcept,
+    	medicationReference: SubDocs.Reference,
+    	validityPeriod: SubDocs.Period,				// Time period supply is authorized for
+    	numberOfRepeatsAllowed: {type: Number, min: 0}, // Number of refills authorized
+    	quantity: String,							// Amount of medication to supply per dispense
+    	expectedSupplyDuration: String				// Number of days supply per dispense
+    },
+    // Any restrictions on medication substitution
+    substitution : {
+    	substitutionType: SubDocs.CodeableConcept,	// generic | formulary +
+    	reason: SubDocs.CodeableConcept				// Why should (not) substitution be made
+    },
+    priorPrescription : SubDocs.Reference			// An order/prescription that this supersedes
 });
-/*
-MedicationOrderSchema.methods = {
-		
-}*/
+
 
 var medicationOrder = mongoose.model('MedicationOrder', MedicationOrderSchema);
 exports.MedicationOrder = medicationOrder;

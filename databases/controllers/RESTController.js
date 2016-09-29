@@ -212,6 +212,7 @@ exports.create = function(req, res, next) {
 						var resourceHistory = new ResourceHistory({
 							resourceType : modelName
 						});
+						resourceHistory.addVersion(savedresource.id);
 						resourceHistory.save(function(rhErr, savedResourceHistory) {
 							if (rhErr) {
 								next(rhErr);
@@ -379,11 +380,11 @@ exports.list = function(req, res) {
 		if (rhErr) {
 			return next(rhErr);
 		}
-
+		if(histories != null){
 		async.forEach(histories, function(history, callback) {
 
 			var vid = history.versionCount();
-
+			if(history != null){
 			history.findLatest(function(err, resource) {
 
 				var add = textConverter.compareObjects(conditions, resource);
@@ -421,10 +422,12 @@ exports.list = function(req, res) {
 					callback();
 				}
 			});
+			}
 		}, function(err) {
 			res.contentType('application/fhir+json');
 			res.status(200);
 			res.send(JSON.stringify(result, null, ' '));
 		});
+		}
 	});
 };

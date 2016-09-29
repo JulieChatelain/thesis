@@ -25,95 +25,41 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
-
+var SubDocs = require('./subDocs/subDocs');
+/**
+ * The findings and interpretation of diagnostic tests performed on patients, 
+ * groups of patients, devices, and locations, and/or specimens derived from these. 
+ * The report includes clinical context such as requesting and provider information, 
+ * and some mix of atomic results, images, textual and coded interpretations, 
+ * and formatted representation of diagnostic reports. 
+ */
 var DiagnosticReportSchema = new mongoose.Schema({
-    identifier: [{
-		use : {
-			type : String,
-			enum : [ 'usual', 'official', 'temp', 'secondary' ],
-			required : true
-		},
-		assigner : String, 	// Organization that issued id (may be just text)
-		system : String, 	// The namespace for the identifier (uri)
-		value : {			// The value that is unique
-			type : String,
-			required : true
-		}
+	identifier: [SubDocs.Identifier],
+    status: {							// planned | arrived | in-progress | onleave | finished | cancelled
+    	type: String, 
+    	enum : ["register" , "partial" , "final" , "corrected" , "appended" , "cancelled", "entered-in-error"],
+    	required : true,
+    	default: 'final'
+    },						
+    category: SubDocs.CodeableConcept,	// 	Service category ex: BLB Blood Bank, CG Cytogenetics, CH Chemistry, CP CAT Scan,...
+    code: SubDocs.CodeableConcept,		// Name/Code for this diagnostic report    	
+    subject: SubDocs.Reference,			// The subject of the report, usually, but not always, the patient
+    encounter: SubDocs.Reference,		// Health care event when test ordered
+    effectiveDateTime: Date,			// Clinically Relevant time/time-period for report
+    effectivePeriod: SubDocs.Period,	// Clinically Relevant time/time-period for report
+    issued: Date,						// DateTime this version was released
+    performer: SubDocs.Reference,		// Responsible Diagnostic Service
+    request: [SubDocs.Reference],		// What was requested (DiagnosticOrder | ProcedureRequest | ReferralRequest)
+    specimen: [SubDocs.Reference],		// Specimens this report is based on
+    result: [SubDocs.Reference],		// Observations - simple, or complex nested groups
+    imagingStudy: [SubDocs.Reference],	// Reference to full details of imaging associated with the diagnostic report
+    image: [{							// Key images associated with this report
+        comment: String,				// Comment about the image (e.g. explanation)
+        link: SubDocs.Reference			// Reference to the image source
     }],
-    status: String,			// 	registered | partial | final | corrected | appended | cancelled | entered-in-error
-    category: {				// 	Service category ex: BLB Blood Bank, CG Cytogenetics, CH Chemistry, CP CAT Scan,...
-        coding: [{			//  See : Diagnostic Service Section Codes
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    code: {					// Name/Code for this diagnostic report    						
-        coding: [{			// LOINC Diagnostic Report Codes (Preferred)
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    subject: {				// The subject of the report, usually, but not always, the patient
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    encounter: {			// Health care event when test ordered
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    effectiveDateTime: Date,	// Clinically Relevant time/time-period for report
-    effectivePeriod: {			// Clinically Relevant time/time-period for report
-		start : Date,
-		end : Date
-    },
-    issued: Date,			// DateTime this version was released
-    performer: {			// Responsible Diagnostic Service
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    },
-    request: [{				// What was requested (DiagnosticOrder | ProcedureRequest | ReferralRequest)
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    specimen: [{			// Specimens this report is based on
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    result: [{				// Observations - simple, or complex nested groups
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    imagingStudy: [{		// Reference to full details of imaging associated with the diagnostic report
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-    }],
-    image: [{				// Key images associated with this report
-        comment: String,	// Comment about the image (e.g. explanation)
-        link: {				// Reference to the image source
-    		reference : String, // Relative, internal or absolute URL reference
-    		display : String	// Text alternative for the resource
-        }
-    }],
-    conclusion: String,		// Clinical Interpretation of test results
-    codedDiagnosis: [{		// Codes for the conclusion
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    }],
-    presentedForm: [{		// Entire report as issued
-		contentType : String, 	// Mime type of the content, with charset etc.
-		language : String, 		// Human language of the content (BCP-47)
-		data : Buffer, 			// Data inline, base64ed
-		url : String, 			// Uri where the data can be found
-		size : Number, 			// Number of bytes of content (if url provided)
-		hash : Buffer, 			// Hash of the data (sha-1, base64ed)
-		title : String, 		// Label to display in place of the data
-		creation : Date			// Date attachment was first created	
-    }]
+    conclusion: String,							// Clinical Interpretation of test results
+    codedDiagnosis: [SubDocs.CodeableConcept],	// Codes for the conclusion
+    presentedForm: [SubDocs.Attachment]			// Entire report as issued
 });
 
 var diagReport = mongoose.model('DiagnosticReport', DiagnosticReportSchema);

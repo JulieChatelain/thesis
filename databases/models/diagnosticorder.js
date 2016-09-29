@@ -27,25 +27,52 @@
 var mongoose = require('mongoose');
 var SubDocs = require('./subDocs/subDocs');
 
-var LocationSchema = new mongoose.Schema({
-	identifier: [SubDocs.Identifier],
-    name: String,
-    description: String,
-    fhirType: SubDocs.CodeableConcept,
-    telecom: [SubDocs.ContactPoint],
-    address: SubDocs.Address,
-    physicalType: SubDocs.CodeableConcept,
-    position: {
-        longitude: Number,
-        latitude: Number,
-        altitude: Number,
-    },
-    managingOrganization: SubDocs.Reference,
-    status: String,
-    partOf: SubDocs.Reference,
-    mode: String,
+var DiagnosticOrderSchema = new mongoose.Schema({
+    subject: SubDocs.Reference,
+    orderer: SubDocs.Reference,
+    identifier: [SubDocs.Identifier],
+    encounter: SubDocs.Reference,
+    reason: [SubDocs.CodeableConcept],
+    supportingInformation: [SubDocs.Reference],
+    specimen: [SubDocs.Reference],
+    status: {
+		type : String,
+		enum : [ 'proposed', 'draft', 'planned', 'requested', 'received', 'accepted', 'in-progress', 'review', 'completed', 'cancelled', 'suspended', 'rejected', 'failed' ],
+		required: true,
+    	default: 'requested'
+	},
+    priority: {
+    	type: String,
+		enum : [ 'routine', 'urgent', 'stat', 'asap'],
+		required : true,
+		default: 'routine'
+	},
+    event: [{
+        status: {
+    		type : String,
+    		enum : [ 'proposed', 'draft', 'planned', 'requested', 'received', 'accepted', 'in-progress', 'review', 'completed', 'cancelled', 'suspended', 'rejected', 'failed' ],
+    		required: true,
+        	default: 'requested'
+    	},
+        description: SubDocs.CodeableConcept,
+        dateTime: Date,
+        actor: SubDocs.Reference
+    }],
+    item: [{
+        code: SubDocs.CodeableConcept,
+        specimen: [SubDocs.Reference],
+        bodySite: SubDocs.CodeableConcept,
+        status: {
+    		type : String,
+    		enum : [ 'proposed', 'draft', 'planned', 'requested', 'received', 'accepted', 'in-progress', 'review', 'completed', 'cancelled', 'suspended', 'rejected', 'failed' ],
+    		required: true,
+        	default: 'requested'
+    	},
+        event: [{
+        }]
+    }],
+    note: SubDocs.Annotation
 });
 
-var location = mongoose.model('Location', LocationSchema);
-
-exports.Location = location;
+var diagOrder = mongoose.model('DiagnosticOrder', DiagnosticOrderSchema);
+exports.DiagnosticOrder = diagOrder;

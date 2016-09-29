@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
+var SubDocs = require('./subDocs/subDocs');
 
 /**
  * Detailed information about conditions, problems or diagnoses <br>
@@ -35,140 +36,48 @@ var mongoose = require('mongoose');
  */
 
 var ConditionSchema = new mongoose.Schema({
-	identifier : [ {
-		use : {
-			type : String,
-			enum : [ 'usual', 'official', 'temp', 'secondary' ],
-			required : true
-		},
-		assigner : String, 	// Organization that issued id (may be just text)
-		system : String, 	// The namespace for the identifier (uri)
-		value : {			// The value that is unique
-			type : String,
-			required : true
-		}
-	
-	} ],
-	patient : {				// 	Who has the condition?
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-	
-	},
-	encounter : {			// Encounter when condition first asserted
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-	
-	},
-	asserter : {			// Person who asserts this condition
-		reference : String, // Relative, internal or absolute URL reference
-		display : String	// Text alternative for the resource
-	},
-	dateRecorded : Date,	// When first entered
-	code : {				// Identification of the condition, problem or diagnosis
-		coding : [ {
-			system : String, 	// Identity of the terminology system (uri)
-			code : String, 		// Symbol in syntax defined by the system
-			display : String	// Representation defined by the system
-		
-		} ],
-		text : String			// Plain text representation of the concept
-	},
-	category : {				// complaint | symptom | finding | diagnosis
-		coding : [ {
-			system : String, 	// Identity of the terminology system (uri)
-			code : String, 		// Symbol in syntax defined by the system
-			display : String	// Representation defined by the system
-		
-		} ],
-		text : String			// Plain text representation of the concept
-	},
+	identifier : [ SubDocs.Identifier ],
+	patient : SubDocs.Reference,		// 	Who has the condition?
+	encounter : SubDocs.Reference,		// Encounter when condition first asserted
+	asserter : SubDocs.Reference,		// Person who asserts this condition
+	dateRecorded : Date,				// When first entered
+	code : SubDocs.CodeableConcept,		// Identification of the condition, problem or diagnosis
+	category : SubDocs.CodeableConcept, // complaint | symptom | finding | diagnosis
 	clinicalStatus : {
 		type : String,
-		enum : [ 'active', 'relapse', 'remission', 'resolved' ]
+		enum : [ 'active', 'relapse', 'remission', 'resolved' ],
+		default: 'active'
 	},
 	verificationStatus : {
 		type : String,
 		required : true,
 		enum : [ 'provisional', 'differential', 'confirmed', 'refuted',
-				'entered-in-error', 'unknown' ]
+				'entered-in-error', 'unknown' ],
+		default: 'confirmed'
 	},
-	severity : {				// Subjective severity of condition
-		coding : [ {
-			system : String, 	// Identity of the terminology system (uri)
-			code : String, 		// Symbol in syntax defined by the system
-			display : String	// Representation defined by the system
-		
-		} ],
-		text : String			// Plain text representation of the concept
-	},
+	severity : SubDocs.CodeableConcept,		// Subjective severity of condition
 	// Estimated or actual date, date-time, or age
 	onsetDateTime : Date,
-	onsetQuantity : {
-		value : Number,
-		units : String,
-		system : String,
-		code : String
-	},
-	onsetPeriod : {
-		start : Date,
-		end : Date
-	},
+	onsetQuantity : SubDocs.Quantity,
+	onsetPeriod :  SubDocs.Period,
 	onsetString : String,
 	// If/when in resolution/remission
 	abatementDateTime : Date,
-	abatementQuantity : {
-		value : Number,
-		units : String,
-		system : String,
-		code : String
-	},
+	abatementQuantity :  SubDocs.Quantity,
 	abatementBoolean : Boolean,
-	abatementPeriod : {
-		start : Date,
-		end : Date
-	},
+	abatementPeriod :  SubDocs.Period,
 	abatementRange : {low : String, high : String},
 	abatementString : String,
-	stage : {					// Stage/grade, usually assessed formally
-		summary : {				// Simple summary (disease specific)
-			coding : [ {
-				system : String, 	// Identity of the terminology system (uri)
-				code : String, 		// Symbol in syntax defined by the system
-				display : String	// Representation defined by the system
-			
-			} ],
-			text : String			// Plain text representation of the concept
-		},
-		assessment : [ {		// Formal record of assessment
-			reference : String, // Relative, internal or absolute URL reference
-			display : String	// Text alternative for the resource
-			} ]
+	stage : {								// Stage/grade, usually assessed formally
+		summary : SubDocs.CodeableConcept,	// Simple summary (disease specific)
+		assessment : [ SubDocs.Reference],	// Formal record of assessment
 	},
-	evidence : [ {				// Supporting evidence
-		code : {				// 	Manifestation/symptom
-			coding : [ {
-				system : String, 	// Identity of the terminology system (uri)
-				code : String, 		// Symbol in syntax defined by the system
-				display : String	// Representation defined by the system
-			
-			} ],
-			text : String			// Plain text representation of the concept
-		},
-		detail : [ {			// Supporting information found elsewhere
-			reference : String, // Relative, internal or absolute URL reference
-			display : String	// Text alternative for the resource
-			} ]
+	evidence : [ {							// Supporting evidence
+		code : SubDocs.CodeableConcept,		// 	Manifestation/symptom
+		detail : [ SubDocs.Reference],		// Supporting information found elsewhere
 	} ],
-	bodySite : [ {				// 	Anatomical location, if relevant
-		coding : [ {
-			system : String, 	// Identity of the terminology system (uri)
-			code : String, 		// Symbol in syntax defined by the system
-			display : String	// Representation defined by the system
-		
-		} ],
-		text : String			// Plain text representation of the concept
-	} ],
-	notes : String				// Additional information about the Condition
+	bodySite : [ SubDocs.CodeableConcept ],	// 	Anatomical location, if relevant
+	notes : String							// Additional information about the Condition
 });
 
 var condition = mongoose.model('Condition', ConditionSchema);

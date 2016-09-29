@@ -139,5 +139,15 @@
 	"OldPassword": "Mot de passe actuel",
 	"PasswordChanged": "Mot de passe correctement changé !",
 	"ForbiddenAccess": "Accès interdit",
-	"UpdateSuccessful": "Mise à jour réussie !"
+	"UpdateSuccessful": "Mise à jour réussie !",
+	"Encounter": "Consultation",
+	"ambulatory": "Visite au cabinet",
+	"Location(s)": "Lieu(x)",
+	"HospitalizationAdmittedFor": "Admis à l'hopital pour ",
+	"EncounterReasons": "Raison(s) de la consultation ",
+	"ofThe": "du",
+	"inpatient": "Patient hospitalisé",
+	"Diabétologue": "Diabétologue",
+	"HospitalizationDischargedWith": "Diagnostic de sortie",
+	"Hospitalization": "Hospitalisation"
 }

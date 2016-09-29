@@ -44,7 +44,7 @@ exports.isEmpty = isEmpty;
  */
 var getCodeableConcept = function(cc) {
 	if ("text" in cc && cc.text != "") {
-		return code.text;
+		return cc.text;
 	}
 	var codes = cc.coding;
 	var len = codes.length;
@@ -263,6 +263,28 @@ var getAttachment = function(att, res) {
 		str += " (" + dateToString(att.creation) + ")";
 	}
 	return str;
+};
+
+/**
+ * ----------------------------------------------------------------------------
+ * Convert the meta data part of a resource to text.
+ * ----------------------------------------------------------------------------
+ */
+var getMeta = function(res, resource, host){
+	var rString = "";
+	if ("lastUpdated" in resource.meta
+			&& !isEmpty(resource.meta.lastUpdated)) {
+		// Last modified the dd/mm/yyyy by ...
+		rString += "" + res.__('LastModified') + " " + res.__('the') + " " + dateToString(resource.meta.lastUpdated) + "";
+	}
+	if ("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)) {
+		rString += " " + res.__('by') + " <a href='" + host + "/ehr/"
+				+ resource.meta.updatedBy + "'>" + resource.meta.updatedBy
+				+ "</a>";
+	}
+	
+	return rString;
+	
 };
 
 /**
@@ -789,19 +811,27 @@ var observationToString = function(resource, res, host) {
  * <br>
  * Enregistrer le 10/10/10; Modifié en dernier le 10/12/10 par Dr.Jean DUPUIS.<br>
  */
-var encounterToString = function(resource, res){
+var encounterToString = function(resource, res, host){
 	
 	if (isEmpty(resource) == true) 
 		return "";	
 	
-	var rString= res.__('Encounter');
-
-	if ("period" in resource && !isEmpty(resource.period)) 
-		if ("start" in resource.period && !isEmpty(resource.period.start))
-			rString +=  " " + res.__('of') + " " + dateToString(resource.period.start);
+	var rString= "";
+	
+	if ("period" in resource && !isEmpty(resource.period)) {
+		rString += "<h3>" + res.__('Encounter') + "";
+		if ("start" in resource.period && !isEmpty(resource.period.start)){
+			rString +=  " " + res.__('ofThe') + " " + dateToString(resource.period.start) + "</h3>";
+		}
+	}
+	else{
+		rString += "<h3>" + res.__('Encounter') + "</h3>";
+	}
+	
+	rString += "<p>";
 				
 	if ("classification" in resource && !isEmpty(resource.classification)) 
-		rString += " (" + res.__(resource.classification) + ")<br>";
+		rString += " <i>(" + res.__(resource.classification) + ")</i><br><br>";
 		
 	if ("encounterType" in resource && !isEmpty(resource.encounterType)) 
 		rString += "<i>" + res.__(getCodeablConcept(resource.encounterType)) + "</i><br>";
@@ -813,42 +843,78 @@ var encounterToString = function(resource, res){
 			var len2 = resource.participant[i].role.length;
 			for (var k = 0; k < len2; k++) {
 				if ("individual" in resource.participant[i] && !isEmpty(resource.participant[i].individual)) {
-					rString += res.__(getCodeableConcept(resource.participant[i].role[k]));
-					rString += " : " + resource.participant[i].individual;
+					rString += "<b>" + res.__(getCodeableConcept(resource.participant[i].role[k])) + "</b>";
+					rString += " : " + getReference(resource.participant[i].individual, null, res, host);
+					rString += "<br>";
 				}
 			}
 		}
 	}
 
 	if ("location" in resource && !isEmpty(resource.location)) {
-		
-	}
-	
-	if ("reason" in resource && !isEmpty(resource.reason)) {
-		
+		rString += "<b>" + res.__('Location(s)') + " :</b> ";
+		var len = resource.location.length;
+		for (var i = 0; i < len; i++) {
+			if ("location" in resource.location[i] && !isEmpty(resource.location[i].location)) {
+				rString += "" + getReference(resource.location[i].location, null, res, host) + " ; ";
+			}			
+		}
+		rString += "<br>";
 	}
 
-	if ("indication" in resource && !isEmpty(resource.indication)) {
+	if (("reason" in resource && !isEmpty(resource.reason)) ||
+			("indication" in resource && !isEmpty(resource.indication))) {
 		
+		rString += "<b>" + res.__('EncounterReasons') + "</b> : ";
+		
+		if (("reason" in resource && !isEmpty(resource.reason))) {
+			var len = resource.reason.length;
+			for (var i = 0; i < len; i++) {
+				rString += getCodeableConcept(resource.reason[i]) + " ; ";					
+			}
+		}
+		
+		if ("indication" in resource && !isEmpty(resource.indication)) {
+			var len = resource.indication.length;
+			for (var i = 0; i < len; i++) {
+				rString += getReference(resource.indication[i], null, res, host) + " ; ";					
+			}
+		}
+		rString += "<br>";
+	}
+	if("conclusion" in resource && !isEmpty(resource.conclusion)){
+		rString += "<b>" + res.__('Conclusion') + " </b>: " + resource.conclusion;
 	}
 	
+	if("hospitalization" in resource && !isEmpty(resource.hospitalization)){
+		rString += "</p><h4>" + res.__('Hospitalization') + "</h4><p>";
+		if("admittingDiagnosis" in resource.hospitalization && ! isEmpty(resource.hospitalization.admittingDiagnosis)){
+			rString += "<b>" + res.__('HospitalizationAdmittedFor') + "</b> : ";
+			var len = resource.hospitalization.admittingDiagnosis.length;
+			for (var i = 0; i < len; i++) {
+				rString += getReference(resource.hospitalization.admittingDiagnosis[i], null, res, host);
+				rString += "<br>";
+			}
+		}
+		if("dischargeDiagnosis" in resource.hospitalization && ! isEmpty(resource.hospitalization.dischargeDiagnosis)){
+			rString += "<b>" + res.__('HospitalizationDischargedWith') + "</b> : ";
+			var len = resource.hospitalization.dischargeDiagnosis.length;
+			for (var i = 0; i < len; i++) {
+				rString += getReference(resource.hospitalization.dischargeDiagnosis[i], null, res, host);
+				rString += "<br>";
+			}
+		}
+		rString += "</p><p>";
+	}
+	
+	
 	rString += "<hr><span class='small'>";
-	// Last modified the dd/mm/yyyy by ...
-	rString += "" + res.__('LastModified');
 	if ("meta" in resource && !isEmpty(resource.meta)) {
-		if ("lastUpdated" in resource.meta
-				&& !isEmpty(resource.meta.lastUpdated)) {
-			rString += " " + res.__('the') + " "
-					+ dateToString(resource.meta.lastUpdated) + "";
-		}
-		if ("updatedBy" in resource.meta && !isEmpty(resource.meta.updatedBy)) {
-			rString += " " + res.__('by') + " <a href='" + host + "/ehr/"
-					+ resource.meta.updatedBy + "'>" + resource.meta.updatedBy
-					+ "</a>";
-		}
+		rString += getMeta(res, resource, host);
 	}
 	rString += "</small><br>";
 
+	rString += "<p>";
 	
 	return rString;
 };
@@ -866,6 +932,8 @@ var generateText = function(resource, res, host) {
 		return conditionToString(resource, res, host);
 	case 'Observation':
 		return observationToString(resource, res, host);
+	case 'Encounter' :
+		return encounterToString(resource, res, host);
 	default:
 		break;
 	}

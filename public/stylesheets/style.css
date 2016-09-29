@@ -18,7 +18,7 @@ h2 {
 }
 
 #contents {	flex:1;}
-#formContact { text-align: center;}
+#encounter { text-align: center;}
 
 p { 
 	margin: 5px;
@@ -87,6 +87,11 @@ img { vertical-align: middle; }
 .dataCard p{
 	margin: 2px;
 	padding: 2px;
+}
+
+.dataCard h4{
+	background-color: #81d4fa; /* light blue a bit darker than the rest */
+	padding : 5px;
 }
 
 .cardContent {

@@ -25,50 +25,33 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 var mongoose = require('mongoose');
+var SubDocs = require('./subDocs/subDocs');
 
+/**
+ * This resource is primarily used for the identification 
+ * and definition of a medication. It covers the ingredients 
+ * and the packaging for a medication. 
+ */
 var MedicationSchema = new mongoose.Schema({
-    code: {
-        coding: [{
-            system: String,
-            code: String,
-            display: String
-        }]
-    },
-    isBrand: Boolean,
-    manufacturer: {
-    },
-    product: {
-        form: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        ingredient: [{
-            item: {
-            },
-            amount: {
-            }
+    code: SubDocs.CodeableConcept,			// Codes that identify this medication
+    isBrand: Boolean,						// True if a brand
+    manufacturer: SubDocs.Reference,		// Manufacturer of the item
+    product: {								// Administrable medication details
+        form: SubDocs.CodeableConcept,		// ex: powder | tablets | carton ...
+        ingredient: [{						// Active or inactive ingredient
+            item: SubDocs.Reference,		// The product contained
+            amount: SubDocs.Ratio			// Quantity of ingredient present
         }],
         batch: [{
             lotNumber: String,
             expirationDate: Date,
         }]
     },
-    package: {
-        container: {
-            coding: [{
-                system: String,
-                code: String,
-                display: String
-            }]
-        },
-        content: [{
-            item: {
-            },
-            amount: {
-            }
+    medPackage: {								// Details about packaged medications
+        container: SubDocs.CodeableConcept,		// E.g. box, vial, blister-pack
+        content: [{								// What is in the package
+            item: SubDocs.Reference,			// A product in the package
+            amount: SubDocs.Ratio				// Quantity present in the package
         }]
     }
 });

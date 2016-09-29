@@ -579,7 +579,8 @@ db.encounters.insert([ {
 			code : "272060000",
 			display : "Fatigue"
 		} ]
-	} ]
+	} ],
+	conclusion : "Il est possible que le patient souffre de diabète. Analyse demandée."
 }, {
 	_id : id9,
 	classCode : "inpatient",
@@ -596,10 +597,12 @@ db.encounters.insert([ {
 	} ],
 	hospitalization : {
 		admittingDiagnosis : [ {
-			reference : "Condition/" + id16.str
+			reference : "Condition/" + id16.str,
+			display : "Coma"
 		} ],
 		dischargeDiagnosis : [ {
-			reference : "Condition/" + id13.str
+			reference : "Condition/" + id13.str,
+			display : "Diabetes Mellitus Type 1"
 		} ]
 	},
 	location : [ {
