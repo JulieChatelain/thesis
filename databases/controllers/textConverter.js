@@ -980,20 +980,20 @@ var compareObjects = function(a, b) {
 	if (b == null && a != null)
 		return false;
 	for ( var propA in a) {
-		propB = propA.trim();
+		var propB = propA.trim();
 		if (!propB in b) {
 			return false;
 		}
 		var propValue = a[propA];
-		if (a[propA].charAt(0) == '{') {
-			propValue = JSON.parse(a[propA]);
+		if (propValue.charAt(0) == '{') {
+			propValue = JSON.parse(propValue);
 			if (typeof propValue === 'object') {
 				return compareObjects(propValue, b[propB]);
 			} else {
 				return (propValue == b[propB]);
 			}
-		} else if (a[propA].charAt(0) == '[') {
-			propValue = JSON.parse(a[propA]);
+		} else if (propValue.charAt(0) == '[') {
+			propValue = JSON.parse(propValue);
 			propBValue = b[propB];
 			for (var i = 0, len = propValue.length; i < len; i++) {
 				var elemFound = false;

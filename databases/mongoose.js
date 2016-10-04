@@ -9,7 +9,7 @@ mongoose.connect(mongodbURL, mongodbOptions, function (err, res) {
     	console.log('Connection refused to ' + mongodbURL);
     	console.log(err);
     } else {
-        console.log('Express server listening on port 27017');
+        console.log('Express server listening to mongoDb on port 27017');
     }
 });
 
@@ -23,3 +23,5 @@ models.forEach(function (file) {
     require(models_path + '/' + file);
   }
 });
+
+exports.mongoose = mongoose;

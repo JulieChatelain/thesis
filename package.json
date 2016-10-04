@@ -16,7 +16,6 @@
     "mongoose": "4.2.x",
     "morgan": "latest",
     "underscore": "1.8.x",
-    "html-entities": "1.2.x",
-    "angular-sanitize": "1.5.x"
+    "acl": "^0.4.9"
   }
 }

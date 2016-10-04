@@ -35,7 +35,7 @@ var UserSchema = new mongoose.Schema({
 	},
 	language: { 
 		type: String, 
-		required: true 
+		required: false 
 	},
 	isPatient: {
 		type: Boolean,

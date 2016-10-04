@@ -15,6 +15,9 @@ function findModel(name) {
 	case 'Diagnosticreport':
 		return 'DiagnosticReport';
 		break;
+	case 'Diagnosticorder':
+		return 'DiagnosticOrder';
+		break;
 	case 'Medicationorder':
 		return 'MedicationOrder';
 		break;
@@ -68,7 +71,23 @@ exports.create = function(req, res) {
 
 exports.search = function(req, res) {
 	req.params.model = findModel(req.params.model);
-	controller.list(req, res);
+	controller.list(req, res, function(result, err){
+		if(err){
+			console.log("Search error : " + err);
+			var response = {
+					resourceType : "OperationOutcome",
+					text : {
+						status : "generated",
+						div : "<div>Error : " + err + "</div>"
+					},
+				};
+			res.status(500).send(response);
+		}else{
+			res.contentType('application/fhir+json');
+			res.status(200);
+			res.send(JSON.stringify(result, null, ' '));
+		}
+	});
 };
 
 exports.read = function(req, res) {
