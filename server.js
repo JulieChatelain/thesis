@@ -46,7 +46,7 @@ app.post('/listAccess', auth.ensureAuthorized, auth.listAccess);
 
 // ----------------------------------------------------------------------------
 // -------------------------- REST service ------------------------------------
-
+/*
 app.post('/rest/:model', auth.ensureAuthorized, rest.create);
 app.get('/rest/:model/:id', auth.ensureAuthorized, rest.read);
 app.get('/rest/:model', auth.ensureAuthorized, rest.search);
@@ -54,6 +54,10 @@ app.get('/rest/:model/:id/_history/:vid', auth.ensureAuthorized, rest.vread);
 app.get('/rest/:model/:id/_history', auth.ensureAuthorized, rest.history);
 app.put('/rest/:model/:id', auth.ensureAuthorized, rest.update);
 app.delete('/rest/:model/:id', auth.ensureAuthorized, rest.del);
+*/
+
+app.post('/rest/Patient', auth.ensureAuthorized, rest.create);
+app.get('/rest/Patient', auth.ensureAuthorized, rest.search);
 
 //--------------------------- Patient specific -------------------------------
 

@@ -22,16 +22,15 @@ exports.register = function(req, res) {
 			console.log("Failed creating user");
 	        res.json({
 	            success: false,
-	            loggedIn: false,
 	            message: message
 	        });			
 		}
 		else{
 			res.json({
 				success: true,
-				loggedIn : true,
 				user : user,
-				token : token
+				token : token,
+	            message: ""
 			});
 		}
 	});	
@@ -46,13 +45,14 @@ exports.login = function(req, res) {
 	userCtrl.findUser(req, res, function(user, userToken, message){
 		if (user != null) {
 			res.json({
-				loggedIn : true,
-				userData : user,
-				token : userToken
+				success: true,
+				user : user,
+				token : userToken,
+	            message: ""
 			});
 		} else {
 			res.json({
-				loggedIn : false,
+				success: false,
 				message : message
 			});
 		}

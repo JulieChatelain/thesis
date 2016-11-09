@@ -47,6 +47,9 @@ exports.create = function(req, res) {
 		if (obj.constructor.name.includes("Error")) {
 			console.log("Create error : " + obj);
 			var response = {
+					id : "",
+					success : false,
+					message: "Error : " + obj,
 					resourceType : "OperationOutcome",
 					text : {
 						status : "generated",
@@ -56,6 +59,9 @@ exports.create = function(req, res) {
 			res.status(500).send(response);
 		} else {
 			var response = {
+					id : obj,
+					success: true,
+					message: "The operation was successful.",
 					resourceType : "OperationOutcome",
 					text : {
 						status : "generated",

@@ -103,7 +103,7 @@ exports.findUserViaRef = function(patientId, practitionerId, next) {
  */
 exports.createUser = function(req, res, next) {
 	// check if data is valid
-	if (req.body.password < 7) 
+	if (req.body.password < 8) 
 		next(null, null, res.__("PasswordInvalid"));
 	 else if (req.body.email == "") 
 		next(null, null, res.__("EmailInvalid"));
