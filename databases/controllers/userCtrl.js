@@ -3,6 +3,22 @@ var User = mongoose.model('User');
 var jwt = require('jsonwebtoken');
 var restCtrl = require('./RESTController');
 
+var TOKEN_EXPIRATION = 1;
+
+var userForToken = function(user){
+	var u = {
+			created : user.created,
+			isPractitioner : user.isPractitioner,
+			isPatient: user.isPatient,
+			language : user.language,
+			password :  user.password,
+			email: user.email,
+			reference : user.reference,
+			_id : user._id
+	};
+	
+	return u;
+};
 
 //-----------------------------------------------------------------------------
 //------------------------- User functions -------------------------------------
@@ -23,8 +39,8 @@ exports.findUser = function(req, res, next) {
 			next(null, null, "FindUser error: " + err);
 		} else {
 			if (user) {
-				var userToken = jwt.sign(user, process.env.JWT_SECRET,{
-			          expires: 600 // in minute ( = 10 hours)
+				var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
+			          expires: TOKEN_EXPIRATION // in minute ( = 1 hour)
 		        });
 				next(user, userToken, '');
 			} else {
@@ -50,8 +66,8 @@ exports.findUserViaRef = function(patientId, practitionerId, next) {
 				next(null, null, "FindUser error: " + err);
 			} else {
 				if (user) {
-					var userToken = jwt.sign(user, process.env.JWT_SECRET,{
-				          expires: 600 // in minute ( = 10 hours)
+					var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
+				          expires: TOKEN_EXPIRATION // in minute ( = 1 hour)
 			        });
 					next(user, userToken, '');
 				} else {
@@ -69,8 +85,8 @@ exports.findUserViaRef = function(patientId, practitionerId, next) {
 				next(null, null, "FindUser error: " + err);
 			} else {
 				if (user) {
-					var userToken = jwt.sign(user, process.env.JWT_SECRET,{
-				          expires: 600 // in minute ( = 10 hours)
+					var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
+				          expires: TOKEN_EXPIRATION // in minute ( = 1 hour)
 			        });
 					next(user, userToken, '');
 				} else {
@@ -114,16 +130,39 @@ exports.createUser = function(req, res, next) {
 						userModel.language = req.body.language;
 
 					userModel.created = new Date();
+
+					var Patient = mongoose.model('Patient');
+					var Practitioner = mongoose.model('Practitioner');
+					var practitionerModel = new Practitioner();
+					var patientModel = new Patient();
+					
+					practitionerModel.name = {
+							family: [],
+							given: []
+					};
+					patientModel.name = {
+							family: [],
+							given: []
+					};
+					
+					if(req.body.givenName){
+						practitionerModel.name.given.push(req.body.givenName);
+						patientModel.name.given.push(req.body.givenName);
+					}
+					if(req.body.familyName){
+						practitionerModel.name.family.push(req.body.familyName);
+						patientModel.name.family.push(req.body.familyName);
+						userModel.reference = {
+								familyName : req.body.familyName
+						};
+						
+					}
 					
 					// Checking if user is a patient or a practitioner or both
 					if (req.body.userKind == 'both') {
 						
 						userModel.isPatient = true;	
 						userModel.isPractitioner = true; 
-						var Patient = mongoose.model('Patient');
-						var Practitioner = mongoose.model('Practitioner');
-						var practitionerModel = new Practitioner();
-						var patientModel = new Patient();
 						
 						saveUser(req, res, userModel, patientModel, practitionerModel, function(mess, user, token){
 							next(user, token, mess);
@@ -132,9 +171,7 @@ exports.createUser = function(req, res, next) {
 					}else if (req.body.userKind == 'patient'){
 						
 						userModel.isPatient = true;	
-						userModel.isPractitioner = false; 
-						var Patient = mongoose.model('Patient');
-						var patientModel = new Patient();		
+						userModel.isPractitioner = false; 	
 
 						saveUser(req, res, userModel, patientModel, null, function(mess, user, token){
 							next(user, token, mess);
@@ -144,13 +181,13 @@ exports.createUser = function(req, res, next) {
 						
 						userModel.isPractitioner = true; 
 						userModel.isPatient = false; 		
-						var Practitioner = mongoose.model('Practitioner');
-						var practitionerModel = new Practitioner();
 
 						saveUser(req, res, userModel, null, practitionerModel, function(mess, user, token){
 							next(user, token, mess);
 						});
 						
+					}else{
+						next(null, null, res.__("UserKindMissing"));
 					}					
 				}
 			}
@@ -197,8 +234,8 @@ var saveUser = function(req, res, userModel, patientModel, practitionerModel, ne
 									console.log("Error While Saving user: " + err);
 									next(err, null, null);
 								} else {
-									var userToken = jwt.sign(user, process.env.JWT_SECRET,{
-								          expires: 600 // in minute ( = 10 hours)
+									var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
+								          expires: TOKEN_EXPIRATION
 							        });
 									next(res.__("UserCreationSuccessful"), user, userToken);
 								}
@@ -211,8 +248,8 @@ var saveUser = function(req, res, userModel, patientModel, practitionerModel, ne
 							console.log("Error While Saving user: " + err);
 							next(err, null, null);
 						} else {
-							var userToken = jwt.sign(user, process.env.JWT_SECRET,{
-						          expires: 600 // in minute ( = 10 hours)
+							var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
+						          expires: TOKEN_EXPIRATION
 					        });
 							next(res.__("UserCreationSuccessful"), user, userToken);
 						}
@@ -238,8 +275,8 @@ var saveUser = function(req, res, userModel, patientModel, practitionerModel, ne
 							console.log("Error While Saving user: " + err);
 							next(err, null, null);
 						} else {
-							var userToken = jwt.sign(user, process.env.JWT_SECRET,{
-						          expires: 600 // in minute ( = 10 hours)
+							var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
+						          expires: TOKEN_EXPIRATION
 					        });
 							next(res.__("UserCreationSuccessful"), user, userToken);
 						}

@@ -57,13 +57,13 @@ app.delete('/rest/:model/:id', auth.ensureAuthorized, rest.del);
 
 //--------------------------- Patient specific -------------------------------
 
-app.post('/rest/patientId/:pId/:model', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId), rest.create);
-app.get('/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId), rest.read);
-app.get('/rest/patientId/:pId/:model', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId), rest.search);
-app.get('/rest/patientId/:pId/:model/:id/_history/:vid', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId), rest.vread);
-app.get('/rest/patientId/:pId/:model/:id/_history', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId), rest.history);
-app.put('/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'post'), rest.update);
-app.delete('/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'post'), rest.del);
+app.post('/rest/patientId/:pId/:model', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'edit'), rest.create);
+app.get('/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'view'), rest.read);
+app.get('/rest/patientId/:pId/:model', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'view'), rest.search);
+app.get('/rest/patientId/:pId/:model/:id/_history/:vid', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'view'), rest.vread);
+app.get('/rest/patientId/:pId/:model/:id/_history', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'view'), rest.history);
+app.put('/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'edit'), rest.update);
+app.delete('/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.acl.middleware(3, auth.getUserId, 'delete'), rest.del);
 
 
 //----------------------------------------------------------------------------

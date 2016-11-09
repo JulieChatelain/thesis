@@ -9,10 +9,11 @@ var jwt = require('jsonwebtoken');
 
 
 /**
- * Create a new user
+ * Create a new user<br>
+ * req.body needs to have :<br>
+ * password & email
  */
 exports.register = function(req, res) {
-	
 	// Create user
 	userCtrl.createUser(req, res, function(user, token, message){
 		// console.log("User: " + JSON.stringify(user));
@@ -37,7 +38,9 @@ exports.register = function(req, res) {
 }
 
 /**
- * Find the user in the DB and send back the token.
+ * Find the user in the DB and send back the token.<br>
+ * req.body needs to have :<br>
+ * password & email
  */
 exports.login = function(req, res) {
 	userCtrl.findUser(req, res, function(user, userToken, message){
@@ -58,6 +61,10 @@ exports.login = function(req, res) {
 
 /**
  * change the user password
+ * req.body needs to have:<br>
+ * pass & confirmPass : the new password<br>
+ * password : the old password<br>
+ * email : the user email
  */
 exports.changePassword = function(req, res) {
 	if(req.body.pass == req.body.confirmPass){
@@ -99,3 +106,4 @@ exports.changePassword = function(req, res) {
 };
 
 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       

@@ -15,6 +15,10 @@ var UserSchema = new mongoose.Schema({
 		required: true
 	},
 	reference : {			// refer to a patient and/or practitioner resource
+		familyName: {
+			type : String,
+			required : false
+		},
 		patientId : {
 			type : String,
 			required : false
