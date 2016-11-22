@@ -6,6 +6,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "acl": "^0.4.9",
     "async": "0.2.9",
     "body-parser": "1.14.1",
     "consolidate": "0.9.1",
@@ -15,7 +16,6 @@
     "jsonwebtoken": "0.4.x",
     "mongoose": "4.2.x",
     "morgan": "latest",
-    "underscore": "1.8.x",
-    "acl": "^0.4.9"
+    "underscore": "1.8.x"
   }
 }

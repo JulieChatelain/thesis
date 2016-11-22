@@ -29,7 +29,6 @@ app.get('/partials/:view', function(req, res){
 });
 
 // index
-
 app.get("/", function(req, res) {
 	res.render('index');
 });

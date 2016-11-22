@@ -100,7 +100,7 @@ exports.ensureAuthorized = function(req, res, next) {
 /**
  * Return the user id;
  */
-exports.userId = function(req, res){
+exports.getUserId = function(req, res){
 	if(req.user){
 		return req.user._id;
 	}
