@@ -167,7 +167,17 @@ exports.update = function(req, res) {
 	controller.read(req, res, req.params.id, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
 			console.log("Update error : " + obj);
-			res.send(500);
+			var response = {
+					id : "",
+					success : false,
+					message: "Error : " + obj,
+					resourceType : "OperationOutcome",
+					text : {
+						status : "generated",
+						div : "<div>Error : " + obj + "</div>"
+					},
+				};
+			res.status(500).send(response);
 		} else {
 			controller.update(req, res,function(response, status){
 				res.status(status).send(response);
