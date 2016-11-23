@@ -1,4 +1,5 @@
 var controller = require('../databases/controllers/RESTController');
+var auth = require('./AuthManager');
 
 // -----------------------------------------------------------------------------
 // ----------------------------- FUNCTIONS -------------------------------------
@@ -42,7 +43,11 @@ function findModel(name) {
  */
 
 exports.create = function(req, res) {
-	req.params.model = findModel(req.params.model);
+	if(req.params.model){
+		req.params.model = findModel(req.params.model);
+	}else{
+		req.params.model = 'Patient';
+	}
 	controller.create(req, res, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
 			console.log("Create error : " + obj);
@@ -57,20 +62,52 @@ exports.create = function(req, res) {
 					},
 				};
 			res.status(500).send(response);
-		} else {
-			var response = {
-					id : obj,
-					success: true,
-					message: "The operation was successful.",
-					resourceType : "OperationOutcome",
-					text : {
-						status : "generated",
-						div : "<div>The operation was successful.</div>"
+		} else {	
+			if(req.params.model == 'Patient'){
+				auth.addAccess(req, res, obj, function(success, message){
+					if(success){
+						var response = {
+								id : obj,
+								success: true,
+								message: "The operation was successful.",
+								resourceType : "OperationOutcome",
+								text : {
+									status : "generated",
+									div : "<div>The operation was successful.</div>"
+								}
+							};
+						res.contentType('application/fhir+json');
+						res.location(obj);
+						res.status(201).send(JSON.stringify(response));	
+					}else{
+						var response = {
+								id : "",
+								success : false,
+								message: "Error : " + message,
+								resourceType : "OperationOutcome",
+								text : {
+									status : "generated",
+									div : "<div>Error : " + message + "</div>"
+								},
+							};
+						res.status(500).send(response);
 					}
-				};
-			res.contentType('application/fhir+json');
-			res.location(obj);
-			res.status(201).send(JSON.stringify(response));
+				});
+			}else{
+				var response = {
+						id : obj,
+						success: true,
+						message: "The operation was successful.",
+						resourceType : "OperationOutcome",
+						text : {
+							status : "generated",
+							div : "<div>The operation was successful.</div>"
+						}
+					};
+				res.contentType('application/fhir+json');
+				res.location(obj);
+				res.status(201).send(JSON.stringify(response));			
+			}
 		}
 	});
 };

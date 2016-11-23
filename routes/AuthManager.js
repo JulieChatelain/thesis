@@ -74,14 +74,14 @@ exports.ensureAuthorized = function(req, res, next) {
 		return res.sendStatus(403);
 	} else {
 		var dec = jwt.decode(token);
-		console.log("dec : " + JSON.stringify(dec));
+		//console.log("dec : " + JSON.stringify(dec));
 		jwt.verify(token, process.env.JWT_SECRET, function(err, decoded) {
 			if (err) {
 				console.log("CheckToken error: " + err);
 				return res.sendStatus(403);
 			} else {
 				req.user = decoded;
-				console.log("decoded : " + JSON.stringify(decoded));
+				//console.log("decoded : " + JSON.stringify(decoded));
 				if(!req.params.pId && checkBasicAccess(req.params.model, req.user, req.method))
 					next();
 				else if (req.params.pId){
@@ -189,7 +189,29 @@ exports.requestAccess = function(req, res){
 			}			
 		}
 	});		
-}
+};
+
+exports.addAccess = function(req, res, url, next){
+	var user = req.user;
+	var id = url.split("/");
+	var role = "user/" + user._id;				
+	
+	acl.allow(role, '/rest/patientId/' + id[1], ["view", "edit", "delete"]);	
+	
+	acl.hasRole( user._id, role, function(err, hasRole){
+		if(err){
+			console.log("ERROR : couldn't check role " + role + " for user " + user._id);
+			next(false,res.__('InternalError'));	
+		}
+		else {
+			if(!hasRole){
+				acl.addUserRoles(user._id, role);
+			}
+			next(true, res.__('AccessGranted'));	
+		}					
+	}); 
+};
+
 /**
  * Change the level of access of a person to a patient's data.
  * Req.body need to have:<br>

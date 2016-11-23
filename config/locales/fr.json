@@ -149,5 +149,6 @@
 	"inpatient": "Patient hospitalisé",
 	"Diabétologue": "Diabétologue",
 	"HospitalizationDischargedWith": "Diagnostic de sortie",
-	"Hospitalization": "Hospitalisation"
+	"Hospitalization": "Hospitalisation",
+	"AccessGranted": "AccessGranted"
 }

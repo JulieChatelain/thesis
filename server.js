@@ -81,11 +81,13 @@ process.on('uncaughtException', function(err) {
 });
 */
 // Create and start HTTPS server
-
+/*
 https.createServer({
     key: fs.readFileSync('config/pem/ssl_key.pem').toString(),
     cert: fs.readFileSync('config/pem/ssl_cert.pem').toString()
-}, app).listen(app.get('portHttps'));
+}, app).listen(app.get('portHttps'), function(){
+console.log('Express server (https) listening on port ' + app.get('portHttps'));
+});
 
 // Create a server for HTTP -> HTTPS redirection
 var httpApp = express();
@@ -93,13 +95,14 @@ httpApp.all('*', function (req, res, next) {
     res.redirect(301, 'https://' + req.headers.host + req.url);
 });
 http.createServer(httpApp);
-httpApp.listen(app.get('port'));
-
+httpApp.listen(app.get('port'), function(){
+console.log('Express server (http) listening on port ' + app.get('port'));
+});
+*/
 
 
 //launch server
-/*
+
 http.createServer(app).listen(app.get('port'), function(){
 console.log('Express server listening on port ' + app.get('port'));
 });
-*/

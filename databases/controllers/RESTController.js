@@ -179,6 +179,9 @@ exports.create = function(req, res, next) {
 	var modelName = req.params.model;
 
 	var model = mongoose.model(modelName);
+	
+	delete req.body._id;
+	
 	var resource = new model(req.body);
 
 	delete resource._id;

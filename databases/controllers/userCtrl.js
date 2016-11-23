@@ -38,7 +38,7 @@ exports.findUser = function(req, res, next) {
 			console.log("FindUser error: " + err);
 			next(null, null, "FindUser error: " + err);
 		} else {
-			if (user) {
+			if (user != null) {
 				var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
 			          expires: TOKEN_EXPIRATION // in minute ( = 1 hour)
 		        });
