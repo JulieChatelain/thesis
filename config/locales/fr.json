@@ -150,5 +150,6 @@
 	"Diabétologue": "Diabétologue",
 	"HospitalizationDischargedWith": "Diagnostic de sortie",
 	"Hospitalization": "Hospitalisation",
-	"AccessGranted": "AccessGranted"
+	"AccessGranted": "AccessGranted",
+	"UpdateFailed": "UpdateFailed"
 }

@@ -64,7 +64,6 @@ ResourceHistorySchema.methods = {
 
   findLatest: function(callback) {
     var resourceModel = mongoose.model(this.resourceType);
-    console.log("this: " + JSON.stringify(this));
     resourceModel.findById(this.latestVersionId(), function(err, instance) {
       callback(err, instance);
     });

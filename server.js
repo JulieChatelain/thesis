@@ -75,11 +75,11 @@ app.delete('/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.acl.mi
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-/*
+
 process.on('uncaughtException', function(err) {
     console.log("Uncaught Exception : " + err);
 });
-*/
+
 // Create and start HTTPS server
 /*
 https.createServer({

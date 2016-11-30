@@ -70,7 +70,7 @@ exports.read = function(req, res, id, next) {
 									+ err);
 					next(err);
 				}
-				resource = JSON.parse(JSON.stringify(resource));
+				//resource = JSON.parse(JSON.stringify(resource));
 				resource.resourceType = resourceHistory.resourceType;
 				resource.id = resourceHistory.resourceType + "/" + id;
 				resource.meta = {
@@ -215,15 +215,14 @@ exports.create = function(req, res, next) {
 exports.update = function(req, res, next) {
 	var resource = req.resource;
 
+	delete req.body._id;
+	
 	resource = _.extend(resource, req.body);
 
-	delete resource._id;
-	delete resource.meta;
-	delete resource.id;
-	delete resource.resourceType;
 
 	resource.save(function(err, savedresource) {
 		if (err) {
+			console.log("Update resource failed while saving resource: " + err);
 			var response = {
 				resourceType : "OperationOutcome",
 				text : {
@@ -239,6 +238,7 @@ exports.update = function(req, res, next) {
 			resourceHistory.addVersion(savedresource);
 			resourceHistory.save(function(rhErr, savedResourceHistory) {
 				if (rhErr) {
+					console.log("Update resource failed while saving resource history : " + rhErr);
 					var response = {
 						resourceType : "OperationOutcome",
 						text : {
