@@ -49,8 +49,6 @@ var UserSchema = new mongoose.Schema({
 		type: Boolean,
 		required: true
 	}
-	
-
 });
 
 var user = mongoose.model('User', UserSchema);

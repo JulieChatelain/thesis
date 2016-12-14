@@ -28,7 +28,7 @@ var mongoose = require('mongoose');
 var SubDocs = require('./subDocs/subDocs');
 
 /**
- * Demographics and other administrative information about an individualreceiving care or other health-related services. 
+ * Demographics and other administrative information about an individual receiving care or other health-related services. 
  */
 var PatientSchema = new mongoose.Schema({
     identifier: [SubDocs.Identifier],
