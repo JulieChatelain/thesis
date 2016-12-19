@@ -201,7 +201,7 @@ exports.create = function(req, res, next) {
 					if (rhErr) {
 						next(rhErr);
 					} else {
-						next(modelName + "/" + savedResourceHistory.id);
+						next(modelName + "/" + savedResourceHistory.id, savedresource);
 					}
 				});
 			}

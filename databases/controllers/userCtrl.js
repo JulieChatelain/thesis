@@ -3,7 +3,7 @@ var User = mongoose.model('User');
 var jwt = require('jsonwebtoken');
 var restCtrl = require('./RESTController');
 
-var TOKEN_EXPIRATION = 1;
+var TOKEN_EXPIRATION = 60;
 
 var userForToken = function(user){
 	var u = {
@@ -19,6 +19,26 @@ var userForToken = function(user){
 	
 	return u;
 };
+
+var addIdentifier = function(model, id, familyName){
+	var crypto = require('crypto');
+	var code = crypto.randomBytes(Math.ceil(3)).toString('hex').slice(0,6);
+
+	model.identifier = [];
+	
+	model.identifier.push({
+		value : code,
+		assigner : {
+			reference : id,
+			display : familyName
+		}
+	});
+	model.save(function(err, savedresource) {
+		if (err) {
+			console.log("Update resource failed while saving resource: " + err);			
+		}
+	});
+}
 
 //-----------------------------------------------------------------------------
 //------------------------- User functions -------------------------------------
@@ -111,7 +131,7 @@ exports.createUser = function(req, res, next) {
 		// Check if user already exists
 		var password = req.body.password;
 		var email = req.body.email;
-
+		
 		User.findOne({email : email, password : password},function(err, user) {
 			if (err) {
 				console.log("Cannot create user...");
@@ -209,26 +229,32 @@ var saveUser = function(req, res, userModel, patientModel, practitionerModel, ne
 		req.params.model = 'Patient';
 		req.body = patientModel;
 		// Create and save the patient
-		restCtrl.create(req, res, function(objpatient) {
-			if (objpatient.constructor.name.includes("Error")) {
-				console.log("Error while saving patient: " + objpatient);
+		restCtrl.create(req, res, function(idpatient, savedPatient) {
+			if (idpatient.constructor.name.includes("Error")) {
+				console.log("Error while saving patient: " + idpatient);
 		        next(objpatient, null, null);
 			} else {
 				// Add the patient resource as reference to the user
-				userModel.reference.patientId = objpatient;
+				userModel.reference.patientId = idpatient;
+				
+				// Add the identifier on the patient resource
+				addIdentifier(savedPatient, idpatient, userModel.reference.familyName);
 				
 				if(practitionerModel != null){
 					req.params.model = 'Practitioner';
 					req.body = practitionerModel;
 					// Create and save the practitioner
-					restCtrl.create(req, res, function(objpractitioner) {
-						if (objpractitioner.constructor.name.includes("Error")) {
-							console.log("Error while saving practitioner: " + objpractitioner);
-					        next(objpractitioner, null, null);
+					restCtrl.create(req, res, function(idpractitioner, savedPractitioner) {
+						if (idpractitioner.constructor.name.includes("Error")) {
+							console.log("Error while saving practitioner: " + idpractitioner);
+					        next(idpractitioner, null, null);
 						} else {
 							// Add the practitioner resource as reference to the user
-							userModel.reference.practitionerId = objpractitioner;
-
+							userModel.reference.practitionerId = idpractitioner;
+							
+							// Add the identifier on the practitioner resource
+							addIdentifier(savedPractitioner, idpractitioner, userModel.reference.familyName);
+							
 							userModel.save(function(err, user) {
 								if (err) {
 									console.log("Error While Saving user: " + err);
@@ -262,14 +288,17 @@ var saveUser = function(req, res, userModel, patientModel, practitionerModel, ne
 			req.params.model = 'Practitioner';
 			req.body = practitionerModel;
 			// Create and save the practitioner
-			restCtrl.create(req, res, function(objpractitioner) {
-				if (objpractitioner.constructor.name.includes("Error")) {
-					console.log("Error while saving practitioner: " + objpractitioner);
-			        next(objpractitioner, null, null);
+			restCtrl.create(req, res, function(idpractitioner, savedPractitioner) {
+				if (idpractitioner.constructor.name.includes("Error")) {
+					console.log("Error while saving practitioner: " + idpractitioner);
+			        next(idpractitioner, null, null);
 				} else {
 					// Add the practitioner resource as reference to the user
-					userModel.reference.practitionerId = objpractitioner;
+					userModel.reference.practitionerId = idpractitioner;
 
+					// Add the identifier on the practitioner resource
+					addIdentifier(savedPractitioner, idpractitioner, userModel.reference.familyName);
+					
 					userModel.save(function(err, user) {
 						if (err) {
 							console.log("Error While Saving user: " + err);

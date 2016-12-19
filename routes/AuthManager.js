@@ -11,6 +11,8 @@ var Permissions = {
 		list: ["view", "edit", "delete"]
 };
 
+var urlEHR = '/ehr/rest/patientId/';
+
 process.env.JWT_SECRET = "64DXqaYyC6zFpsUFPBgPCELFRF8ka9gZHE6f2kp79xMp3ASK";
 
 //-----------------------------------------------------------------------------
@@ -50,6 +52,7 @@ var checkBasicAccess = function(model, user, method){
  * Extract the token from the headers.
  */
 var getToken = function(headers) {
+	//console.log("head : " + JSON.stringify(headers));
 	var header = headers["x-access-token"];
 	if (typeof header !== 'undefined') {
 		return header;
@@ -57,6 +60,7 @@ var getToken = function(headers) {
 		header = headers["authorization"];
 		if (typeof header !== 'undefined') {
 			var token = header.split(" ");
+			//console.log("token : " + token[1]);
 			return token[1];
 		} else {
 			return null;
@@ -166,7 +170,7 @@ exports.requestAccess = function(req, res){
 				var id = patients[0].id.split("/");
 				var role = "user/" + user._id;				
 				
-				acl.allow(role, '/rest/patientId/' + id[1], 'view');	
+				acl.allow(role, urlEHR + id[1], 'view');	
 				
 				acl.hasRole( user._id, role, function(err, hasRole){
 					if(err){
@@ -196,16 +200,17 @@ exports.addAccess = function(req, res, url, next){
 	var id = url.split("/");
 	var role = "user/" + user._id;				
 	
-	acl.allow(role, '/rest/patientId/' + id[1], ["view", "edit", "delete"]);	
+	acl.allow(role, urlEHR + id[1], ["view", "edit", "delete"]);	
+	var userId = "" + user._id;
 	
-	acl.hasRole( user._id, role, function(err, hasRole){
+	acl.hasRole(userId, role, function(err, hasRole){
 		if(err){
 			console.log("ERROR : couldn't check role " + role + " for user " + user._id);
 			next(false,res.__('InternalError'));	
 		}
 		else {
 			if(!hasRole){
-				acl.addUserRoles(user._id, role);
+				acl.addUserRoles(userId, role);
 			}
 			next(true, res.__('AccessGranted'));	
 		}					
@@ -223,7 +228,7 @@ exports.changeAccess = function(req, res){
 
 	var userId = req.user._id;
 	var patientId = req.body.patientId;
-	var resource = '/rest/patientId/' + patientId;
+	var resource = urlEHR + patientId;
 	var targetId = req.body.targetId;
 	var role = "user/" + targetId;
 	var p = req.body.permission;
@@ -317,7 +322,7 @@ exports.changeAccess = function(req, res){
 exports.removeAccess = function(req, res){
 	var user = req.user;
 	var patientId = req.body.patientId;
-	var resource = '/rest/patientId/' + patientId;
+	var resource = urlEHR + patientId;
 	var targetId = req.body.targetId;
 	var role = "user/" + targetId;
 

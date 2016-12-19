@@ -151,5 +151,6 @@
 	"HospitalizationDischargedWith": "Diagnostic de sortie",
 	"Hospitalization": "Hospitalisation",
 	"AccessGranted": "AccessGranted",
-	"UpdateFailed": "UpdateFailed"
+	"UpdateFailed": "UpdateFailed",
+	"UserCreationSuccessful": "UserCreationSuccessful"
 }

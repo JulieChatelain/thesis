@@ -48,26 +48,26 @@ exports.create = function(req, res) {
 	}else{
 		req.params.model = 'Patient';
 	}
-	controller.create(req, res, function(obj) {
+	controller.create(req, res, function(id, resource) {
 		if (obj.constructor.name.includes("Error")) {
-			console.log("Create error : " + obj);
+			console.log("Create error : " + id);
 			var response = {
 					id : "",
 					success : false,
-					message: "Error : " + obj,
+					message: "Error : " + id,
 					resourceType : "OperationOutcome",
 					text : {
 						status : "generated",
-						div : "<div>Error : " + obj + "</div>"
+						div : "<div>Error : " + id + "</div>"
 					},
 				};
 			res.status(500).send(response);
 		} else {	
 			if(req.params.model == 'Patient'){
-				auth.addAccess(req, res, obj, function(success, message){
+				auth.addAccess(req, res, id, function(success, message){
 					if(success){
 						var response = {
-								id : obj,
+								id : id,
 								success: true,
 								message: "The operation was successful.",
 								resourceType : "OperationOutcome",
@@ -77,7 +77,7 @@ exports.create = function(req, res) {
 								}
 							};
 						res.contentType('application/fhir+json');
-						res.location(obj);
+						res.location(id);
 						res.status(201).send(JSON.stringify(response));	
 					}else{
 						var response = {
@@ -95,7 +95,7 @@ exports.create = function(req, res) {
 				});
 			}else{
 				var response = {
-						id : obj,
+						id : id,
 						success: true,
 						message: "The operation was successful.",
 						resourceType : "OperationOutcome",
@@ -105,7 +105,7 @@ exports.create = function(req, res) {
 						}
 					};
 				res.contentType('application/fhir+json');
-				res.location(obj);
+				res.location(id);
 				res.status(201).send(JSON.stringify(response));			
 			}
 		}

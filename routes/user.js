@@ -1,7 +1,9 @@
 
 var userCtrl = require('../databases/controllers/userCtrl');
 var restCtrl = require('../databases/controllers/RESTController');
+var auth 	 = require('./AuthManager');
 var jwt = require('jsonwebtoken');
+
 
 //-----------------------------------------------------------------------------
 //--------------------------- User functions ----------------------------------
@@ -26,12 +28,32 @@ exports.register = function(req, res) {
 	        });			
 		}
 		else{
-			res.json({
-				success: true,
-				user : user,
-				token : token,
-	            message: ""
+			var id = "";
+			req.user = user;
+			if(user.isPatient){
+				id = user.reference.patientId;
+			}
+			if(user.isPractitioner){
+				id = user.reference.practitionerId;
+			}
+			auth.addAccess(req, res, id, function(success, message){
+				if(success){
+					res.json({
+						success: true,
+						user : user,
+						token : token,
+			            message: ""
+					});
+				}else{
+					res.json({
+						success: false,
+						user : user,
+						token : token,
+			            message: message
+					});
+				}
 			});
+			
 		}
 	});	
 }
