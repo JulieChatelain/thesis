@@ -69,20 +69,48 @@ exports.read = function(req, res, id, next) {
 							.log("Error in RESTController read function: "
 									+ err);
 					next(err);
+				}else{
+					resource = JSON.parse(JSON.stringify(resource));
+					resource.resourceType = resourceHistory.resourceType;
+					resource.id = resourceHistory.resourceType + "/" + id;
+					resource.meta = {
+						versionId : resourceHistory.versionCount(),
+						created : resourceHistory._id.getTimestamp(),
+						lastUpdated : resourceHistory.history[vid - 1].resourceId
+								.getTimestamp(),
+						createdBy : resourceHistory.createdBy,
+						updatedBy : resourceHistory.history[vid - 1].updatedBy
+					};
+					req.resource = resource;
+					next(resource);					
 				}
-				//resource = JSON.parse(JSON.stringify(resource));
-				resource.resourceType = resourceHistory.resourceType;
-				resource.id = resourceHistory.resourceType + "/" + id;
-				resource.meta = {
-					versionId : resourceHistory.versionCount(),
-					created : resourceHistory._id.getTimestamp(),
-					lastUpdated : resourceHistory.history[vid - 1].resourceId
-							.getTimestamp(),
-					createdBy : resourceHistory.createdBy,
-					updatedBy : resourceHistory.history[vid - 1].updatedBy
-				};
-				req.resource = resource;
-				next(resource);
+			});
+		}
+	});
+};
+
+/**
+ * Find a resource and return it to be updated or deleted
+ */
+exports.find = function(req, res, id, next) {
+	ResourceHistory.findById(id, function(rhErr, resourceHistory) {
+		if (rhErr) {
+			console.log("Error in RESTController find function: " + rhErr);
+			next(rhErr);
+		}
+		if (resourceHistory !== null && typeof resourceHistory != 'undefined') {
+			req.resourceHistory = resourceHistory;
+			var vid = resourceHistory.versionCount();
+			req.resourceHistory.findLatest(function(err, resource) {
+				if (err != null) {
+					console
+							.log("Error in RESTController find function: "
+									+ err);
+					next(err);
+				}else{
+					req.resource = resource;
+					next(resource);					
+				}
 			});
 		}
 	});
@@ -94,7 +122,7 @@ exports.read = function(req, res, id, next) {
 exports.vread = function(req, res, id, vid, next) {
 	ResourceHistory.findById(id, function(rhErr, resourceHistory) {
 		if (rhErr) {
-			next(rhErr);
+			return next(rhErr);
 		}
 		if (resourceHistory !== null && typeof resourceHistory != 'undefined') {
 			req.resourceHistory = resourceHistory;
@@ -126,47 +154,48 @@ exports.history = function(req, res, id, next) {
 	ResourceHistory.findById(id, function(rhErr, resourceHistory) {
 		if (rhErr) {
 			res.send(500);
-		}
-		var history = [];
-		if (resourceHistory !== null && typeof resourceHistory != 'undefined') {
-			var i = 1;
-			// Get each version
-			async.forEach(resourceHistory.history, function(hist, callback) {
-				resourceHistory.getVersion(i, function(err, resource) {
-					resource = JSON.parse(JSON.stringify(resource));
-					resource.resourceType = resourceHistory.resourceType;
-					resource.id = resourceHistory.resourceType + "/" + id
-							+ "/_history/" + i;
-					resource.meta = {
-						versionId : i,
-						created : resourceHistory._id.getTimestamp(),
-						lastUpdated : hist.resourceId.getTimestamp(),
-						createdBy : resourceHistory.createdBy,
-						updatedBy : hist.updatedBy
-					};
-					var humanReadable = textConverter.generateText(resource,
-							res, request.headers.host);
-					resource.text = {
-						status : "generated",
-						div : humanReadable
-					};
-					history.push(resource);
+		}else{
+			var history = [];
+			if (resourceHistory !== null && typeof resourceHistory != 'undefined') {
+				var i = 1;
+				// Get each version
+				async.forEach(resourceHistory.history, function(hist, callback) {
+					resourceHistory.getVersion(i, function(err, resource) {
+						resource = JSON.parse(JSON.stringify(resource));
+						resource.resourceType = resourceHistory.resourceType;
+						resource.id = resourceHistory.resourceType + "/" + id
+								+ "/_history/" + i;
+						resource.meta = {
+							versionId : i,
+							created : resourceHistory._id.getTimestamp(),
+							lastUpdated : hist.resourceId.getTimestamp(),
+							createdBy : resourceHistory.createdBy,
+							updatedBy : hist.updatedBy
+						};
+						var humanReadable = textConverter.generateText(resource,
+								res, request.headers.host);
+						resource.text = {
+							status : "generated",
+							div : humanReadable
+						};
+						history.push(resource);
 
-					i++;
-					callback();
+						i++;
+						callback();
 
+					});
+				}, function(err) {
+					res.contentType('application/fhir+json');
+					res.location(id);
+					res.status(200);
+					res.send(JSON.stringify(history, null, ' '));
 				});
-			}, function(err) {
+			} else {
 				res.contentType('application/fhir+json');
 				res.location(id);
 				res.status(200);
 				res.send(JSON.stringify(history, null, ' '));
-			});
-		} else {
-			res.contentType('application/fhir+json');
-			res.location(id);
-			res.status(200);
-			res.send(JSON.stringify(history, null, ' '));
+			}
 		}
 	});
 };
@@ -296,7 +325,8 @@ exports.remove = function(req, res) {
 				message : res.__('DeleteSuccessful')
 			};
 			res.contentType('application/fhir+json');
-			res.status(204).send(response);
+			res.status(204);
+			res.send(JSON.stringify(response));
 		}
 	});
 };
@@ -305,7 +335,7 @@ exports.remove = function(req, res) {
  * List all resources of one type that respect the conditions.<br>
  * Useful for basic search.
  */
-exports.list = function(req, res, next) {
+exports.list = function(accessRequest, req, res, next) {
 
 	var result = [];
 
@@ -334,9 +364,56 @@ exports.list = function(req, res, next) {
 				if (history != null) {
 					history.findLatest(function(err, resource) {
 
-						var add = textConverter.compareObjects(conditions,
-								resource);
-						if (add) {
+						var add = false;
+						var cond = false;
+					    for ( var prop in conditions ) { 
+					         cond = true; 
+					    } 
+					      
+						if(req.params.pId && resource){
+							var pId = 'Patient/' + req.params.pId;
+							
+							if(resource.patient && pId == resource.patient.reference){
+								if(!cond){
+									add = true;
+								}else{
+									add = textConverter.compareObjects(conditions,
+											resource);
+								}
+							}
+							else if(resource.subject && pId == resource.subject.reference){
+								if(!cond){
+									add = true;
+								}else{
+									add = textConverter.compareObjects(conditions,
+											resource);
+								}
+							}
+						}else{
+							if(!cond){
+								add = true;
+							}else{
+								add = textConverter.compareObjects(conditions,
+										resource);
+							}
+						}
+					    if(accessRequest && resource){
+					    	add = false;
+					    	var code = req.body.code;
+					    	var patientFamilyName = req.body.familyName;
+					    	var patientGivenName = req.body.givenName;
+					    	var practitionerName = req.body.practitionerName;
+					    	if(resource.identifier.length > 0 && resource.identifier[0].value == code
+					    			&& resource.identifier[0].assigner && resource.identifier[0].assigner.display == practitionerName 
+					    			&& resource.name && resource.name.given && resource.name.given.length > 0
+					    			&& resource.name.given[0] == patientGivenName
+					    			&& resource.name.family && resource.name.family.length > 0
+					    			&& resource.name.family[0] == patientFamilyName){
+					    		add = true;
+					    		
+					    	}
+					    }
+						if (add && resource) {
 							// weird, but you can't add properties to the
 							// resource
 							// without this line:

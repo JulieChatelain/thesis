@@ -152,5 +152,9 @@
 	"Hospitalization": "Hospitalisation",
 	"AccessGranted": "AccessGranted",
 	"UpdateFailed": "UpdateFailed",
-	"UserCreationSuccessful": "UserCreationSuccessful"
+	"UserCreationSuccessful": "UserCreationSuccessful",
+	"Missing Values": "Missing Values",
+	"RequestDenied": "RequestDenied",
+	"AccessRemoved": "AccessRemoved",
+	"DeleteSuccessful": "DeleteSuccessful"
 }

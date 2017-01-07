@@ -49,7 +49,7 @@ exports.create = function(req, res) {
 		req.params.model = 'Patient';
 	}
 	controller.create(req, res, function(id, resource) {
-		if (obj.constructor.name.includes("Error")) {
+		if (resource.constructor.name.includes("Error")) {
 			console.log("Create error : " + id);
 			var response = {
 					id : "",
@@ -58,7 +58,7 @@ exports.create = function(req, res) {
 					resourceType : "OperationOutcome",
 					text : {
 						status : "generated",
-						div : "<div>Error : " + id + "</div>"
+						div : "<div>Error : " + id + "</div>" 
 					},
 				};
 			res.status(500).send(response);
@@ -114,10 +114,13 @@ exports.create = function(req, res) {
 
 exports.search = function(req, res) {
 	req.params.model = findModel(req.params.model);
-	controller.list(req, res, function(result, err){
+	var accessRequest = false;
+	controller.list(accessRequest,req, res, function(result, err){
 		if(err){
 			console.log("Search error : " + err);
 			var response = {
+					success: false,
+					message: "Error : " + err,
 					resourceType : "OperationOutcome",
 					text : {
 						status : "generated",
@@ -128,7 +131,7 @@ exports.search = function(req, res) {
 		}else{
 			res.contentType('application/fhir+json');
 			res.status(200);
-			res.send(JSON.stringify(result, null, ' '));
+			res.send(JSON.stringify(result));
 		}
 	});
 };
@@ -140,7 +143,16 @@ exports.read = function(req, res) {
 			console.log("Read error: " + obj);
 			res.sendStatus(500);
 		} else {
-			controller.show(req, res);
+			var pId = 'Patient/' + req.params.pId;
+			if(obj.patient && obj.patient.reference != pId){
+				console.log("Read error: not authorized");
+				res.sendStatus(403);
+			}else if(obj.subject && obj.subject.reference != pId){
+				console.log("Read error: not authorized");
+				res.sendStatus(403);				
+			}else{
+				controller.show(req, res);
+			}
 		}
 	});
 };
@@ -188,7 +200,7 @@ exports.update = function(req, res) {
 
 exports.del = function(req, res) {
 	req.params.model = findModel(req.params.model);
-	controller.read(req, res, req.params.id, function(obj) {
+	controller.find(req, res, req.params.id, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
 			console.log("Delete error : " + obj);
 			res.send(500);

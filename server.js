@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST', 'PUT','DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type, x-access-token, Authorization');
     next();
 });
@@ -45,7 +45,8 @@ app.post('/ehr/changePassword', auth.ensureAuthorized, user.changePassword);
 app.post('/ehr/requestAccess', auth.ensureAuthorized, auth.requestAccess);
 app.post('/ehr/changeAccess', auth.ensureAuthorized, auth.changeAccess);
 app.post('/ehr/removeAccess', auth.ensureAuthorized, auth.removeAccess);
-app.post('/ehr/listAccess', auth.ensureAuthorized, auth.listAccess);
+app.post('/ehr/revokeOwnAccess', auth.ensureAuthorized, auth.revokeOwnAccess);
+app.get('/ehr/listAccess', auth.ensureAuthorized, auth.listAccess);
 
 // ----------------------------------------------------------------------------
 // -------------------------- REST service ------------------------------------
@@ -66,10 +67,10 @@ app.delete('/ehr/rest/patientId/:pId/:model/:id', auth.ensureAuthorized, auth.ac
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-
+/*
 process.on('uncaughtException', function(err) {
     console.log("Uncaught Exception : " + err);
-});
+});*/
 
 // Create and start HTTPS server
 
@@ -81,6 +82,7 @@ console.log('Express server (https) listening on port ' + app.get('portHttps'));
 });
 
 // Create a server for HTTP -> HTTPS redirection
+/*
 var httpApp = express();
 httpApp.all('*', function (req, res, next) {
     res.redirect(301, 'https://' + req.headers.host + req.url);
@@ -88,12 +90,12 @@ httpApp.all('*', function (req, res, next) {
 http.createServer(httpApp);
 httpApp.listen(app.get('port'), function(){
 console.log('Express server (http) listening on port ' + app.get('port'));
-});
+});*/
 
 
 
 //launch server
-/*
+
 http.createServer(app).listen(app.get('port'), function(){
 console.log('Express server listening on port ' + app.get('port'));
-});*/
+});

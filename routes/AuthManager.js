@@ -8,7 +8,8 @@ var Permissions = {
 		view: 1,
 		edit: 2,
 		delete: 3,
-		list: ["view", "edit", "delete"]
+		revoked: 4,
+		list: ["view", "edit", "delete", "revoked"]
 };
 
 var urlEHR = '/ehr/rest/patientId/';
@@ -22,12 +23,11 @@ process.env.JWT_SECRET = "64DXqaYyC6zFpsUFPBgPCELFRF8ka9gZHE6f2kp79xMp3ASK";
 /**
  * Access according to the resource type.
  */
-var checkBasicAccess = function(model, user, method){
+var checkBasicAccess = function(model, user, method, resource){
 	if(!model)
 		return true;
 	
 	var m = model.toLowerCase();
-	
 	switch(m){
 		case 'medication' : 
 			if(user.isPatient && method != 'GET')
@@ -85,10 +85,21 @@ exports.ensureAuthorized = function(req, res, next) {
 				return res.sendStatus(403);
 			} else {
 				req.user = decoded;
-				//console.log("decoded : " + JSON.stringify(decoded));
+				console.log("decoded : " + JSON.stringify(decoded));
 				if(!req.params.pId && checkBasicAccess(req.params.model, req.user, req.method))
 					next();
 				else if (req.params.pId){
+					if(req.method == 'POST' || req.method == 'PUT'){
+						if(req.params.model.toLowerCase() != 'patient'){
+							var ref = 'Patient/' + req.params.pId;
+							if(req.body.subject && req.body.subject.reference != ref){
+								return res.sendStatus(403);	
+							}
+							if(req.body.patient && req.body.patient.reference != ref){
+								return res.sendStatus(403);	
+							}
+						}
+					} 
 					next();
 				}
 				else{
@@ -139,60 +150,69 @@ exports.requestAccess = function(req, res){
 	var patientFamilyName = req.body.familyName;
 	var patientGivenName = req.body.givenName;
 	var practitionerName = req.body.practitionerName;
-	
-	req.params.model = 'Patient';
-	req.query.identifier = '[{"value":"'+ code + '", "assigner":{"display":"'+ practitionerName + '"}}]';
-	req.query.name = '{"family":["'+ patientFamilyName +'"], "given": ["'+ patientGivenName +'"]}';
-	
-	restCtrl.list(req, res, function(patients, err) {
-		if (err) {
-			console.log("Search error: " + err);
-			res.json({
-	            success: false,
-	            message: res.__('InternalError')
-	        });
-		} else {
-			if(patients.length == 0){
-				console.log("Access Request Denied");
-				res.json({
-		            success: false,
-		            message: res.__('RequestDenied')
-		        });
-			}
-			else if(patients.length > 1){
-				console.log("ERROR : several reccords with same names and code");
+	if(!patientGivenName || !code || !patientFamilyName || !practitionerName){
+		console.log("Missing values in request access");
+		res.json({
+            success: false,
+            message: res.__('Missing Values')
+        });
+	}else{
+		req.params.model = 'Patient';
+		/*
+		req.query.identifier = '[{"value":"'+ code + '", "assigner":{"display":"'+ practitionerName + '"}}]';
+		req.query.name = '{"family":["'+ patientFamilyName +'"], "given": ["'+ patientGivenName +'"]}';*/
+		
+		var accessRequest = true;
+		restCtrl.list(accessRequest,req, res, function(patients, err) {
+			if (err) {
+				console.log("Search error: " + err);
 				res.json({
 		            success: false,
 		            message: res.__('InternalError')
-		        });					
-			}else{
-				
-				var id = patients[0].id.split("/");
-				var role = "user/" + user._id;				
-				
-				acl.allow(role, urlEHR + id[1], 'view');	
-				
-				acl.hasRole( user._id, role, function(err, hasRole){
-					if(err){
-						console.log("ERROR : couldn't check role " + role + " for user " + user._id);
-						res.json({
-				            success: false,
-				            message: res.__('InternalError')
-				        });	
-					}
-					else {
-						if(!hasRole)
-							acl.addUserRoles(user._id, role);
-						
-						res.json({
-				            success: true,
-				            message: res.__('AccessGranted')
-				        });	
-					}					
-				}); 				
-			}			
-		}
-	});		
+		        });
+			} else {
+				if(patients.length == 0){
+					console.log("Access Request Denied");
+					res.json({
+			            success: false,
+			            message: res.__('RequestDenied')
+			        });
+				}
+				else if(patients.length > 1){
+					console.log("ERROR : several reccords with same names and code");
+					res.json({
+			            success: false,
+			            message: res.__('InternalError')
+			        });					
+				}else{
+					
+					var id = patients[0].id.split("/");
+					var role = "user/" + user._id;				
+					
+					acl.allow(role, urlEHR + id[1], 'view');	
+					
+					acl.hasRole( user._id, role, function(err, hasRole){
+						if(err){
+							console.log("ERROR : couldn't check role " + role + " for user " + user._id);
+							res.json({
+					            success: false,
+					            message: res.__('InternalError')
+					        });	
+						}
+						else {
+							if(!hasRole)
+								acl.addUserRoles(user._id, role);
+							
+							res.json({
+					            success: true,
+					            message: res.__('AccessGranted')
+					        });	
+						}					
+					}); 				
+				}			
+			}
+		});		
+	}
 };
 
 exports.addAccess = function(req, res, url, next){
@@ -313,6 +333,29 @@ exports.changeAccess = function(req, res){
 	});
 	
 }
+
+exports.revokeOwnAccess = function(req,res){
+	var user = req.user;
+	var recordId = req.body.recordId;
+	var resource = urlEHR + recordId;
+	var targetId = user._id;
+	var role = "user/" + user._id;
+	acl.removeAllow(role, resource, Permissions.list, function(err){
+		if(err){
+			console.log("List Access error: " + err);
+			res.json({
+	            success: false,
+	            message: res.__('InternalError')
+	        });
+		}else{
+			res.json({
+	            success: true,
+	            message: res.__('AccessRemoved')
+	        });						
+		}
+	} );
+}
+
 /**
  * Remove the access of a practitioner to a patient data
  * Req.body need to have:<br>
@@ -326,7 +369,7 @@ exports.removeAccess = function(req, res){
 	var targetId = req.body.targetId;
 	var role = "user/" + targetId;
 
-	// check if the user is the practitioner that created the resource
+	// check if the user is the practitioner or patient that created the resource
 	restCtrl.read(req, res, patientId, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
 			console.log("Read error: " + obj);
@@ -338,7 +381,10 @@ exports.removeAccess = function(req, res){
 			var idLen = obj.identifier.length;
 			var allowedToDel = false;
 			for(var i = 0; i < idLen; ++i){
-				if(obj.identifier[i].assigner.reference == "Practitioner/" + req.user.reference.practitionerId){
+				if(obj.identifier[i].assigner.reference == req.user.reference.practitionerId){
+					allowedToDel = true;
+				}
+				if(obj.identifier[i].assigner.reference == req.user.reference.patientId){
 					allowedToDel = true;
 				}
 			}
@@ -371,18 +417,63 @@ exports.listAccess = function(req, res){
 	var role = "user/" + user._id;
 	
 	acl.whatResources(role, function(err, result){
+		for( var prop in result) {
+			console.log("list access result : " + prop);
+		}
+		
 		if(err){
 			console.log("List Access error : " + err);
 			res.json({
 	            success: false,
-	            message: res.__('InternalError')
+	            message: res.__('InternalError'),
+	            data: null
 	        });			
 		}else{
-			console.log("list access result : " + JSON.stringify(result));
+			
 			var patients = [];
+			res.json({
+	            success: true,
+	            message: "",
+	            data: JSON.stringify(result)
+	        });			
 		}
 	});
 }
+
+
+/**
+ * List all the users that have access to a particular record
+ * {resourceName: [permissions]}
+ */
+exports.listAccessToRecord = function(req, res){
+	var user = req.user;
+	var role = "user/" + user._id;
+	
+	acl.whatResources(role, function(err, result){
+		for( var prop in result) {
+			console.log("list access result : " + prop);
+		}
+		
+		if(err){
+			console.log("List Access error : " + err);
+			res.json({
+	            success: false,
+	            message: res.__('InternalError'),
+	            data: null
+	        });			
+		}else{
+			
+			var patients = [];
+			res.json({
+	            success: true,
+	            message: "",
+	            data: JSON.stringify(result)
+	        });			
+		}
+	});
+}
+
+
 
 
 
