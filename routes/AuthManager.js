@@ -172,7 +172,7 @@ exports.requestAccess = function(req, res){
 		        });
 			} else {
 				if(patients.length == 0){
-					console.log("Access Request Denied");
+					console.log("Access Request Denied. No corresponding patient found.");
 					res.json({
 			            success: false,
 			            message: res.__('RequestDenied')
@@ -185,7 +185,7 @@ exports.requestAccess = function(req, res){
 			            message: res.__('InternalError')
 			        });					
 				}else{
-					
+					console.log("request patient: " + JSON.stringify(patients[0]));
 					var id = patients[0].id.split("/");
 					var role = "user/" + user._id;				
 					
@@ -205,7 +205,7 @@ exports.requestAccess = function(req, res){
 							
 							res.json({
 					            success: true,
-					            message: res.__('AccessGranted')
+					            message: id[1]
 					        });	
 						}					
 					}); 				
