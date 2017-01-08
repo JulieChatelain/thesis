@@ -176,7 +176,7 @@ exports.history = function(req, res) {
 
 exports.update = function(req, res) {
 	req.params.model = findModel(req.params.model);
-	controller.read(req, res, req.params.id, function(obj) {
+	controller.find(req, res, req.params.id, function(obj) {
 		if (obj.constructor.name.includes("Error")) {
 			console.log("Update error : " + obj);
 			var response = {

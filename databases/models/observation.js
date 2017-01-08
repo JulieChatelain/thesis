@@ -34,7 +34,7 @@ var ObservationSchema = new mongoose.Schema({
     identifier: [SubDocs.Identifier],
     status: String,						// registered | preliminary | final | amended +
     category: SubDocs.CodeableConcept,	// Classification of type of observation: 
-    									// social-history, vital-signs, imaging, laboratory, procedure, survey, exam, therapy
+    									// social-history, risk-factor, vital-signs, imaging, laboratory, procedure, survey, exam, therapy
     code: SubDocs.CodeableConcept,		// Type of observation (code / type)
     subject: SubDocs.Reference,			// Who and/or what this is about
     encounter: SubDocs.Reference,		// Healthcare event during which this observation is made
