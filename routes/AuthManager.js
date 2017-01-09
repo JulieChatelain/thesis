@@ -1,4 +1,5 @@
 var mongoose 	= require('mongoose');
+var User		= mongoose.model('User');
 var jwt 		= require('jsonwebtoken');
 var acl 		= require('acl');
 
@@ -9,7 +10,7 @@ var Permissions = {
 		edit: 2,
 		delete: 3,
 		revoked: 4,
-		list: ["view", "edit", "delete", "revoked"]
+		list: ["view", "edit", "delete", "owner", "revoked"]
 };
 
 var urlEHR = '/ehr/rest/patientId/';
@@ -220,7 +221,7 @@ exports.addAccess = function(req, res, url, next){
 	var id = url.split("/");
 	var role = "user/" + user._id;				
 	
-	acl.allow(role, urlEHR + id[1], ["view", "edit", "delete"]);	
+	acl.allow(role, urlEHR + id[1], ["view", "edit", "delete", "owner"]);	
 	var userId = "" + user._id;
 	
 	acl.hasRole(userId, role, function(err, hasRole){
@@ -354,6 +355,50 @@ exports.revokeOwnAccess = function(req,res){
 	        });						
 		}
 	} );
+}
+
+exports.revokeAccess = function(req,res){
+	var user = req.user;
+	var recordId = req.body.recordId;
+	var name = req.body.familyName;
+	var resource = urlEHR + recordId;
+	if(recordId && name){
+		acl.isAllowed( user._id, resource, 'owner', function(err, allowed1){
+			  if(allowed1){
+				  User.find({ 'reference.familyName': name }, function (err, docs) {
+					  var len = docs.length;
+					  for(var i = 0; i < len; ++i){
+						  var userId = docs[1]._id;
+						  if(userID != user._id){
+							  acl.isAllowed( userId, resource, 'view', function(err, allowed){
+								  if(allowed){
+									var role = "user/" + userId;
+									acl.removeAllow(role, resource, Permissions.list, function(err){});	
+								  }
+							  });
+						  }
+					  }
+					res.json({
+			            success: true,
+			            message: res.__('AccessRemoved')
+			        });	
+				});	
+			  }else{
+				console.log("Error revoke access: not allowed to revoke access.");
+				res.json({
+		            success: false,
+		            message: res.__('Not allowed to revoke')
+		        });					  
+			  }
+		  });
+		
+	}else{
+		console.log("Error revoke access: missing parameters.");
+		res.json({
+            success: false,
+            message: res.__('Missing Values')
+        });			
+	}
 }
 
 /**

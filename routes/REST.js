@@ -139,12 +139,17 @@ exports.search = function(req, res) {
 exports.read = function(req, res) {
 	req.params.model = findModel(req.params.model);
 	controller.read(req, res, req.params.id, function(obj) {
-		if (obj.constructor.name.includes("Error")) {
+		if (obj != null && obj.constructor.name.includes("Error")) {
 			console.log("Read error: " + obj);
 			res.sendStatus(500);
 		} else {
 			var pId = 'Patient/' + req.params.pId;
-			if(obj.patient && obj.patient.reference != pId){
+			if(obj == null){
+				var resource = {};
+				res.contentType('application/fhir+json');
+				res.status(200);
+				res.send(resource);
+			}else if(obj.patient && obj.patient.reference != pId){
 				console.log("Read error: not authorized");
 				res.sendStatus(403);
 			}else if(obj.subject && obj.subject.reference != pId){

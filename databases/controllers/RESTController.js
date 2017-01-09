@@ -70,17 +70,19 @@ exports.read = function(req, res, id, next) {
 									+ err);
 					next(err);
 				}else{
-					resource = JSON.parse(JSON.stringify(resource));
-					resource.resourceType = resourceHistory.resourceType;
-					resource.id = resourceHistory.resourceType + "/" + id;
-					resource.meta = {
-						versionId : resourceHistory.versionCount(),
-						created : resourceHistory._id.getTimestamp(),
-						lastUpdated : resourceHistory.history[vid - 1].resourceId
-								.getTimestamp(),
-						createdBy : resourceHistory.createdBy,
-						updatedBy : resourceHistory.history[vid - 1].updatedBy
-					};
+					if(resource != null){
+						resource = JSON.parse(JSON.stringify(resource));
+						resource.resourceType = resourceHistory.resourceType;
+						resource.id = resourceHistory.resourceType + "/" + id;
+						resource.meta = {
+							versionId : resourceHistory.versionCount(),
+							created : resourceHistory._id.getTimestamp(),
+							lastUpdated : resourceHistory.history[vid - 1].resourceId
+									.getTimestamp(),
+							createdBy : resourceHistory.createdBy,
+							updatedBy : resourceHistory.history[vid - 1].updatedBy
+						};
+					}
 					req.resource = resource;
 					next(resource);					
 				}

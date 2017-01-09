@@ -44,7 +44,7 @@ app.post('/ehr/changePassword', auth.ensureAuthorized, user.changePassword);
 
 app.post('/ehr/requestAccess', auth.ensureAuthorized, auth.requestAccess);
 app.post('/ehr/changeAccess', auth.ensureAuthorized, auth.changeAccess);
-app.post('/ehr/removeAccess', auth.ensureAuthorized, auth.removeAccess);
+app.post('/ehr/revokeAccess', auth.ensureAuthorized, auth.revokeAccess);
 app.post('/ehr/revokeOwnAccess', auth.ensureAuthorized, auth.revokeOwnAccess);
 app.get('/ehr/listAccess', auth.ensureAuthorized, auth.listAccess);
 

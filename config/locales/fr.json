@@ -156,5 +156,6 @@
 	"Missing Values": "Missing Values",
 	"RequestDenied": "RequestDenied",
 	"AccessRemoved": "AccessRemoved",
-	"DeleteSuccessful": "DeleteSuccessful"
+	"DeleteSuccessful": "DeleteSuccessful",
+	"Not allowed to revoke": "Not allowed to revoke"
 }
