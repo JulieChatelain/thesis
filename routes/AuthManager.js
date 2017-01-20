@@ -90,6 +90,8 @@ exports.ensureAuthorized = function(req, res, next) {
 				if(!req.params.pId && checkBasicAccess(req.params.model, req.user, req.method))
 					next();
 				else if (req.params.pId){
+					// check if the resource we want to edit belongs to the record
+					// whose id is in the parameters
 					if(req.method == 'POST' || req.method == 'PUT'){
 						if(req.params.model.toLowerCase() != 'patient'){
 							var ref = 'Patient/' + req.params.pId;
@@ -97,6 +99,11 @@ exports.ensureAuthorized = function(req, res, next) {
 								return res.sendStatus(403);	
 							}
 							if(req.body.patient && req.body.patient.reference != ref){
+								return res.sendStatus(403);	
+							}
+						}else{
+							var ref = 'Patient/' + req.params.pId;
+							if(req.body.id && req.body.id != ref){
 								return res.sendStatus(403);	
 							}
 						}
