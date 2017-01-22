@@ -30,8 +30,7 @@ var fs = require('fs');
 var async = require('async');
 var ResourceHistory = mongoose.model('ResourceHistory');
 var textConverter = require('./textConverter');
-// var ResponseFormatHelper = require(__dirname +
-// '/../../lib/response_format_helper');
+
 
 /**
  * Put the resource in jason format and send it.

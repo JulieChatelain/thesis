@@ -59,13 +59,20 @@ exports.findUser = function(req, res, next) {
 			next(null, null, "FindUser error: " + err);
 		} else {
 			if (user != null) {
-				var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
-			          expires: TOKEN_EXPIRATION // in minute ( = 1 hour)
-		        });
-				next(user, userToken, '');
+				user.comparePassword(req.body.password, function(passOK) {
+					if(passOk){
+						var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
+					          expires: TOKEN_EXPIRATION // in minute ( = 1 hour)
+				        });
+						next(user, userToken, '');						
+					}else{
+						console.log("Wrong password.");
+						next(null, null, res.__('Incorrect Password'));						
+					}
+				});
 			} else {
 				console.log("User not found.");
-				next(null, null, res.__('Incorrect Mail or Password'));
+				next(null, null, res.__('Incorrect eMail'));
 			}
 		}
 	});
@@ -132,7 +139,7 @@ exports.createUser = function(req, res, next) {
 		var password = req.body.password;
 		var email = req.body.email;
 		
-		User.findOne({email : email, password : password},function(err, user) {
+		User.findOne({email : email},function(err, user) {
 			if (err) {
 				console.log("Cannot create user...");
 				next(null, null, res.__("InternalError"));
