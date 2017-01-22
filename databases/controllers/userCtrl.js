@@ -51,8 +51,7 @@ var addIdentifier = function(model, id, familyName){
 exports.findUser = function(req, res, next) {
 	// Search the user
 	User.findOne({
-		email : req.body.email,
-		password : req.body.password
+		email : req.body.email
 	}, function(err, user) {
 		if (err) {
 			console.log("FindUser error: " + err);
@@ -60,7 +59,7 @@ exports.findUser = function(req, res, next) {
 		} else {
 			if (user != null) {
 				user.comparePassword(req.body.password, function(passOK) {
-					if(passOk){
+					if(passOK){
 						var userToken = jwt.sign(userForToken(user), process.env.JWT_SECRET,{
 					          expires: TOKEN_EXPIRATION // in minute ( = 1 hour)
 				        });

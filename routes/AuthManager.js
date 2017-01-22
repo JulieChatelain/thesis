@@ -375,8 +375,9 @@ exports.revokeAccess = function(req,res){
 				  User.find({ 'reference.familyName': name }, function (err, docs) {
 					  var len = docs.length;
 					  for(var i = 0; i < len; ++i){
-						  var userId = docs[1]._id;
-						  if(userID != user._id){
+						  var userId = docs[i]._id;
+						  if(userId != user._id){
+							  userId = ""+userId;
 							  acl.isAllowed( userId, resource, 'view', function(err, allowed){
 								  if(allowed){
 									var role = "user/" + userId;

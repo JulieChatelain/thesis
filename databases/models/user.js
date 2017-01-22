@@ -58,7 +58,7 @@ var UserSchema = new mongoose.Schema({
 UserSchema.pre('save', function(next) {
     var user = this;
     if (!user.isModified('password')) return next();
-    
+    /*
     bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
         if (err) return next(err);
         bcrypt.hash(user.password, salt, function(err, hash) {
@@ -66,19 +66,19 @@ UserSchema.pre('save', function(next) {
             user.password = hash;
             next();
         });
-    });
+    });*/
     
-   //next();
+   next();
 });
 
 
 UserSchema.methods.comparePassword = function(password, cb) {
-	//cb(password == this.password);
-	
+	cb(password == this.password);
+	/*
     bcrypt.compare(password, this.password, function(err, isMatch) {
         if (err) return cb(err);
         cb(isMatch);
-    });
+    });*/
     
 };
 
